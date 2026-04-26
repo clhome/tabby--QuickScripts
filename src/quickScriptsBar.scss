@@ -1,0 +1,79 @@
+/* 快捷脚本按钮栏样式 */
+.quick-scripts-bar {
+    display: flex;
+    align-items: center;
+    padding: 2px 8px;
+    background: rgba(0, 0, 0, 0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    gap: 4px;
+    flex-shrink: 0;
+    overflow-x: auto;
+    min-height: 30px;
+
+    /* 脚本按钮通用样式 */
+    .script-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 10px;
+        font-size: 12px;
+        line-height: 1.4;
+        color: #ccc;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 3px;
+        cursor: pointer;
+        white-space: nowrap;
+        user-select: none;
+        transition: all 0.15s ease;
+
+        &:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        &:active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* 正在执行中的按钮状态 */
+        &.running {
+            color: #4fc3f7;
+            border-color: #4fc3f7;
+            background: rgba(79, 195, 247, 0.12);
+            cursor: not-allowed;
+            animation: pulse 1.5s infinite;
+        }
+    }
+
+    /* 新建按钮 */
+    .script-btn-add {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 22px;
+        padding: 0;
+        font-size: 16px;
+        font-weight: bold;
+        color: #888;
+        background: transparent;
+        border: 1px dashed rgba(255, 255, 255, 0.15);
+        border-radius: 3px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        flex-shrink: 0;
+
+        &:hover {
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.08);
+        }
+    }
+}
+
+/* 执行中的脉冲动画 */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
