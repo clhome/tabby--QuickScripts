@@ -11,8 +11,10 @@ export interface QuickScript {
 export class QuickScriptsConfigProvider extends ConfigProvider {
     defaults = {
         quickScriptsPlugin: {
-            /** 脚本列表 */
+            /** 全局备份脚本列表 */
             scripts: [] as QuickScript[],
+            /** 站点隔离的脚本列表映射 (profileId -> scripts) */
+            profileScripts: {} as Record<string, QuickScript[]>,
             /** 命令提示符正则（用于判断上一条命令执行完毕） */
             promptPattern: '(\\$|#|>|%)\\s*$',
             /** 超时时间（毫秒），超过此时间强制执行下一条命令 */

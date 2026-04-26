@@ -484,8 +484,10 @@ class QuickScriptsConfigProvider extends tabby_core__WEBPACK_IMPORTED_MODULE_0__
         super(...arguments);
         this.defaults = {
             quickScriptsPlugin: {
-                /** 脚本列表 */
+                /** 全局备份脚本列表 */
                 scripts: [],
+                /** 站点隔离的脚本列表映射 (profileId -> scripts) */
+                profileScripts: {},
                 /** 命令提示符正则（用于判断上一条命令执行完毕） */
                 promptPattern: '(\\$|#|>|%)\\s*$',
                 /** 超时时间（毫秒），超过此时间强制执行下一条命令 */
@@ -716,12 +718,39 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
         });
     }
     /**
+     * 获取当前终端标签页的站点 Profile ID
+     */
+    getProfileId(tab) {
+        var _a, _b;
+        return ((_a = tab.profile) === null || _a === void 0 ? void 0 : _a.id)
+            || ((_b = tab.profile) === null || _b === void 0 ? void 0 : _b.name)
+            || tab.customTitle
+            || tab.title
+            || 'global';
+    }
+    /**
+     * 获取当前站点的专属脚本列表（带旧数据向前兼容）
+     */
+    getScriptsForProfile(tab) {
+        var _a, _b;
+        const profileId = this.getProfileId(tab);
+        const profileScripts = ((_a = this.config.store.quickScriptsPlugin) === null || _a === void 0 ? void 0 : _a.profileScripts) || {};
+        if (profileScripts[profileId]) {
+            return profileScripts[profileId];
+        }
+        // 兼容：若 profile 没有配置过，但老全局 scripts 有配置，则继承老数据
+        const legacy = ((_b = this.config.store.quickScriptsPlugin) === null || _b === void 0 ? void 0 : _b.scripts) || [];
+        if (legacy.length > 0) {
+            return legacy;
+        }
+        return [];
+    }
+    /**
      * 渲染按钮栏内容
      */
     renderButtons(bar, tab) {
-        var _a;
         bar.innerHTML = '';
-        const scripts = ((_a = this.config.store.quickScriptsPlugin) === null || _a === void 0 ? void 0 : _a.scripts) || [];
+        const scripts = this.getScriptsForProfile(tab);
         // 渲染每个脚本按钮
         for (const script of scripts) {
             const btn = document.createElement('button');
@@ -743,7 +772,7 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
             btn.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                this.editScript(script);
+                this.editScript(tab, script);
             });
             bar.appendChild(btn);
         }
@@ -755,7 +784,7 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
         addBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            this.addScript();
+            this.addScript(tab);
         });
         bar.appendChild(addBtn);
     }
@@ -848,7 +877,7 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
     /**
      * 新建脚本
      */
-    addScript() {
+    addScript(tab) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             const ngbModal = this.injector.get(_ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_1__.NgbModal);
@@ -861,15 +890,16 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
             try {
                 const result = yield modal.result;
                 if ((result === null || result === void 0 ? void 0 : result.action) === 'save' && result.name) {
-                    const scripts = [
-                        ...(((_a = this.config.store.quickScriptsPlugin) === null || _a === void 0 ? void 0 : _a.scripts) || []),
-                    ];
+                    const profileId = this.getProfileId(tab);
+                    const profileScripts = Object.assign({}, (((_a = this.config.store.quickScriptsPlugin) === null || _a === void 0 ? void 0 : _a.profileScripts) || {}));
+                    const scripts = [...(profileScripts[profileId] || this.getScriptsForProfile(tab))];
                     scripts.push({
                         name: result.name,
                         commands: result.commands,
                         color: result.color,
                     });
-                    this.config.store.quickScriptsPlugin.scripts = scripts;
+                    profileScripts[profileId] = scripts;
+                    this.config.store.quickScriptsPlugin.profileScripts = profileScripts;
                     this.config.save();
                 }
             }
@@ -881,7 +911,7 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
     /**
      * 编辑已有脚本
      */
-    editScript(script) {
+    editScript(tab, script) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             const ngbModal = this.injector.get(_ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_1__.NgbModal);
@@ -892,10 +922,10 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
             modal.componentInstance.scriptColor = script.color || ('#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0'));
             try {
                 const result = yield modal.result;
-                const scripts = [
-                    ...(((_a = this.config.store.quickScriptsPlugin) === null || _a === void 0 ? void 0 : _a.scripts) || []),
-                ];
-                const idx = scripts.indexOf(script);
+                const profileId = this.getProfileId(tab);
+                const profileScripts = Object.assign({}, (((_a = this.config.store.quickScriptsPlugin) === null || _a === void 0 ? void 0 : _a.profileScripts) || {}));
+                const scripts = [...(profileScripts[profileId] || this.getScriptsForProfile(tab))];
+                const idx = scripts.findIndex(s => s.name === script.name);
                 if ((result === null || result === void 0 ? void 0 : result.action) === 'save' && result.name) {
                     // 更新脚本
                     if (idx >= 0) {
@@ -905,7 +935,8 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
                             color: result.color,
                         };
                     }
-                    this.config.store.quickScriptsPlugin.scripts = scripts;
+                    profileScripts[profileId] = scripts;
+                    this.config.store.quickScriptsPlugin.profileScripts = profileScripts;
                     this.config.save();
                 }
                 else if ((result === null || result === void 0 ? void 0 : result.action) === 'delete') {
@@ -913,7 +944,8 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
                     if (idx >= 0) {
                         scripts.splice(idx, 1);
                     }
-                    this.config.store.quickScriptsPlugin.scripts = scripts;
+                    profileScripts[profileId] = scripts;
+                    this.config.store.quickScriptsPlugin.profileScripts = profileScripts;
                     this.config.save();
                 }
             }

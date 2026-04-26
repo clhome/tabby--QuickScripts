@@ -71,12 +71,43 @@ export class QuickScriptsDecorator extends TerminalDecorator {
     }
 
     /**
+     * 获取当前终端标签页的站点 Profile ID
+     */
+    private getProfileId (tab: any): string {
+        return tab.profile?.id 
+            || tab.profile?.name 
+            || tab.customTitle 
+            || tab.title 
+            || 'global'
+    }
+
+    /**
+     * 获取当前站点的专属脚本列表（带旧数据向前兼容）
+     */
+    private getScriptsForProfile (tab: any): QuickScript[] {
+        const profileId = this.getProfileId(tab)
+        const profileScripts = this.config.store.quickScriptsPlugin?.profileScripts || {}
+        
+        if (profileScripts[profileId]) {
+            return profileScripts[profileId]
+        }
+
+        // 兼容：若 profile 没有配置过，但老全局 scripts 有配置，则继承老数据
+        const legacy = this.config.store.quickScriptsPlugin?.scripts || []
+        if (legacy.length > 0) {
+            return legacy
+        }
+
+        return []
+    }
+
+    /**
      * 渲染按钮栏内容
      */
     private renderButtons (bar: HTMLElement, tab: BaseTerminalTabComponent): void {
         bar.innerHTML = ''
 
-        const scripts: QuickScript[] = this.config.store.quickScriptsPlugin?.scripts || []
+        const scripts = this.getScriptsForProfile(tab)
 
         // 渲染每个脚本按钮
         for (const script of scripts) {
@@ -102,7 +133,7 @@ export class QuickScriptsDecorator extends TerminalDecorator {
             btn.addEventListener('contextmenu', (e) => {
                 e.preventDefault()
                 e.stopPropagation()
-                this.editScript(script)
+                this.editScript(tab, script)
             })
 
             bar.appendChild(btn)
@@ -116,7 +147,7 @@ export class QuickScriptsDecorator extends TerminalDecorator {
         addBtn.addEventListener('click', (e) => {
             e.preventDefault()
             e.stopPropagation()
-            this.addScript()
+            this.addScript(tab)
         })
         bar.appendChild(addBtn)
     }
@@ -230,7 +261,7 @@ export class QuickScriptsDecorator extends TerminalDecorator {
     /**
      * 新建脚本
      */
-    private async addScript (): Promise<void> {
+    private async addScript (tab: BaseTerminalTabComponent): Promise<void> {
         const ngbModal = this.injector.get(NgbModal)
         const modal = ngbModal.open(ScriptEditModalComponent)
         modal.componentInstance.isNew = true
@@ -242,15 +273,18 @@ export class QuickScriptsDecorator extends TerminalDecorator {
         try {
             const result = await modal.result
             if (result?.action === 'save' && result.name) {
-                const scripts: QuickScript[] = [
-                    ...(this.config.store.quickScriptsPlugin?.scripts || []),
-                ]
+                const profileId = this.getProfileId(tab)
+                const profileScripts = { ...(this.config.store.quickScriptsPlugin?.profileScripts || {}) }
+                const scripts: QuickScript[] = [...(profileScripts[profileId] || this.getScriptsForProfile(tab))]
+                
                 scripts.push({
                     name: result.name,
                     commands: result.commands,
                     color: result.color,
                 })
-                this.config.store.quickScriptsPlugin.scripts = scripts
+
+                profileScripts[profileId] = scripts
+                this.config.store.quickScriptsPlugin.profileScripts = profileScripts
                 this.config.save()
             }
         } catch {
@@ -261,7 +295,7 @@ export class QuickScriptsDecorator extends TerminalDecorator {
     /**
      * 编辑已有脚本
      */
-    private async editScript (script: QuickScript): Promise<void> {
+    private async editScript (tab: BaseTerminalTabComponent, script: QuickScript): Promise<void> {
         const ngbModal = this.injector.get(NgbModal)
         const modal = ngbModal.open(ScriptEditModalComponent)
         modal.componentInstance.isNew = false
@@ -271,10 +305,10 @@ export class QuickScriptsDecorator extends TerminalDecorator {
 
         try {
             const result = await modal.result
-            const scripts: QuickScript[] = [
-                ...(this.config.store.quickScriptsPlugin?.scripts || []),
-            ]
-            const idx = scripts.indexOf(script)
+            const profileId = this.getProfileId(tab)
+            const profileScripts = { ...(this.config.store.quickScriptsPlugin?.profileScripts || {}) }
+            const scripts: QuickScript[] = [...(profileScripts[profileId] || this.getScriptsForProfile(tab))]
+            const idx = scripts.findIndex(s => s.name === script.name)
 
             if (result?.action === 'save' && result.name) {
                 // 更新脚本
@@ -285,14 +319,16 @@ export class QuickScriptsDecorator extends TerminalDecorator {
                         color: result.color,
                     }
                 }
-                this.config.store.quickScriptsPlugin.scripts = scripts
+                profileScripts[profileId] = scripts
+                this.config.store.quickScriptsPlugin.profileScripts = profileScripts
                 this.config.save()
             } else if (result?.action === 'delete') {
                 // 删除脚本
                 if (idx >= 0) {
                     scripts.splice(idx, 1)
                 }
-                this.config.store.quickScriptsPlugin.scripts = scripts
+                profileScripts[profileId] = scripts
+                this.config.store.quickScriptsPlugin.profileScripts = profileScripts
                 this.config.save()
             }
         } catch {

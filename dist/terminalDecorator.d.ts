@@ -13,6 +13,14 @@ export declare class QuickScriptsDecorator extends TerminalDecorator {
      */
     private injectBar;
     /**
+     * 获取当前终端标签页的站点 Profile ID
+     */
+    private getProfileId;
+    /**
+     * 获取当前站点的专属脚本列表（带旧数据向前兼容）
+     */
+    private getScriptsForProfile;
+    /**
      * 渲染按钮栏内容
      */
     private renderButtons;
