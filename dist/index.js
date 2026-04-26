@@ -31,7 +31,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_cssWithMappingToString_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "@charset \"UTF-8\";\n/* 快捷脚本按钮栏样式 */\n.quick-scripts-bar {\n  display: flex;\n  align-items: center;\n  padding: 2px 8px;\n  background: rgba(0, 0, 0, 0.15);\n  border-bottom: 1px solid rgba(255, 255, 255, 0.06);\n  gap: 4px;\n  flex-shrink: 0;\n  overflow-x: auto;\n  min-height: 30px;\n  /* 脚本按钮通用样式 */\n}\n.quick-scripts-bar .script-btn {\n  display: inline-flex;\n  align-items: center;\n  padding: 2px 10px;\n  font-size: 12px;\n  line-height: 1.4;\n  color: #ccc;\n  background: rgba(255, 255, 255, 0.08);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  border-radius: 3px;\n  cursor: pointer;\n  white-space: nowrap;\n  user-select: none;\n  transition: all 0.15s ease;\n}\n.quick-scripts-bar .script-btn:hover {\n  color: #fff;\n  background: rgba(255, 255, 255, 0.15);\n  border-color: rgba(255, 255, 255, 0.25);\n}\n.quick-scripts-bar .script-btn:active {\n  background: rgba(255, 255, 255, 0.2);\n}\n.quick-scripts-bar .script-btn {\n  /* 正在执行中的按钮状态 */\n}\n.quick-scripts-bar .script-btn.running {\n  color: #4fc3f7;\n  border-color: #4fc3f7;\n  background: rgba(79, 195, 247, 0.12);\n  cursor: not-allowed;\n  animation: pulse 1.5s infinite;\n}\n.quick-scripts-bar {\n  /* 新建按钮 */\n}\n.quick-scripts-bar .script-btn-add {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  width: 24px;\n  height: 22px;\n  padding: 0;\n  font-size: 16px;\n  font-weight: bold;\n  color: #888;\n  background: transparent;\n  border: 1px dashed rgba(255, 255, 255, 0.15);\n  border-radius: 3px;\n  cursor: pointer;\n  transition: all 0.15s ease;\n  flex-shrink: 0;\n}\n.quick-scripts-bar .script-btn-add:hover {\n  color: #fff;\n  border-color: rgba(255, 255, 255, 0.4);\n  background: rgba(255, 255, 255, 0.08);\n}\n\n/* 执行中的脉冲动画 */\n@keyframes pulse {\n  0%, 100% {\n    opacity: 1;\n  }\n  50% {\n    opacity: 0.6;\n  }\n}", "",{"version":3,"sources":["webpack://./src/quickScriptsBar.scss"],"names":[],"mappings":"AAAA,gBAAgB;AAAhB,cAAA;AACA;EACI,aAAA;EACA,mBAAA;EACA,gBAAA;EACA,+BAAA;EACA,kDAAA;EACA,QAAA;EACA,cAAA;EACA,gBAAA;EACA,gBAAA;EAEA,aAAA;AACJ;AAAI;EACI,oBAAA;EACA,mBAAA;EACA,iBAAA;EACA,eAAA;EACA,gBAAA;EACA,WAAA;EACA,qCAAA;EACA,2CAAA;EACA,kBAAA;EACA,eAAA;EACA,mBAAA;EACA,iBAAA;EACA,0BAAA;AAER;AAAQ;EACI,WAAA;EACA,qCAAA;EACA,uCAAA;AAEZ;AACQ;EACI,oCAAA;AACZ;AAvBI;EAyBI,eAAA;AACR;AAAQ;EACI,cAAA;EACA,qBAAA;EACA,oCAAA;EACA,mBAAA;EACA,8BAAA;AAEZ;AA7CA;EA+CI,SAAA;AACJ;AAAI;EACI,oBAAA;EACA,mBAAA;EACA,uBAAA;EACA,WAAA;EACA,YAAA;EACA,UAAA;EACA,eAAA;EACA,iBAAA;EACA,WAAA;EACA,uBAAA;EACA,4CAAA;EACA,kBAAA;EACA,eAAA;EACA,0BAAA;EACA,cAAA;AAER;AAAQ;EACI,WAAA;EACA,sCAAA;EACA,qCAAA;AAEZ;;AAGA,aAAA;AACA;EACI;IAAW,UAAA;EACb;EAAE;IAAM,YAAA;EAGR;AACF","sourcesContent":["/* 快捷脚本按钮栏样式 */\n.quick-scripts-bar {\n    display: flex;\n    align-items: center;\n    padding: 2px 8px;\n    background: rgba(0, 0, 0, 0.15);\n    border-bottom: 1px solid rgba(255, 255, 255, 0.06);\n    gap: 4px;\n    flex-shrink: 0;\n    overflow-x: auto;\n    min-height: 30px;\n\n    /* 脚本按钮通用样式 */\n    .script-btn {\n        display: inline-flex;\n        align-items: center;\n        padding: 2px 10px;\n        font-size: 12px;\n        line-height: 1.4;\n        color: #ccc;\n        background: rgba(255, 255, 255, 0.08);\n        border: 1px solid rgba(255, 255, 255, 0.12);\n        border-radius: 3px;\n        cursor: pointer;\n        white-space: nowrap;\n        user-select: none;\n        transition: all 0.15s ease;\n\n        &:hover {\n            color: #fff;\n            background: rgba(255, 255, 255, 0.15);\n            border-color: rgba(255, 255, 255, 0.25);\n        }\n\n        &:active {\n            background: rgba(255, 255, 255, 0.2);\n        }\n\n        /* 正在执行中的按钮状态 */\n        &.running {\n            color: #4fc3f7;\n            border-color: #4fc3f7;\n            background: rgba(79, 195, 247, 0.12);\n            cursor: not-allowed;\n            animation: pulse 1.5s infinite;\n        }\n    }\n\n    /* 新建按钮 */\n    .script-btn-add {\n        display: inline-flex;\n        align-items: center;\n        justify-content: center;\n        width: 24px;\n        height: 22px;\n        padding: 0;\n        font-size: 16px;\n        font-weight: bold;\n        color: #888;\n        background: transparent;\n        border: 1px dashed rgba(255, 255, 255, 0.15);\n        border-radius: 3px;\n        cursor: pointer;\n        transition: all 0.15s ease;\n        flex-shrink: 0;\n\n        &:hover {\n            color: #fff;\n            border-color: rgba(255, 255, 255, 0.4);\n            background: rgba(255, 255, 255, 0.08);\n        }\n    }\n}\n\n/* 执行中的脉冲动画 */\n@keyframes pulse {\n    0%, 100% { opacity: 1; }\n    50% { opacity: 0.6; }\n}\n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, "@charset \"UTF-8\";\n/* 快捷脚本按钮栏样式 */\n.quick-scripts-bar {\n  display: flex;\n  align-items: center;\n  padding: 2px 8px;\n  background: rgba(0, 0, 0, 0.15);\n  border-bottom: 1px solid rgba(255, 255, 255, 0.06);\n  gap: 4px;\n  flex-shrink: 0;\n  overflow-x: auto;\n  min-height: 30px;\n  /* 脚本按钮通用样式 */\n}\n.quick-scripts-bar .script-btn {\n  display: inline-flex;\n  align-items: center;\n  padding: 2px 10px;\n  font-size: 12px;\n  line-height: 1.4;\n  color: #ccc;\n  background: rgba(255, 255, 255, 0.08);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  border-radius: 3px;\n  cursor: pointer;\n  white-space: nowrap;\n  user-select: none;\n  transition: all 0.15s ease;\n}\n.quick-scripts-bar .script-btn:hover {\n  color: #fff;\n  background: rgba(255, 255, 255, 0.15);\n  border-color: rgba(255, 255, 255, 0.25);\n}\n.quick-scripts-bar .script-btn:active {\n  background: rgba(255, 255, 255, 0.2);\n}\n.quick-scripts-bar .script-btn {\n  /* 正在执行中的按钮状态 */\n}\n.quick-scripts-bar .script-btn.running {\n  color: #4fc3f7;\n  border-color: #4fc3f7;\n  background: rgba(79, 195, 247, 0.12);\n  cursor: not-allowed;\n  animation: pulse 1.5s infinite;\n}\n.quick-scripts-bar {\n  /* 新建按钮 - 固定为红色 */\n}\n.quick-scripts-bar .script-btn-add {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  width: 24px;\n  height: 22px;\n  padding: 0;\n  font-size: 16px;\n  font-weight: bold;\n  color: #fff;\n  background: #e74c3c;\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  border-radius: 3px;\n  cursor: pointer;\n  transition: all 0.15s ease;\n  flex-shrink: 0;\n}\n.quick-scripts-bar .script-btn-add:hover {\n  background: #c0392b;\n  border-color: rgba(0, 0, 0, 0.2);\n}\n\n/* 执行中的脉冲动画 */\n@keyframes pulse {\n  0%, 100% {\n    opacity: 1;\n  }\n  50% {\n    opacity: 0.6;\n  }\n}", "",{"version":3,"sources":["webpack://./src/quickScriptsBar.scss"],"names":[],"mappings":"AAAA,gBAAgB;AAAhB,cAAA;AACA;EACI,aAAA;EACA,mBAAA;EACA,gBAAA;EACA,+BAAA;EACA,kDAAA;EACA,QAAA;EACA,cAAA;EACA,gBAAA;EACA,gBAAA;EAEA,aAAA;AACJ;AAAI;EACI,oBAAA;EACA,mBAAA;EACA,iBAAA;EACA,eAAA;EACA,gBAAA;EACA,WAAA;EACA,qCAAA;EACA,2CAAA;EACA,kBAAA;EACA,eAAA;EACA,mBAAA;EACA,iBAAA;EACA,0BAAA;AAER;AAAQ;EACI,WAAA;EACA,qCAAA;EACA,uCAAA;AAEZ;AACQ;EACI,oCAAA;AACZ;AAvBI;EAyBI,eAAA;AACR;AAAQ;EACI,cAAA;EACA,qBAAA;EACA,oCAAA;EACA,mBAAA;EACA,8BAAA;AAEZ;AA7CA;EA+CI,iBAAA;AACJ;AAAI;EACI,oBAAA;EACA,mBAAA;EACA,uBAAA;EACA,WAAA;EACA,YAAA;EACA,UAAA;EACA,eAAA;EACA,iBAAA;EACA,WAAA;EACA,mBAAA;EACA,oCAAA;EACA,kBAAA;EACA,eAAA;EACA,0BAAA;EACA,cAAA;AAER;AAAQ;EACI,mBAAA;EACA,gCAAA;AAEZ;;AAGA,aAAA;AACA;EACI;IAAW,UAAA;EACb;EAAE;IAAM,YAAA;EAGR;AACF","sourcesContent":["/* 快捷脚本按钮栏样式 */\n.quick-scripts-bar {\n    display: flex;\n    align-items: center;\n    padding: 2px 8px;\n    background: rgba(0, 0, 0, 0.15);\n    border-bottom: 1px solid rgba(255, 255, 255, 0.06);\n    gap: 4px;\n    flex-shrink: 0;\n    overflow-x: auto;\n    min-height: 30px;\n\n    /* 脚本按钮通用样式 */\n    .script-btn {\n        display: inline-flex;\n        align-items: center;\n        padding: 2px 10px;\n        font-size: 12px;\n        line-height: 1.4;\n        color: #ccc;\n        background: rgba(255, 255, 255, 0.08);\n        border: 1px solid rgba(255, 255, 255, 0.12);\n        border-radius: 3px;\n        cursor: pointer;\n        white-space: nowrap;\n        user-select: none;\n        transition: all 0.15s ease;\n\n        &:hover {\n            color: #fff;\n            background: rgba(255, 255, 255, 0.15);\n            border-color: rgba(255, 255, 255, 0.25);\n        }\n\n        &:active {\n            background: rgba(255, 255, 255, 0.2);\n        }\n\n        /* 正在执行中的按钮状态 */\n        &.running {\n            color: #4fc3f7;\n            border-color: #4fc3f7;\n            background: rgba(79, 195, 247, 0.12);\n            cursor: not-allowed;\n            animation: pulse 1.5s infinite;\n        }\n    }\n\n    /* 新建按钮 - 固定为红色 */\n    .script-btn-add {\n        display: inline-flex;\n        align-items: center;\n        justify-content: center;\n        width: 24px;\n        height: 22px;\n        padding: 0;\n        font-size: 16px;\n        font-weight: bold;\n        color: #fff;\n        background: #e74c3c;\n        border: 1px solid rgba(0, 0, 0, 0.1);\n        border-radius: 3px;\n        cursor: pointer;\n        transition: all 0.15s ease;\n        flex-shrink: 0;\n\n        &:hover {\n            background: #c0392b;\n            border-color: rgba(0, 0, 0, 0.2);\n        }\n    }\n}\n\n/* 执行中的脉冲动画 */\n@keyframes pulse {\n    0%, 100% { opacity: 1; }\n    50% { opacity: 0.6; }\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -536,6 +536,8 @@ let ScriptEditModalComponent = class ScriptEditModalComponent {
         this.scriptName = '';
         /** 命令文本（换行分隔） */
         this.commandsText = '';
+        /** 标签颜色 */
+        this.scriptColor = '#5588cc';
         /** 是否为新建模式 */
         this.isNew = true;
     }
@@ -549,6 +551,7 @@ let ScriptEditModalComponent = class ScriptEditModalComponent {
             action: 'save',
             name: this.scriptName.trim(),
             commands,
+            color: this.scriptColor,
         });
     }
     /** 删除脚本 */
@@ -580,6 +583,14 @@ ScriptEditModalComponent = __decorate([
                     [(ngModel)]="scriptName"
                     placeholder="输入脚本名称"
                     autofocus
+                />
+            </div>
+            <div class="form-group mt-3 d-flex align-items-center">
+                <label class="mb-0 mr-3">标签颜色</label>
+                <input
+                    type="color"
+                    [(ngModel)]="scriptColor"
+                    style="width: 40px; height: 28px; padding: 0; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; background: transparent; border-radius: 3px;"
                 />
             </div>
             <div class="form-group mt-3">
@@ -717,6 +728,11 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
             btn.className = 'script-btn';
             btn.textContent = script.name;
             btn.title = `点击执行: ${script.commands.join(' → ')}`;
+            if (script.color) {
+                btn.style.backgroundColor = script.color;
+                btn.style.color = '#fff';
+                btn.style.borderColor = 'rgba(0, 0, 0, 0.2)';
+            }
             // 左键点击 → 执行脚本
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -748,22 +764,28 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
      * 策略：发送命令后监听 output$，检测到提示符再发下一条，超时兜底
      */
     executeScript(tab, script, btn) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
         return __awaiter(this, void 0, void 0, function* () {
             if (btn.classList.contains('running')) {
                 return; // 防止重复点击
             }
-            const session = tab.session;
-            if (!session) {
+            // 尝试多渠道捕获当前活跃的会话
+            const session = tab.session
+                || ((_b = (_a = tab).getActiveSession) === null || _b === void 0 ? void 0 : _b.call(_a))
+                || ((_e = (_d = (_c = tab).getActivePane) === null || _d === void 0 ? void 0 : _d.call(_c)) === null || _e === void 0 ? void 0 : _e.session)
+                || ((_f = tab.activePane) === null || _f === void 0 ? void 0 : _f.session);
+            const hasSendInput = typeof tab.sendInput === 'function';
+            // 既无有效 session 也无法广播输入，则静默退出
+            if (!session && !hasSendInput) {
                 return;
             }
             btn.classList.add('running');
-            const promptPattern = new RegExp(((_a = this.config.store.quickScriptsPlugin) === null || _a === void 0 ? void 0 : _a.promptPattern) || '(\\$|#|>|%)\\s*$');
-            const timeout = ((_b = this.config.store.quickScriptsPlugin) === null || _b === void 0 ? void 0 : _b.commandTimeout) || 30000;
-            const minDelay = ((_c = this.config.store.quickScriptsPlugin) === null || _c === void 0 ? void 0 : _c.minDelay) || 500;
+            const promptPattern = new RegExp(((_g = this.config.store.quickScriptsPlugin) === null || _g === void 0 ? void 0 : _g.promptPattern) || '(\\$|#|>|%)\\s*$');
+            const timeout = ((_h = this.config.store.quickScriptsPlugin) === null || _h === void 0 ? void 0 : _h.commandTimeout) || 30000;
+            const minDelay = ((_j = this.config.store.quickScriptsPlugin) === null || _j === void 0 ? void 0 : _j.minDelay) || 500;
             try {
                 for (const command of script.commands) {
-                    yield this.sendAndWait(session, command, promptPattern, timeout, minDelay);
+                    yield this.sendAndWait(tab, session, command, promptPattern, timeout, minDelay);
                 }
             }
             finally {
@@ -773,13 +795,14 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
     }
     /**
      * 发送一条命令并等待执行完毕
+     * @param tab 终端标签页
      * @param session 终端会话
      * @param command 要执行的命令
      * @param promptPattern 命令提示符正则
      * @param timeout 超时时间（毫秒）
      * @param minDelay 最小延时（毫秒）
      */
-    sendAndWait(session, command, promptPattern, timeout, minDelay) {
+    sendAndWait(tab, session, command, promptPattern, timeout, minDelay) {
         return new Promise((resolve) => {
             let outputBuffer = '';
             let sub = null;
@@ -798,19 +821,28 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
                 }
                 resolve();
             };
-            // 监听终端输出
-            sub = session.output$.subscribe((data) => {
-                outputBuffer += data;
-                // 检查是否出现命令提示符（说明上一条命令已执行完毕）
-                if (promptPattern.test(outputBuffer)) {
-                    // 延时一下再完成，确保输出完全渲染
-                    setTimeout(cleanup, minDelay);
-                }
-            });
+            // 监听终端输出，检测指令提示符
+            if (session) {
+                sub = session.output$.subscribe((data) => {
+                    outputBuffer += data;
+                    if (promptPattern.test(outputBuffer)) {
+                        setTimeout(cleanup, minDelay);
+                    }
+                });
+            }
+            else {
+                // 没有捕获到 session 走超时盲发
+                setTimeout(cleanup, minDelay + 1000);
+            }
             // 超时兜底
             timer = setTimeout(cleanup, timeout);
-            // 发送命令（\r 表示回车）
-            session.write(command + '\r');
+            // 优先使用 Tabby 广播输入，避免回车符号不适配的问题
+            if (typeof tab.sendInput === 'function') {
+                tab.sendInput(command + '\n');
+            }
+            else if (session) {
+                session.write(command + '\r');
+            }
         });
     }
     /**
@@ -824,6 +856,8 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
             modal.componentInstance.isNew = true;
             modal.componentInstance.scriptName = '';
             modal.componentInstance.commandsText = '';
+            // 默认生成随机颜色
+            modal.componentInstance.scriptColor = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
             try {
                 const result = yield modal.result;
                 if ((result === null || result === void 0 ? void 0 : result.action) === 'save' && result.name) {
@@ -833,6 +867,7 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
                     scripts.push({
                         name: result.name,
                         commands: result.commands,
+                        color: result.color,
                     });
                     this.config.store.quickScriptsPlugin.scripts = scripts;
                     this.config.save();
@@ -854,6 +889,7 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
             modal.componentInstance.isNew = false;
             modal.componentInstance.scriptName = script.name;
             modal.componentInstance.commandsText = script.commands.join('\n');
+            modal.componentInstance.scriptColor = script.color || ('#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0'));
             try {
                 const result = yield modal.result;
                 const scripts = [
@@ -866,6 +902,7 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
                         scripts[idx] = {
                             name: result.name,
                             commands: result.commands,
+                            color: result.color,
                         };
                     }
                     this.config.store.quickScriptsPlugin.scripts = scripts;

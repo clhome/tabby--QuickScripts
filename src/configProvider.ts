@@ -4,6 +4,7 @@ import { ConfigProvider } from 'tabby-core'
 export interface QuickScript {
     name: string
     commands: string[]
+    color?: string
 }
 
 /** 插件配置默认值 */

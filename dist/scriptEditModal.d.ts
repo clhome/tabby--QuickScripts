@@ -9,6 +9,8 @@ export declare class ScriptEditModalComponent {
     scriptName: string;
     /** 命令文本（换行分隔） */
     commandsText: string;
+    /** 标签颜色 */
+    scriptColor: string;
     /** 是否为新建模式 */
     isNew: boolean;
     constructor(modalInstance: NgbActiveModal);

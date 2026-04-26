@@ -24,6 +24,14 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap'
                     autofocus
                 />
             </div>
+            <div class="form-group mt-3 d-flex align-items-center">
+                <label class="mb-0 mr-3">标签颜色</label>
+                <input
+                    type="color"
+                    [(ngModel)]="scriptColor"
+                    style="width: 40px; height: 28px; padding: 0; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; background: transparent; border-radius: 3px;"
+                />
+            </div>
             <div class="form-group mt-3">
                 <label>命令列表 <small class="text-muted">（一行一条命令，按顺序执行）</small></label>
                 <textarea
@@ -53,6 +61,9 @@ export class ScriptEditModalComponent {
     /** 命令文本（换行分隔） */
     commandsText = ''
 
+    /** 标签颜色 */
+    scriptColor = '#5588cc'
+
     /** 是否为新建模式 */
     isNew = true
 
@@ -69,6 +80,7 @@ export class ScriptEditModalComponent {
             action: 'save',
             name: this.scriptName.trim(),
             commands,
+            color: this.scriptColor,
         })
     }
 

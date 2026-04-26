@@ -23,6 +23,7 @@ export declare class QuickScriptsDecorator extends TerminalDecorator {
     private executeScript;
     /**
      * 发送一条命令并等待执行完毕
+     * @param tab 终端标签页
      * @param session 终端会话
      * @param command 要执行的命令
      * @param promptPattern 命令提示符正则

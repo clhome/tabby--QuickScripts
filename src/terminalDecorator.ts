@@ -85,6 +85,12 @@ export class QuickScriptsDecorator extends TerminalDecorator {
             btn.textContent = script.name
             btn.title = `点击执行: ${script.commands.join(' → ')}`
 
+            if (script.color) {
+                btn.style.backgroundColor = script.color
+                btn.style.color = '#fff'
+                btn.style.borderColor = 'rgba(0, 0, 0, 0.2)'
+            }
+
             // 左键点击 → 执行脚本
             btn.addEventListener('click', (e) => {
                 e.preventDefault()
@@ -128,8 +134,16 @@ export class QuickScriptsDecorator extends TerminalDecorator {
             return // 防止重复点击
         }
 
-        const session = tab.session
-        if (!session) {
+        // 尝试多渠道捕获当前活跃的会话
+        const session = tab.session 
+            || (tab as any).getActiveSession?.() 
+            || (tab as any).getActivePane?.()?.session 
+            || (tab as any).activePane?.session
+
+        const hasSendInput = typeof (tab as any).sendInput === 'function'
+
+        // 既无有效 session 也无法广播输入，则静默退出
+        if (!session && !hasSendInput) {
             return
         }
 
@@ -143,7 +157,7 @@ export class QuickScriptsDecorator extends TerminalDecorator {
 
         try {
             for (const command of script.commands) {
-                await this.sendAndWait(session, command, promptPattern, timeout, minDelay)
+                await this.sendAndWait(tab, session, command, promptPattern, timeout, minDelay)
             }
         } finally {
             btn.classList.remove('running')
@@ -152,6 +166,7 @@ export class QuickScriptsDecorator extends TerminalDecorator {
 
     /**
      * 发送一条命令并等待执行完毕
+     * @param tab 终端标签页
      * @param session 终端会话
      * @param command 要执行的命令
      * @param promptPattern 命令提示符正则
@@ -159,6 +174,7 @@ export class QuickScriptsDecorator extends TerminalDecorator {
      * @param minDelay 最小延时（毫秒）
      */
     private sendAndWait (
+        tab: BaseTerminalTabComponent,
         session: any,
         command: string,
         promptPattern: RegExp,
@@ -185,22 +201,29 @@ export class QuickScriptsDecorator extends TerminalDecorator {
                 resolve()
             }
 
-            // 监听终端输出
-            sub = session.output$.subscribe((data: string) => {
-                outputBuffer += data
+            // 监听终端输出，检测指令提示符
+            if (session) {
+                sub = session.output$.subscribe((data: string) => {
+                    outputBuffer += data
 
-                // 检查是否出现命令提示符（说明上一条命令已执行完毕）
-                if (promptPattern.test(outputBuffer)) {
-                    // 延时一下再完成，确保输出完全渲染
-                    setTimeout(cleanup, minDelay)
-                }
-            })
+                    if (promptPattern.test(outputBuffer)) {
+                        setTimeout(cleanup, minDelay)
+                    }
+                })
+            } else {
+                // 没有捕获到 session 走超时盲发
+                setTimeout(cleanup, minDelay + 1000)
+            }
 
             // 超时兜底
             timer = setTimeout(cleanup, timeout)
 
-            // 发送命令（\r 表示回车）
-            session.write(command + '\r')
+            // 优先使用 Tabby 广播输入，避免回车符号不适配的问题
+            if (typeof (tab as any).sendInput === 'function') {
+                (tab as any).sendInput(command + '\n')
+            } else if (session) {
+                session.write(command + '\r')
+            }
         })
     }
 
@@ -213,6 +236,8 @@ export class QuickScriptsDecorator extends TerminalDecorator {
         modal.componentInstance.isNew = true
         modal.componentInstance.scriptName = ''
         modal.componentInstance.commandsText = ''
+        // 默认生成随机颜色
+        modal.componentInstance.scriptColor = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')
 
         try {
             const result = await modal.result
@@ -223,6 +248,7 @@ export class QuickScriptsDecorator extends TerminalDecorator {
                 scripts.push({
                     name: result.name,
                     commands: result.commands,
+                    color: result.color,
                 })
                 this.config.store.quickScriptsPlugin.scripts = scripts
                 this.config.save()
@@ -241,6 +267,7 @@ export class QuickScriptsDecorator extends TerminalDecorator {
         modal.componentInstance.isNew = false
         modal.componentInstance.scriptName = script.name
         modal.componentInstance.commandsText = script.commands.join('\n')
+        modal.componentInstance.scriptColor = script.color || ('#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0'))
 
         try {
             const result = await modal.result
@@ -255,6 +282,7 @@ export class QuickScriptsDecorator extends TerminalDecorator {
                     scripts[idx] = {
                         name: result.name,
                         commands: result.commands,
+                        color: result.color,
                     }
                 }
                 this.config.store.quickScriptsPlugin.scripts = scripts
