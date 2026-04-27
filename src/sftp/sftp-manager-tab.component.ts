@@ -5,7 +5,8 @@ import * as fsSync from 'fs'
 import * as crypto from 'crypto'
 
 import { Component, Injector, OnInit, HostListener } from '@angular/core'
-import { AppService, BaseTabComponent, FileTransfer, FileUpload, PlatformService, ProfilesService } from 'tabby-core'
+import { AppService, BaseTabComponent, ConfigService, FileTransfer, FileUpload, PlatformService, ProfilesService } from 'tabby-core'
+
 
 import { LocalPathFileDownload, LocalPathFileUpload } from './local-transfers'
 import { SftpConnectionService, SFTPFile, SFTPSessionLike, SSHSessionLike } from './sftp.service'
@@ -60,12 +61,29 @@ type DragPayload = {
               />
             </div>
             <div class="pane-actions">
-              <select class="path-preset" (change)="onLocalPresetChange($event.target.value)">
-                <option value="">Go to…</option>
-                <option *ngFor="let p of localPathPresets" [value]="p.id">
-                  {{ p.label }}
-                </option>
-              </select>
+              <div class="fav-dropdown" style="position: relative; display: inline-block;">
+                <button class="fav-dropdown-btn" (click)="toggleFavDropdown()" style="padding: 2px 20px 2px 10px; font-size: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 3px; color: #ccc; cursor: pointer; min-width: 240px; text-align: left; position: relative;">
+                  {{ getSelectedFavLabel() }}
+                  <span style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%);">▾</span>
+                </button>
+                <div class="fav-dropdown-menu" *ngIf="favDropdownOpen" style="position: absolute; top: 100%; left: 0; z-index: 1000; background: #1e1e1e; border: 1px solid #333; border-radius: 3px; min-width: 240px; box-shadow: 0 4px 8px rgba(0,0,0,0.5); max-height: 200px; overflow-y: auto;">
+                  <div class="fav-dropdown-item" style="padding: 5px 10px; font-size: 12px; color: #ccc; cursor: pointer; background: #1e1e1e;" (click)="toggleFavDropdown()">
+                    <em>====</em>
+                  </div>
+
+                  <div class="fav-dropdown-item" *ngFor="let f of localFavorites" 
+                       style="padding: 5px 10px; font-size: 12px; color: #ccc; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                       (click)="onLocalFavoriteSelect(f.id); toggleFavDropdown()">
+                    <span>{{ f.label }}</span>
+                    <span style="color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.5); border-radius: 4px; padding: 1px 6px; font-size: 11px; cursor: pointer; transition: all 0.2s;" 
+                          (click)="onFavEditNameClick($event, f)"
+                          (mouseover)="$event.target.style.borderColor='#ffc107'; $event.target.style.background='rgba(255, 193, 7, 0.15)'"
+                          (mouseout)="$event.target.style.borderColor='rgba(255, 193, 7, 0.5)'; $event.target.style.background='transparent'">✎</span>
+                  </div>
+
+                </div>
+              </div>
+
               <button
                 class="fav-toggle"
                 [class.active]="isCurrentFavorite()"
@@ -74,16 +92,10 @@ type DragPayload = {
               >
                 ★
               </button>
-              <select class="path-favorite" (change)="onLocalFavoriteSelect($event.target.value)">
-                <option value="">Favorites…</option>
-                <option *ngFor="let f of localFavorites" [value]="f.id">
-                  {{ f.label }}
-                </option>
-              </select>
-              <button (click)="localUp()" [disabled]="!canLocalUp()">Up</button>
-              <button (click)="goToLocalPathInput()">Go</button>
+
               <button (click)="refreshLocal()">Refresh</button>
             </div>
+
           </div>
           <div class="pane-filters">
             <div class="breadcrumbs">
@@ -315,21 +327,55 @@ type DragPayload = {
       <div class="delete-overlay" *ngIf="inputDialogVisible">
         <div class="delete-dialog" (click)="$event.stopPropagation()">
           <div class="delete-text">{{ inputDialogTitle }}</div>
-          <input
-            class="dialog-input"
-            [(ngModel)]="inputDialogValue"
-            [placeholder]="inputDialogPlaceholder"
-            (keyup.enter)="confirmInputDialog()"
-          />
+          <ng-container *ngIf="inputDialogMode === 'local-favorite-rename'">
+            <div style="margin-bottom: 4px; font-size: 12px; color: #aaa; text-align: left;">名称:</div>
+            <input
+              class="dialog-input"
+              style="margin-bottom: 12px; width: 100%;"
+              [(ngModel)]="inputDialogValue"
+              placeholder="名称"
+            />
+            <div style="margin-bottom: 4px; font-size: 12px; color: #aaa; text-align: left;">路径:</div>
+            <input
+              class="dialog-input"
+              style="width: 100%;"
+              [(ngModel)]="inputDialogPathValue"
+              placeholder="路径"
+              (keyup.enter)="confirmInputDialog()"
+            />
+          </ng-container>
+
+          <ng-container *ngIf="inputDialogMode !== 'local-favorite-rename'">
+            <input
+              class="dialog-input"
+              [(ngModel)]="inputDialogValue"
+              [placeholder]="inputDialogPlaceholder"
+              (keyup.enter)="confirmInputDialog()"
+            />
+          </ng-container>
+
           <div class="delete-buttons">
             <button class="danger" (click)="confirmInputDialog()" [disabled]="!inputDialogValue.trim()">OK</button>
+            <button class="danger" *ngIf="inputDialogMode === 'local-favorite-rename'" (click)="deleteFavoriteFromDialog()" style="background-color: #dc3545; border-color: #dc3545; margin-left: 5px; margin-right: 5px;">Delete</button>
             <button (click)="cancelInputDialog()">Cancel</button>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="delete-overlay" *ngIf="favDeleteConfirmVisible">
+        <div class="delete-dialog">
+          <div class="delete-text">{{ favDeleteConfirmText }}</div>
+          <div class="delete-buttons">
+            <button class="danger" (click)="confirmFavDelete()">Delete</button>
+            <button (click)="cancelFavDelete()">Cancel</button>
           </div>
         </div>
       </div>
 
       <div
         class="local-menu"
+
         *ngIf="localMenuVisible"
         [style.left.px]="localMenuX"
         [style.top.px]="localMenuY"
@@ -492,7 +538,12 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
   private pendingLocalDelete: LocalEntry[] = []
   private pendingRemoteDelete: SFTPFile[] = []
 
+  favDeleteConfirmVisible = false
+  favDeleteConfirmText = ''
+  private pendingFavDeleteId: string | null = null
+
   replaceConfirmVisible = false
+
   replaceConfirmText = ''
   private replaceConfirmResolve: ((v: boolean) => void) | null = null
 
@@ -500,10 +551,14 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
   inputDialogTitle = ''
   inputDialogPlaceholder = ''
   inputDialogValue = ''
+  inputDialogPathValue = ''
+
   private inputDialogMode: 'local-new-folder' | 'remote-new-folder' | 'local-rename' | 'remote-rename' | null = null
   private inputDialogTargetPath: string | null = null
   private inputDialogRemotePath: string | null = null
   private platform!: PlatformService
+  private config!: ConfigService
+
   private openedRemoteFiles: Map<string, {
     remotePath: string
     mode: number
@@ -531,24 +586,11 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     // @ts-expect-error runtime-compatible super(injector)
     super(injector)
     this.platform = injector.get(PlatformService as any)
+    this.config = injector.get(ConfigService as any)
 
-    // build local path presets (similar to Termius quick locations)
-    const home = os.homedir()
-    this.localPathPresets.push({ id: 'home', label: 'Home', path: home })
-    const desktop = path.join(home, 'Desktop')
-    const documents = path.join(home, 'Documents')
-    const downloads = path.join(home, 'Downloads')
-    if (fsSync.existsSync(desktop)) {
-      this.localPathPresets.push({ id: 'desktop', label: 'Desktop', path: desktop })
-    }
-    if (fsSync.existsSync(documents)) {
-      this.localPathPresets.push({ id: 'documents', label: 'Documents', path: documents })
-    }
-    if (fsSync.existsSync(downloads)) {
-      this.localPathPresets.push({ id: 'downloads', label: 'Downloads', path: downloads })
-    }
 
     this.loadLocalFavorites()
+
     void this.refreshLocal()
 
     this.transfersTimer = window.setInterval(() => {
@@ -1713,6 +1755,55 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     this.goToLocalPath(fav.path)
   }
 
+  favDropdownOpen = false
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClickFav (event: MouseEvent): void {
+    const target = event.target as HTMLElement
+    if (target && !target.closest('.fav-dropdown')) {
+      this.favDropdownOpen = false
+    }
+  }
+
+
+  toggleFavDropdown (): void {
+
+    this.favDropdownOpen = !this.favDropdownOpen
+  }
+
+  getSelectedFavLabel (): string {
+    const fav = this.localFavorites.find(f => f.path === this.localPath)
+    return fav ? fav.label : '===='
+  }
+
+
+  onFavEditNameClick (event: MouseEvent, fav: any): void {
+    event.preventDefault()
+    event.stopPropagation()
+    this.favDropdownOpen = false
+
+    this.inputDialogPathValue = fav.path || ''
+    this.openInputDialog({
+      mode: 'local-favorite-rename' as any,
+      title: 'Edit Favorite',
+      placeholder: 'Enter new name',
+      value: fav.label,
+      targetPath: fav.id,
+    })
+
+  }
+
+  onFavDeleteClick (event: MouseEvent, fav: any): void {
+    event.preventDefault()
+    event.stopPropagation()
+    this.favDropdownOpen = false
+
+    this.localFavorites = this.localFavorites.filter(f => f.id !== fav.id)
+    this.saveLocalFavorites()
+  }
+
+
+
   onLocalBreadcrumbContextMenu (index: number, event: MouseEvent): void {
     event.preventDefault()
     event.stopPropagation()
@@ -1778,14 +1869,10 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
 
   private loadLocalFavorites (): void {
     try {
-      if (typeof window === 'undefined' || !window.localStorage) {
+      if (!this.config || !this.config.store) {
         return
       }
-      const raw = window.localStorage.getItem('tabby-sftp-ui-local-favorites')
-      if (!raw) {
-        return
-      }
-      const parsed = JSON.parse(raw)
+      const parsed = this.config.store.sftpLocalFavorites
       if (Array.isArray(parsed)) {
         this.localFavorites = parsed
           .filter(f => f && typeof f.path === 'string')
@@ -1802,14 +1889,16 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
 
   private saveLocalFavorites (): void {
     try {
-      if (typeof window === 'undefined' || !window.localStorage) {
+      if (!this.config || !this.config.store) {
         return
       }
-      window.localStorage.setItem('tabby-sftp-ui-local-favorites', JSON.stringify(this.localFavorites))
+      this.config.store.sftpLocalFavorites = this.localFavorites
+      this.config.save()
     } catch {
       // ignore
     }
   }
+
 
   onLocalMenuItemClick (item: { label: string, path: string }): void {
     this.localMenuVisible = false
@@ -1993,15 +2082,49 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     this.inputDialogVisible = true
   }
 
+  deleteFavoriteFromDialog (): void {
+    if (!this.inputDialogVisible || this.inputDialogMode !== ('local-favorite-rename' as any)) {
+      return
+    }
+    const id = this.inputDialogTargetPath
+    const fav = this.localFavorites.find(f => f.id === id)
+    
+    this.cancelInputDialog()
+
+    if (fav) {
+      this.pendingFavDeleteId = id
+      this.favDeleteConfirmText = `Are you sure you want to delete favorite "${fav.label}"?`
+      this.favDeleteConfirmVisible = true
+    }
+  }
+
+  confirmFavDelete (): void {
+    if (this.pendingFavDeleteId) {
+      this.localFavorites = this.localFavorites.filter(f => f.id !== this.pendingFavDeleteId)
+      this.saveLocalFavorites()
+    }
+    this.cancelFavDelete()
+  }
+
+  cancelFavDelete (): void {
+    this.favDeleteConfirmVisible = false
+    this.favDeleteConfirmText = ''
+    this.pendingFavDeleteId = null
+  }
+
+
   cancelInputDialog (): void {
+
     this.inputDialogVisible = false
     this.inputDialogMode = null
     this.inputDialogTitle = ''
     this.inputDialogPlaceholder = ''
     this.inputDialogValue = ''
+    this.inputDialogPathValue = ''
     this.inputDialogTargetPath = null
     this.inputDialogRemotePath = null
   }
+
 
   async confirmInputDialog (): Promise<void> {
     if (!this.inputDialogVisible || !this.inputDialogMode) {
@@ -2018,7 +2141,21 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     }
 
     try {
+      if (mode === 'local-favorite-rename' as any) {
+        const fav = this.localFavorites.find(f => f.id === targetPath)
+        if (fav) {
+          fav.label = value
+          if (this.inputDialogPathValue && this.inputDialogPathValue.trim()) {
+            fav.path = this.inputDialogPathValue.trim()
+          }
+          this.saveLocalFavorites()
+        }
+
+        return
+      }
+
       if (mode === 'local-new-folder') {
+
         const dir = targetPath
         const folderPath = path.join(dir, value)
         await fs.mkdir(folderPath, { recursive: true })

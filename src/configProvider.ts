@@ -22,5 +22,7 @@ export class QuickScriptsConfigProvider extends ConfigProvider {
             /** 发送命令前的最小延时（毫秒） */
             minDelay: 500,
         },
+        sftpLocalFavorites: [] as Array<{ id: string, label: string, path: string }>,
     }
+
 }

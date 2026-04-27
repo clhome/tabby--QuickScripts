@@ -495,6 +495,7 @@ class QuickScriptsConfigProvider extends tabby_core__WEBPACK_IMPORTED_MODULE_0__
                 /** 发送命令前的最小延时（毫秒） */
                 minDelay: 500,
             },
+            sftpLocalFavorites: [],
         };
     }
 }
@@ -856,6 +857,9 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         this.deleteConfirmText = '';
         this.pendingLocalDelete = [];
         this.pendingRemoteDelete = [];
+        this.favDeleteConfirmVisible = false;
+        this.favDeleteConfirmText = '';
+        this.pendingFavDeleteId = null;
         this.replaceConfirmVisible = false;
         this.replaceConfirmText = '';
         this.replaceConfirmResolve = null;
@@ -863,6 +867,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         this.inputDialogTitle = '';
         this.inputDialogPlaceholder = '';
         this.inputDialogValue = '';
+        this.inputDialogPathValue = '';
         this.inputDialogMode = null;
         this.inputDialogTargetPath = null;
         this.inputDialogRemotePath = null;
@@ -874,22 +879,9 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         this.localMenuX = 0;
         this.localMenuY = 0;
         this.localMenuItems = [];
+        this.favDropdownOpen = false;
         this.platform = injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_6__.PlatformService);
-        // build local path presets (similar to Termius quick locations)
-        const home = os__WEBPACK_IMPORTED_MODULE_1__.homedir();
-        this.localPathPresets.push({ id: 'home', label: 'Home', path: home });
-        const desktop = path__WEBPACK_IMPORTED_MODULE_0__.join(home, 'Desktop');
-        const documents = path__WEBPACK_IMPORTED_MODULE_0__.join(home, 'Documents');
-        const downloads = path__WEBPACK_IMPORTED_MODULE_0__.join(home, 'Downloads');
-        if (fs__WEBPACK_IMPORTED_MODULE_3__.existsSync(desktop)) {
-            this.localPathPresets.push({ id: 'desktop', label: 'Desktop', path: desktop });
-        }
-        if (fs__WEBPACK_IMPORTED_MODULE_3__.existsSync(documents)) {
-            this.localPathPresets.push({ id: 'documents', label: 'Documents', path: documents });
-        }
-        if (fs__WEBPACK_IMPORTED_MODULE_3__.existsSync(downloads)) {
-            this.localPathPresets.push({ id: 'downloads', label: 'Downloads', path: downloads });
-        }
+        this.config = injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_6__.ConfigService);
         this.loadLocalFavorites();
         void this.refreshLocal();
         this.transfersTimer = window.setInterval(() => {
@@ -2048,6 +2040,39 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         }
         this.goToLocalPath(fav.path);
     }
+    onDocumentClickFav(event) {
+        const target = event.target;
+        if (target && !target.closest('.fav-dropdown')) {
+            this.favDropdownOpen = false;
+        }
+    }
+    toggleFavDropdown() {
+        this.favDropdownOpen = !this.favDropdownOpen;
+    }
+    getSelectedFavLabel() {
+        const fav = this.localFavorites.find(f => f.path === this.localPath);
+        return fav ? fav.label : '====';
+    }
+    onFavEditNameClick(event, fav) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.favDropdownOpen = false;
+        this.inputDialogPathValue = fav.path || '';
+        this.openInputDialog({
+            mode: 'local-favorite-rename',
+            title: 'Edit Favorite',
+            placeholder: 'Enter new name',
+            value: fav.label,
+            targetPath: fav.id,
+        });
+    }
+    onFavDeleteClick(event, fav) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.favDropdownOpen = false;
+        this.localFavorites = this.localFavorites.filter(f => f.id !== fav.id);
+        this.saveLocalFavorites();
+    }
     onLocalBreadcrumbContextMenu(index, event) {
         event.preventDefault();
         event.stopPropagation();
@@ -2111,14 +2136,10 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
     }
     loadLocalFavorites() {
         try {
-            if (typeof window === 'undefined' || !window.localStorage) {
+            if (!this.config || !this.config.store) {
                 return;
             }
-            const raw = window.localStorage.getItem('tabby-sftp-ui-local-favorites');
-            if (!raw) {
-                return;
-            }
-            const parsed = JSON.parse(raw);
+            const parsed = this.config.store.sftpLocalFavorites;
             if (Array.isArray(parsed)) {
                 this.localFavorites = parsed
                     .filter(f => f && typeof f.path === 'string')
@@ -2135,10 +2156,11 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
     }
     saveLocalFavorites() {
         try {
-            if (typeof window === 'undefined' || !window.localStorage) {
+            if (!this.config || !this.config.store) {
                 return;
             }
-            window.localStorage.setItem('tabby-sftp-ui-local-favorites', JSON.stringify(this.localFavorites));
+            this.config.store.sftpLocalFavorites = this.localFavorites;
+            this.config.save();
         }
         catch (_a) {
             // ignore
@@ -2308,12 +2330,38 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         this.inputDialogRemotePath = (_a = opts.remotePath) !== null && _a !== void 0 ? _a : null;
         this.inputDialogVisible = true;
     }
+    deleteFavoriteFromDialog() {
+        if (!this.inputDialogVisible || this.inputDialogMode !== 'local-favorite-rename') {
+            return;
+        }
+        const id = this.inputDialogTargetPath;
+        const fav = this.localFavorites.find(f => f.id === id);
+        this.cancelInputDialog();
+        if (fav) {
+            this.pendingFavDeleteId = id;
+            this.favDeleteConfirmText = `Are you sure you want to delete favorite "${fav.label}"?`;
+            this.favDeleteConfirmVisible = true;
+        }
+    }
+    confirmFavDelete() {
+        if (this.pendingFavDeleteId) {
+            this.localFavorites = this.localFavorites.filter(f => f.id !== this.pendingFavDeleteId);
+            this.saveLocalFavorites();
+        }
+        this.cancelFavDelete();
+    }
+    cancelFavDelete() {
+        this.favDeleteConfirmVisible = false;
+        this.favDeleteConfirmText = '';
+        this.pendingFavDeleteId = null;
+    }
     cancelInputDialog() {
         this.inputDialogVisible = false;
         this.inputDialogMode = null;
         this.inputDialogTitle = '';
         this.inputDialogPlaceholder = '';
         this.inputDialogValue = '';
+        this.inputDialogPathValue = '';
         this.inputDialogTargetPath = null;
         this.inputDialogRemotePath = null;
     }
@@ -2331,6 +2379,17 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
                 return;
             }
             try {
+                if (mode === 'local-favorite-rename') {
+                    const fav = this.localFavorites.find(f => f.id === targetPath);
+                    if (fav) {
+                        fav.label = value;
+                        if (this.inputDialogPathValue && this.inputDialogPathValue.trim()) {
+                            fav.path = this.inputDialogPathValue.trim();
+                        }
+                        this.saveLocalFavorites();
+                    }
+                    return;
+                }
                 if (mode === 'local-new-folder') {
                     const dir = targetPath;
                     const folderPath = path__WEBPACK_IMPORTED_MODULE_0__.join(dir, value);
@@ -2951,6 +3010,12 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
     }
 };
 __decorate([
+    (0,_angular_core__WEBPACK_IMPORTED_MODULE_5__.HostListener)('document:click', ['$event']),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [MouseEvent]),
+    __metadata("design:returntype", void 0)
+], SftpManagerTabComponent.prototype, "onDocumentClickFav", null);
+__decorate([
     (0,_angular_core__WEBPACK_IMPORTED_MODULE_5__.HostListener)('document:click'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
@@ -2988,12 +3053,29 @@ SftpManagerTabComponent = __decorate([
               />
             </div>
             <div class="pane-actions">
-              <select class="path-preset" (change)="onLocalPresetChange($event.target.value)">
-                <option value="">Go to…</option>
-                <option *ngFor="let p of localPathPresets" [value]="p.id">
-                  {{ p.label }}
-                </option>
-              </select>
+              <div class="fav-dropdown" style="position: relative; display: inline-block;">
+                <button class="fav-dropdown-btn" (click)="toggleFavDropdown()" style="padding: 2px 20px 2px 10px; font-size: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 3px; color: #ccc; cursor: pointer; min-width: 240px; text-align: left; position: relative;">
+                  {{ getSelectedFavLabel() }}
+                  <span style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%);">▾</span>
+                </button>
+                <div class="fav-dropdown-menu" *ngIf="favDropdownOpen" style="position: absolute; top: 100%; left: 0; z-index: 1000; background: #1e1e1e; border: 1px solid #333; border-radius: 3px; min-width: 240px; box-shadow: 0 4px 8px rgba(0,0,0,0.5); max-height: 200px; overflow-y: auto;">
+                  <div class="fav-dropdown-item" style="padding: 5px 10px; font-size: 12px; color: #ccc; cursor: pointer; background: #1e1e1e;" (click)="toggleFavDropdown()">
+                    <em>====</em>
+                  </div>
+
+                  <div class="fav-dropdown-item" *ngFor="let f of localFavorites" 
+                       style="padding: 5px 10px; font-size: 12px; color: #ccc; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                       (click)="onLocalFavoriteSelect(f.id); toggleFavDropdown()">
+                    <span>{{ f.label }}</span>
+                    <span style="color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.5); border-radius: 4px; padding: 1px 6px; font-size: 11px; cursor: pointer; transition: all 0.2s;" 
+                          (click)="onFavEditNameClick($event, f)"
+                          (mouseover)="$event.target.style.borderColor='#ffc107'; $event.target.style.background='rgba(255, 193, 7, 0.15)'"
+                          (mouseout)="$event.target.style.borderColor='rgba(255, 193, 7, 0.5)'; $event.target.style.background='transparent'">✎</span>
+                  </div>
+
+                </div>
+              </div>
+
               <button
                 class="fav-toggle"
                 [class.active]="isCurrentFavorite()"
@@ -3002,16 +3084,10 @@ SftpManagerTabComponent = __decorate([
               >
                 ★
               </button>
-              <select class="path-favorite" (change)="onLocalFavoriteSelect($event.target.value)">
-                <option value="">Favorites…</option>
-                <option *ngFor="let f of localFavorites" [value]="f.id">
-                  {{ f.label }}
-                </option>
-              </select>
-              <button (click)="localUp()" [disabled]="!canLocalUp()">Up</button>
-              <button (click)="goToLocalPathInput()">Go</button>
+
               <button (click)="refreshLocal()">Refresh</button>
             </div>
+
           </div>
           <div class="pane-filters">
             <div class="breadcrumbs">
@@ -3243,21 +3319,55 @@ SftpManagerTabComponent = __decorate([
       <div class="delete-overlay" *ngIf="inputDialogVisible">
         <div class="delete-dialog" (click)="$event.stopPropagation()">
           <div class="delete-text">{{ inputDialogTitle }}</div>
-          <input
-            class="dialog-input"
-            [(ngModel)]="inputDialogValue"
-            [placeholder]="inputDialogPlaceholder"
-            (keyup.enter)="confirmInputDialog()"
-          />
+          <ng-container *ngIf="inputDialogMode === 'local-favorite-rename'">
+            <div style="margin-bottom: 4px; font-size: 12px; color: #aaa; text-align: left;">名称:</div>
+            <input
+              class="dialog-input"
+              style="margin-bottom: 12px; width: 100%;"
+              [(ngModel)]="inputDialogValue"
+              placeholder="名称"
+            />
+            <div style="margin-bottom: 4px; font-size: 12px; color: #aaa; text-align: left;">路径:</div>
+            <input
+              class="dialog-input"
+              style="width: 100%;"
+              [(ngModel)]="inputDialogPathValue"
+              placeholder="路径"
+              (keyup.enter)="confirmInputDialog()"
+            />
+          </ng-container>
+
+          <ng-container *ngIf="inputDialogMode !== 'local-favorite-rename'">
+            <input
+              class="dialog-input"
+              [(ngModel)]="inputDialogValue"
+              [placeholder]="inputDialogPlaceholder"
+              (keyup.enter)="confirmInputDialog()"
+            />
+          </ng-container>
+
           <div class="delete-buttons">
             <button class="danger" (click)="confirmInputDialog()" [disabled]="!inputDialogValue.trim()">OK</button>
+            <button class="danger" *ngIf="inputDialogMode === 'local-favorite-rename'" (click)="deleteFavoriteFromDialog()" style="background-color: #dc3545; border-color: #dc3545; margin-left: 5px; margin-right: 5px;">Delete</button>
             <button (click)="cancelInputDialog()">Cancel</button>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="delete-overlay" *ngIf="favDeleteConfirmVisible">
+        <div class="delete-dialog">
+          <div class="delete-text">{{ favDeleteConfirmText }}</div>
+          <div class="delete-buttons">
+            <button class="danger" (click)="confirmFavDelete()">Delete</button>
+            <button (click)="cancelFavDelete()">Cancel</button>
           </div>
         </div>
       </div>
 
       <div
         class="local-menu"
+
         *ngIf="localMenuVisible"
         [style.left.px]="localMenuX"
         [style.top.px]="localMenuY"
