@@ -5,6 +5,7 @@ import { ConfigService } from 'tabby-core'
 import { TerminalDecorator, BaseTerminalTabComponent } from 'tabby-terminal'
 import { QuickScript } from './configProvider'
 import { ScriptEditModalComponent } from './scriptEditModal'
+import { SftpUiService } from './sftp/sftp-ui.service'
 
 import './quickScriptsBar.scss'
 
@@ -13,6 +14,7 @@ export class QuickScriptsDecorator extends TerminalDecorator {
     constructor (
         private config: ConfigService,
         private injector: Injector,
+        private sftpUi: SftpUiService,
     ) {
         super()
     }
@@ -150,7 +152,36 @@ export class QuickScriptsDecorator extends TerminalDecorator {
             this.addScript(tab)
         })
         bar.appendChild(addBtn)
+
+        // SFTP 按钮
+        const sftpBtn = document.createElement('button')
+        sftpBtn.className = 'script-btn sftp-btn'
+        sftpBtn.style.backgroundColor = '#f1c40f' // 黄色背景
+        sftpBtn.style.color = '#000' // 黑色文字，保证可读性
+        sftpBtn.style.marginLeft = 'auto' // 推到最右侧
+        sftpBtn.style.display = 'inline-flex'
+        sftpBtn.style.alignItems = 'center'
+        sftpBtn.style.fontWeight = 'bold'
+        sftpBtn.style.borderColor = 'rgba(0, 0, 0, 0.2)'
+        sftpBtn.title = '打开 SFTP 文件传输'
+
+        // 文件夹图标
+        const icon = document.createElement('i')
+        icon.className = 'fas fa-folder me-1'
+        sftpBtn.appendChild(icon)
+
+        // 文字
+        const text = document.createTextNode(' sftp')
+        sftpBtn.appendChild(text)
+
+        sftpBtn.addEventListener('click', (e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            this.sftpUi.openForSourceTab(tab)
+        })
+        bar.appendChild(sftpBtn)
     }
+
 
     /**
      * 执行脚本：按顺序逐条发送命令

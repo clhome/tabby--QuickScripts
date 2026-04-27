@@ -1,11 +1,13 @@
 import { Injector } from '@angular/core';
 import { ConfigService } from 'tabby-core';
 import { TerminalDecorator, BaseTerminalTabComponent } from 'tabby-terminal';
+import { SftpUiService } from './sftp/sftp-ui.service';
 import './quickScriptsBar.scss';
 export declare class QuickScriptsDecorator extends TerminalDecorator {
     private config;
     private injector;
-    constructor(config: ConfigService, injector: Injector);
+    private sftpUi;
+    constructor(config: ConfigService, injector: Injector, sftpUi: SftpUiService);
     attach(tab: BaseTerminalTabComponent): void;
     detach(_tab: BaseTerminalTabComponent): void;
     /**

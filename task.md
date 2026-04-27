@@ -24,6 +24,20 @@
 - [x] 解决 npm install 依赖冲突问题 <!-- id: 8 -->
 - [x] 分析并解决全团队安装报错问题 <!-- id: 9 -->
 - [x] 评估打开 SFTP 自动跳转当前命令行目录的可行性 <!-- id: 10 -->
+- [x] 整合 `参考\tabby-sftp-ui-cl` 插件至当前项目 <!-- id: 11 -->
+  - [x] 复制并迁移 SFTP 所需 the Service 和 Component 代码 <!-- id: 12 -->
+  - [x] 在 `src\index.ts` 中注册 SFTP 模块及组件 <!-- id: 13 -->
+  - [x] 在 `src\terminalDecorator.ts` 中添加黄色 SFTP 按钮 <!-- id: 14 -->
+  - [x] 在快捷操作栏渲染 SFTP 按钮并绑定点击打开事件 <!-- id: 15 -->
+  - [x] 验证与构建插件 <!-- id: 16 -->
+- [x] 清理 `dist` 文件夹中的 `参考` 文件夹 <!-- id: 17 -->
+  - [x] 修改 `tsconfig.json` 增加 `rootDir: "src"` 避免冗余生成 <!-- id: 18 -->
+  - [x] 清空现有 `dist` 目录并重新编译插件 <!-- id: 19 -->
+
+
+
+
+
 
 
 

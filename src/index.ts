@@ -7,6 +7,8 @@ import { TerminalDecorator } from 'tabby-terminal'
 import { QuickScriptsConfigProvider } from './configProvider'
 import { QuickScriptsDecorator } from './terminalDecorator'
 import { ScriptEditModalComponent } from './scriptEditModal'
+import { SftpManagerTabComponent } from './sftp/sftp-manager-tab.component'
+import { SftpUiService } from './sftp/sftp-ui.service'
 
 @NgModule({
     imports: [
@@ -17,12 +19,16 @@ import { ScriptEditModalComponent } from './scriptEditModal'
     providers: [
         { provide: ConfigProvider, useClass: QuickScriptsConfigProvider, multi: true },
         { provide: TerminalDecorator, useClass: QuickScriptsDecorator, multi: true },
+        SftpUiService,
     ],
     entryComponents: [
         ScriptEditModalComponent,
+        SftpManagerTabComponent,
     ],
     declarations: [
         ScriptEditModalComponent,
+        SftpManagerTabComponent,
     ],
 })
 export default class QuickScriptsModule { }
+

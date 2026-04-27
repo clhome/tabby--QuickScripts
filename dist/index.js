@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("@angular/core"), require("@angular/common"), require("@angular/forms"), require("tabby-core"), require("tabby-terminal"), require("@ng-bootstrap/ng-bootstrap"));
+		module.exports = factory(require("@angular/core"), require("@angular/common"), require("@angular/forms"), require("tabby-core"), require("tabby-terminal"), require("@ng-bootstrap/ng-bootstrap"), require("fs"));
 	else if(typeof define === 'function' && define.amd)
-		define(["@angular/core", "@angular/common", "@angular/forms", "tabby-core", "tabby-terminal", "@ng-bootstrap/ng-bootstrap"], factory);
+		define(["@angular/core", "@angular/common", "@angular/forms", "tabby-core", "tabby-terminal", "@ng-bootstrap/ng-bootstrap", "fs"], factory);
 	else {
-		var a = typeof exports === 'object' ? factory(require("@angular/core"), require("@angular/common"), require("@angular/forms"), require("tabby-core"), require("tabby-terminal"), require("@ng-bootstrap/ng-bootstrap")) : factory(root["@angular/core"], root["@angular/common"], root["@angular/forms"], root["tabby-core"], root["tabby-terminal"], root["@ng-bootstrap/ng-bootstrap"]);
+		var a = typeof exports === 'object' ? factory(require("@angular/core"), require("@angular/common"), require("@angular/forms"), require("tabby-core"), require("tabby-terminal"), require("@ng-bootstrap/ng-bootstrap"), require("fs")) : factory(root["@angular/core"], root["@angular/common"], root["@angular/forms"], root["tabby-core"], root["tabby-terminal"], root["@ng-bootstrap/ng-bootstrap"], root["fs"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(global, (__WEBPACK_EXTERNAL_MODULE__angular_core__, __WEBPACK_EXTERNAL_MODULE__angular_common__, __WEBPACK_EXTERNAL_MODULE__angular_forms__, __WEBPACK_EXTERNAL_MODULE_tabby_core__, __WEBPACK_EXTERNAL_MODULE_tabby_terminal__, __WEBPACK_EXTERNAL_MODULE__ng_bootstrap_ng_bootstrap__) => {
+})(global, (__WEBPACK_EXTERNAL_MODULE__angular_core__, __WEBPACK_EXTERNAL_MODULE__angular_common__, __WEBPACK_EXTERNAL_MODULE__angular_forms__, __WEBPACK_EXTERNAL_MODULE_tabby_core__, __WEBPACK_EXTERNAL_MODULE_tabby_terminal__, __WEBPACK_EXTERNAL_MODULE__ng_bootstrap_ng_bootstrap__, __WEBPACK_EXTERNAL_MODULE_fs__) => {
 return /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
@@ -624,26 +624,157 @@ ScriptEditModalComponent = __decorate([
 
 /***/ },
 
-/***/ "./src/terminalDecorator.ts"
-/*!**********************************!*\
-  !*** ./src/terminalDecorator.ts ***!
-  \**********************************/
+/***/ "./src/sftp/local-transfers.ts"
+/*!*************************************!*\
+  !*** ./src/sftp/local-transfers.ts ***!
+  \*************************************/
 (__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   QuickScriptsDecorator: () => (/* binding */ QuickScriptsDecorator)
+/* harmony export */   LocalPathFileDownload: () => (/* binding */ LocalPathFileDownload),
+/* harmony export */   LocalPathFileUpload: () => (/* binding */ LocalPathFileUpload)
 /* harmony export */ });
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "@angular/core");
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_angular_core__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @ng-bootstrap/ng-bootstrap */ "@ng-bootstrap/ng-bootstrap");
-/* harmony import */ var _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! fs */ "fs");
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! path */ "path");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! tabby-core */ "tabby-core");
 /* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(tabby_core__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var tabby_terminal__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! tabby-terminal */ "tabby-terminal");
-/* harmony import */ var tabby_terminal__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(tabby_terminal__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _scriptEditModal__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./scriptEditModal */ "./src/scriptEditModal.ts");
-/* harmony import */ var _quickScriptsBar_scss__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./quickScriptsBar.scss */ "./src/quickScriptsBar.scss");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+class LocalPathFileUpload extends tabby_core__WEBPACK_IMPORTED_MODULE_2__.FileUpload {
+    constructor(filePath) {
+        super();
+        this.filePath = filePath;
+        this.fd = null;
+        this.position = 0;
+    }
+    getName() {
+        return path__WEBPACK_IMPORTED_MODULE_1__.basename(this.filePath);
+    }
+    getMode() {
+        return 0o644;
+    }
+    getSize() {
+        try {
+            return fs__WEBPACK_IMPORTED_MODULE_0__.statSync(this.filePath).size;
+        }
+        catch (_a) {
+            return 0;
+        }
+    }
+    read() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.isCancelled()) {
+                return Buffer.alloc(0);
+            }
+            if (this.fd === null) {
+                this.fd = fs__WEBPACK_IMPORTED_MODULE_0__.openSync(this.filePath, 'r');
+            }
+            const buf = Buffer.allocUnsafe(256 * 1024);
+            const bytesRead = fs__WEBPACK_IMPORTED_MODULE_0__.readSync(this.fd, buf, 0, buf.length, this.position);
+            if (!bytesRead) {
+                return Buffer.alloc(0);
+            }
+            this.position += bytesRead;
+            this.increaseProgress(bytesRead);
+            return buf.subarray(0, bytesRead);
+        });
+    }
+    close() {
+        if (this.fd !== null) {
+            try {
+                fs__WEBPACK_IMPORTED_MODULE_0__.closeSync(this.fd);
+            }
+            catch (_a) {
+                // ignore
+            }
+            this.fd = null;
+        }
+    }
+}
+class LocalPathFileDownload extends tabby_core__WEBPACK_IMPORTED_MODULE_2__.FileDownload {
+    constructor(targetPath, mode, size) {
+        super();
+        this.targetPath = targetPath;
+        this.mode = mode;
+        this.size = size;
+        this.fd = null;
+    }
+    getName() {
+        return path__WEBPACK_IMPORTED_MODULE_1__.basename(this.targetPath);
+    }
+    getMode() {
+        return this.mode;
+    }
+    getSize() {
+        return this.size;
+    }
+    write(buffer) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.isCancelled()) {
+                return;
+            }
+            if (this.fd === null) {
+                this.fd = fs__WEBPACK_IMPORTED_MODULE_0__.openSync(this.targetPath, 'w');
+            }
+            fs__WEBPACK_IMPORTED_MODULE_0__.writeSync(this.fd, buffer);
+            this.increaseProgress(buffer.length);
+        });
+    }
+    close() {
+        if (this.fd !== null) {
+            try {
+                fs__WEBPACK_IMPORTED_MODULE_0__.closeSync(this.fd);
+            }
+            catch (_a) {
+                // ignore
+            }
+            this.fd = null;
+        }
+    }
+}
+
+
+/***/ },
+
+/***/ "./src/sftp/sftp-manager-tab.component.ts"
+/*!************************************************!*\
+  !*** ./src/sftp/sftp-manager-tab.component.ts ***!
+  \************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   SftpManagerTabComponent: () => (/* binding */ SftpManagerTabComponent)
+/* harmony export */ });
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! path */ "path");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! os */ "os");
+/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(os__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! fs/promises */ "fs/promises");
+/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(fs_promises__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! fs */ "fs");
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! crypto */ "crypto");
+/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/core */ "@angular/core");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_angular_core__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! tabby-core */ "tabby-core");
+/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(tabby_core__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _local_transfers__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./local-transfers */ "./src/sftp/local-transfers.ts");
+/* harmony import */ var _sftp_service__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./sftp.service */ "./src/sftp/sftp.service.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -668,11 +799,2749 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
+
+
+
+let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__WEBPACK_IMPORTED_MODULE_6__.BaseTabComponent {
+    constructor(injector, sftp, profilesService, app) {
+        // Tabby runtime BaseTabComponent expects Injector in constructor, but typings in this SDK may differ.
+        // @ts-expect-error runtime-compatible super(injector)
+        super(injector);
+        this.sftp = sftp;
+        this.profilesService = profilesService;
+        this.app = app;
+        // injected from the SSH tab when opened via SFTP-UI button
+        this.sshSession = null;
+        this.profile = null;
+        this.connecting = false;
+        this.connected = false;
+        // legacy UI fields kept for now (not used when opened from SSH tab)
+        this.host = '';
+        this.port = 22;
+        this.username = '';
+        this.password = '';
+        this.localPath = os__WEBPACK_IMPORTED_MODULE_1__.homedir();
+        this.localEntries = [];
+        this.remotePath = '/';
+        this.remoteEntries = [];
+        this.sftpSession = null;
+        this.localDropActive = false;
+        this.remoteDropActive = false;
+        this.transfers = [];
+        this.transfersTimer = null;
+        this.localFilter = '';
+        this.remoteFilter = '';
+        this.remotePathInput = this.remotePath;
+        this.localPathInput = this.localPath;
+        this.localFolderSizeLoading = new Set();
+        this.remoteFolderSizeLoading = new Set();
+        this.localSortBy = 'name';
+        this.localSortAsc = true;
+        this.remoteSortBy = 'name';
+        this.remoteSortAsc = true;
+        this.localCache = null;
+        this.remoteCache = null;
+        this.showHiddenLocal = false;
+        this.showHiddenRemote = false;
+        this.selectedLocal = [];
+        this.selectedRemote = [];
+        this.localActionName = '';
+        this.localActionPerms = '';
+        this.remoteActionName = '';
+        this.remoteActionPerms = '';
+        this.localLastSelectedIndex = null;
+        this.remoteLastSelectedIndex = null;
+        this.deleteConfirmVisible = false;
+        this.deleteConfirmMode = null;
+        this.deleteConfirmText = '';
+        this.pendingLocalDelete = [];
+        this.pendingRemoteDelete = [];
+        this.replaceConfirmVisible = false;
+        this.replaceConfirmText = '';
+        this.replaceConfirmResolve = null;
+        this.inputDialogVisible = false;
+        this.inputDialogTitle = '';
+        this.inputDialogPlaceholder = '';
+        this.inputDialogValue = '';
+        this.inputDialogMode = null;
+        this.inputDialogTargetPath = null;
+        this.inputDialogRemotePath = null;
+        this.openedRemoteFiles = new Map();
+        this.localPathPresets = [];
+        this.localFavorites = [];
+        this.recentProfiles = [];
+        this.localMenuVisible = false;
+        this.localMenuX = 0;
+        this.localMenuY = 0;
+        this.localMenuItems = [];
+        this.platform = injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_6__.PlatformService);
+        // build local path presets (similar to Termius quick locations)
+        const home = os__WEBPACK_IMPORTED_MODULE_1__.homedir();
+        this.localPathPresets.push({ id: 'home', label: 'Home', path: home });
+        const desktop = path__WEBPACK_IMPORTED_MODULE_0__.join(home, 'Desktop');
+        const documents = path__WEBPACK_IMPORTED_MODULE_0__.join(home, 'Documents');
+        const downloads = path__WEBPACK_IMPORTED_MODULE_0__.join(home, 'Downloads');
+        if (fs__WEBPACK_IMPORTED_MODULE_3__.existsSync(desktop)) {
+            this.localPathPresets.push({ id: 'desktop', label: 'Desktop', path: desktop });
+        }
+        if (fs__WEBPACK_IMPORTED_MODULE_3__.existsSync(documents)) {
+            this.localPathPresets.push({ id: 'documents', label: 'Documents', path: documents });
+        }
+        if (fs__WEBPACK_IMPORTED_MODULE_3__.existsSync(downloads)) {
+            this.localPathPresets.push({ id: 'downloads', label: 'Downloads', path: downloads });
+        }
+        this.loadLocalFavorites();
+        void this.refreshLocal();
+        this.transfersTimer = window.setInterval(() => {
+            this.transfers = this.transfers.filter(t => !t.transfer.isComplete() && !t.transfer.isCancelled());
+        }, 1000);
+    }
+    ngOnInit() {
+        // If there's no live SSH session, this tab was likely restored across
+        // restart or opened in an invalid context. Close it immediately to avoid
+        // an empty, nameless SFTP tab lingering after restart.
+        if (!this.sshSession) {
+            try {
+                this.app.closeTab(this);
+            }
+            catch (e) {
+                console.error('[SFTP-UI] Failed to close invalid SFTP tab', e);
+            }
+            return;
+        }
+        this.remotePathInput = this.remotePath;
+        this.localPathInput = this.localPath;
+        if (this.sshSession) {
+            void this.connect();
+        }
+        this.loadRecentProfiles();
+    }
+    connect() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.connecting || this.connected) {
+                return;
+            }
+            if (!this.sshSession) {
+                console.error('[SFTP-UI] No SSH session on current tab');
+                return;
+            }
+            this.connecting = true;
+            try {
+                this.sftpSession = yield this.sftp.openFromSSHSession(this.sshSession);
+                this.connected = true;
+                this.remotePath = this.getDefaultRemotePath();
+                this.remotePathInput = this.remotePath;
+                yield this.refreshRemote();
+            }
+            catch (e) {
+                console.error('[SFTP-UI] SFTP connection failed', e);
+            }
+            finally {
+                this.connecting = false;
+            }
+        });
+    }
+    disconnect() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.sftpSession = null;
+            this.connected = false;
+            this.remoteEntries = [];
+        });
+    }
+    canLocalUp() {
+        const parent = path__WEBPACK_IMPORTED_MODULE_0__.dirname(this.localPath);
+        return parent !== this.localPath;
+    }
+    localUp() {
+        const parent = path__WEBPACK_IMPORTED_MODULE_0__.dirname(this.localPath);
+        if (parent !== this.localPath) {
+            this.localPath = parent;
+            this.localPathInput = this.localPath;
+            void this.refreshLocal();
+        }
+    }
+    remoteUp() {
+        if (!this.connected || this.remotePath === '/') {
+            return;
+        }
+        const next = path__WEBPACK_IMPORTED_MODULE_0__.posix.dirname(this.remotePath);
+        this.remotePath = next === '.' ? '/' : next;
+        this.remotePathInput = this.remotePath;
+        void this.refreshRemote();
+    }
+    refreshLocal() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const names = yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.readdir(this.localPath);
+                const entries = [];
+                for (const name of names) {
+                    const fullPath = path__WEBPACK_IMPORTED_MODULE_0__.join(this.localPath, name);
+                    try {
+                        const st = yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(fullPath);
+                        entries.push({
+                            name,
+                            fullPath,
+                            isDirectory: st.isDirectory(),
+                            size: st.size,
+                            mtimeMs: st.mtimeMs,
+                        });
+                    }
+                    catch (_a) {
+                        // ignore entries that disappeared
+                    }
+                }
+                this.localEntries = entries;
+            }
+            catch (e) {
+                console.error('[SFTP-UI] Local listing failed', e);
+            }
+        });
+    }
+    refreshRemote() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.connected) {
+                return;
+            }
+            try {
+                if (!this.sftpSession) {
+                    throw new Error('Not connected');
+                }
+                this.remoteEntries = yield this.sftpSession.readdir(this.remotePath);
+            }
+            catch (e) {
+                console.error('[SFTP-UI] Remote listing failed', e);
+            }
+        });
+    }
+    openLocal(e) {
+        if (!e.isDirectory) {
+            return;
+        }
+        this.localPath = e.fullPath;
+        this.localPathInput = this.localPath;
+        void this.refreshLocal();
+    }
+    openRemote(e) {
+        if (!this.connected) {
+            return;
+        }
+        if (e.isDirectory) {
+            this.remotePath = e.fullPath;
+            this.remotePathInput = this.remotePath;
+            void this.refreshRemote();
+        }
+        else {
+            void this.openRemoteFile(e);
+        }
+    }
+    onDragOver(ev) {
+        ev.preventDefault();
+    }
+    onLocalMouseDown(entry, event) {
+        if (event.button === 2) {
+            this.onLocalContextMenu(entry, event);
+        }
+    }
+    onRemoteMouseDown(entry, event) {
+        if (event.button === 2) {
+            this.onRemoteContextMenu(entry, event);
+        }
+    }
+    selectLocal(entry, event) {
+        const list = this.getFilteredLocalEntries();
+        const index = list.indexOf(entry);
+        if (index === -1) {
+            return;
+        }
+        const isCtrl = event.ctrlKey || event.metaKey;
+        const isShift = event.shiftKey;
+        if (isShift && this.localLastSelectedIndex != null) {
+            const [from, to] = this.localLastSelectedIndex < index
+                ? [this.localLastSelectedIndex, index]
+                : [index, this.localLastSelectedIndex];
+            const range = list.slice(from, to + 1);
+            const set = new Set(this.selectedLocal);
+            for (const e of range) {
+                set.add(e);
+            }
+            this.selectedLocal = Array.from(set);
+        }
+        else if (isCtrl) {
+            const exists = this.selectedLocal.includes(entry);
+            if (exists) {
+                this.selectedLocal = this.selectedLocal.filter(e => e !== entry);
+            }
+            else {
+                this.selectedLocal = [...this.selectedLocal, entry];
+            }
+            this.localLastSelectedIndex = index;
+        }
+        else {
+            this.selectedLocal = [entry];
+            this.localLastSelectedIndex = index;
+        }
+        if (this.selectedLocal.length === 1) {
+            this.localActionName = this.selectedLocal[0].name;
+        }
+    }
+    isLocalSelected(entry) {
+        return this.selectedLocal.includes(entry);
+    }
+    selectRemote(entry, event) {
+        const list = this.getFilteredRemoteEntries();
+        const index = list.indexOf(entry);
+        if (index === -1) {
+            return;
+        }
+        const isCtrl = event.ctrlKey || event.metaKey;
+        const isShift = event.shiftKey;
+        if (isShift && this.remoteLastSelectedIndex != null) {
+            const [from, to] = this.remoteLastSelectedIndex < index
+                ? [this.remoteLastSelectedIndex, index]
+                : [index, this.remoteLastSelectedIndex];
+            const range = list.slice(from, to + 1);
+            const set = new Set(this.selectedRemote);
+            for (const e of range) {
+                set.add(e);
+            }
+            this.selectedRemote = Array.from(set);
+        }
+        else if (isCtrl) {
+            const exists = this.selectedRemote.includes(entry);
+            if (exists) {
+                this.selectedRemote = this.selectedRemote.filter(e => e !== entry);
+            }
+            else {
+                this.selectedRemote = [...this.selectedRemote, entry];
+            }
+            this.remoteLastSelectedIndex = index;
+        }
+        else {
+            this.selectedRemote = [entry];
+            this.remoteLastSelectedIndex = index;
+        }
+        if (this.selectedRemote.length === 1) {
+            this.remoteActionName = this.selectedRemote[0].name;
+            const currentPerms = (this.selectedRemote[0].mode & 0o777).toString(8);
+            this.remoteActionPerms = currentPerms;
+        }
+    }
+    isRemoteSelected(entry) {
+        return this.selectedRemote.includes(entry);
+    }
+    setLocalSort(field) {
+        if (this.localSortBy === field) {
+            this.localSortAsc = !this.localSortAsc;
+        }
+        else {
+            this.localSortBy = field;
+            this.localSortAsc = true;
+        }
+    }
+    setRemoteSort(field) {
+        if (this.remoteSortBy === field) {
+            this.remoteSortAsc = !this.remoteSortAsc;
+        }
+        else {
+            this.remoteSortBy = field;
+            this.remoteSortAsc = true;
+        }
+    }
+    onDragStartLocal(ev, e) {
+        var _a, _b, _c, _d, _e, _f;
+        const sources = this.selectedLocal.includes(e) && this.selectedLocal.length ? this.selectedLocal : [e];
+        const movePayload = sources.map(x => x.fullPath);
+        (_a = ev.dataTransfer) === null || _a === void 0 ? void 0 : _a.setData('application/x-tabby-sftp-ui-local-move', JSON.stringify(movePayload));
+        // Cross-device drag (local -> remote) supports multi-select
+        const payload = {
+            kind: 'local-paths',
+            paths: sources.map(x => ({ fullPath: x.fullPath, name: x.name, isDirectory: x.isDirectory })),
+        };
+        (_b = ev.dataTransfer) === null || _b === void 0 ? void 0 : _b.setData('application/x-tabby-sftp-ui', JSON.stringify(payload));
+        (_c = ev.dataTransfer) === null || _c === void 0 ? void 0 : _c.setData('text/plain', e.fullPath);
+        (_e = (_d = ev.dataTransfer) === null || _d === void 0 ? void 0 : _d.setDragImage) === null || _e === void 0 ? void 0 : _e.call(_d, (_f = ev.target) !== null && _f !== void 0 ? _f : document.body, 0, 0);
+    }
+    onDragStartRemote(ev, item) {
+        var _a, _b, _c, _d, _e, _f;
+        if (!this.connected) {
+            return;
+        }
+        const sources = this.selectedRemote.includes(item) && this.selectedRemote.length ? this.selectedRemote : [item];
+        const movePayload = sources.map(x => x.fullPath);
+        (_a = ev.dataTransfer) === null || _a === void 0 ? void 0 : _a.setData('application/x-tabby-sftp-ui-remote-move', JSON.stringify(movePayload));
+        // Cross-device drag (remote -> local) supports multi-select
+        const payload = {
+            kind: 'remote-paths',
+            paths: sources.map(x => ({
+                remotePath: x.fullPath,
+                name: x.name,
+                isDirectory: x.isDirectory,
+                size: x.size,
+                mode: x.mode,
+            })),
+        };
+        (_b = ev.dataTransfer) === null || _b === void 0 ? void 0 : _b.setData('application/x-tabby-sftp-ui', JSON.stringify(payload));
+        (_c = ev.dataTransfer) === null || _c === void 0 ? void 0 : _c.setData('text/plain', item.fullPath);
+        (_e = (_d = ev.dataTransfer) === null || _d === void 0 ? void 0 : _d.setDragImage) === null || _e === void 0 ? void 0 : _e.call(_d, (_f = ev.target) !== null && _f !== void 0 ? _f : document.body, 0, 0);
+    }
+    onDropOnRemote(ev) {
+        var _a, _b, _c;
+        return __awaiter(this, void 0, void 0, function* () {
+            ev.preventDefault();
+            this.remoteDropActive = false;
+            if (!this.connected) {
+                return;
+            }
+            if (!this.sftpSession) {
+                return;
+            }
+            // Drag & drop from OS file manager (Explorer/Finder) into the remote pane
+            const osPaths = this.getDroppedOsPaths(ev);
+            if (osPaths.length) {
+                try {
+                    for (const p of osPaths) {
+                        const baseName = path__WEBPACK_IMPORTED_MODULE_0__.basename(p);
+                        const existing = this.remoteEntries.find(e => e.name === baseName);
+                        if (existing) {
+                            const ok = yield this.showReplaceConfirm(`Replace existing "${baseName}" on remote?`);
+                            if (!ok) {
+                                continue;
+                            }
+                            const remoteTarget = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(this.remotePath, baseName);
+                            yield this.deleteRemotePathRecursive(remoteTarget);
+                        }
+                        yield this.uploadLocalPathToRemote(this.remotePath, p);
+                    }
+                    yield this.refreshRemote();
+                }
+                catch (e) {
+                    console.error('[SFTP-UI] Upload from OS drop failed', e);
+                }
+                return;
+            }
+            // Fallback: use Tabby's native drag parser (supports directories and HTMLFileUpload)
+            try {
+                const dirUpload = yield ((_b = (_a = this.platform).startUploadFromDragEvent) === null || _b === void 0 ? void 0 : _b.call(_a, ev, true));
+                if (dirUpload && this.sftpSession) {
+                    yield this.uploadDirectoryUploadToRemote(this.remotePath, dirUpload);
+                    yield this.refreshRemote();
+                    return;
+                }
+            }
+            catch (e) {
+                console.error('[SFTP-UI] startUploadFromDragEvent failed', e);
+            }
+            const raw = (_c = ev.dataTransfer) === null || _c === void 0 ? void 0 : _c.getData('application/x-tabby-sftp-ui');
+            if (!raw) {
+                return;
+            }
+            let payload;
+            try {
+                payload = JSON.parse(raw);
+            }
+            catch (_d) {
+                return;
+            }
+            try {
+                if (payload.kind === 'local-file') {
+                    const targetRemotePath = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(this.remotePath, payload.name);
+                    const existsOnRemote = this.remoteEntries.some(e => e.name === payload.name);
+                    if (existsOnRemote) {
+                        const ok = yield this.showReplaceConfirm(`Replace existing "${payload.name}" on remote?`);
+                        if (!ok) {
+                            return;
+                        }
+                        yield this.deleteRemotePathRecursive(targetRemotePath);
+                    }
+                    const upload = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileUpload(payload.fullPath);
+                    this.trackTransfer(upload, 'upload', targetRemotePath, payload.fullPath);
+                    yield this.sftpSession.upload(targetRemotePath, upload);
+                    yield this.refreshRemote();
+                    return;
+                }
+                if (payload.kind === 'local-paths') {
+                    for (const p of payload.paths) {
+                        const targetRemotePath = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(this.remotePath, p.name);
+                        const existsOnRemote = this.remoteEntries.some(e => e.name === p.name);
+                        if (existsOnRemote) {
+                            const ok = yield this.showReplaceConfirm(`Replace existing "${p.name}" on remote?`);
+                            if (!ok) {
+                                continue;
+                            }
+                            yield this.deleteRemotePathRecursive(targetRemotePath);
+                        }
+                        // uploadLocalPathToRemote handles both files and directories
+                        yield this.uploadLocalPathToRemote(this.remotePath, p.fullPath);
+                    }
+                    yield this.refreshRemote();
+                    return;
+                }
+            }
+            catch (e) {
+                console.error('[SFTP-UI] Upload failed', e);
+            }
+        });
+    }
+    onDropOnLocal(ev) {
+        var _a, _b, _c, _d, _e, _f;
+        return __awaiter(this, void 0, void 0, function* () {
+            ev.preventDefault();
+            this.localDropActive = false;
+            // 1) Tabby's internal drag (remote -> local download)
+            const rawInternal = (_a = ev.dataTransfer) === null || _a === void 0 ? void 0 : _a.getData('application/x-tabby-sftp-ui');
+            if (rawInternal) {
+                let payload;
+                try {
+                    payload = JSON.parse(rawInternal);
+                }
+                catch (_g) {
+                    payload = null;
+                }
+                if (payload && payload.kind === 'remote-file') {
+                    try {
+                        const targetLocalPath = path__WEBPACK_IMPORTED_MODULE_0__.join(this.localPath, payload.name);
+                        if (!this.sftpSession) {
+                            throw new Error('Not connected');
+                        }
+                        if (fs__WEBPACK_IMPORTED_MODULE_3__.existsSync(targetLocalPath)) {
+                            const ok = yield this.showReplaceConfirm(`Replace existing "${payload.name}"?`);
+                            if (!ok) {
+                                return;
+                            }
+                        }
+                        const dl = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileDownload(targetLocalPath, payload.mode, payload.size);
+                        this.trackTransfer(dl, 'download', payload.remotePath, targetLocalPath);
+                        yield this.sftpSession.download(payload.remotePath, dl);
+                        yield this.refreshLocal();
+                    }
+                    catch (e) {
+                        console.error('[SFTP-UI] Download failed', e);
+                    }
+                    return;
+                }
+                if (payload && payload.kind === 'remote-dir') {
+                    try {
+                        if (!this.sftpSession) {
+                            throw new Error('Not connected');
+                        }
+                        const targetLocalPath = path__WEBPACK_IMPORTED_MODULE_0__.join(this.localPath, payload.name);
+                        if (fs__WEBPACK_IMPORTED_MODULE_3__.existsSync(targetLocalPath)) {
+                            const ok = yield this.showReplaceConfirm(`Replace existing folder "${payload.name}"?`);
+                            if (!ok) {
+                                return;
+                            }
+                            yield this.deleteLocalPathRecursive(targetLocalPath);
+                        }
+                        yield this.downloadRemoteDirectoryRecursive(payload.remotePath, targetLocalPath);
+                        yield this.refreshLocal();
+                    }
+                    catch (e) {
+                        console.error('[SFTP-UI] Download directory failed', e);
+                    }
+                    return;
+                }
+                if (payload && payload.kind === 'remote-paths') {
+                    try {
+                        if (!this.sftpSession) {
+                            throw new Error('Not connected');
+                        }
+                        for (const it of payload.paths) {
+                            const targetLocalPath = path__WEBPACK_IMPORTED_MODULE_0__.join(this.localPath, it.name);
+                            if (fs__WEBPACK_IMPORTED_MODULE_3__.existsSync(targetLocalPath)) {
+                                const ok = yield this.showReplaceConfirm(it.isDirectory ? `Replace existing folder "${it.name}"?` : `Replace existing "${it.name}"?`);
+                                if (!ok) {
+                                    continue;
+                                }
+                                yield this.deleteLocalPathRecursive(targetLocalPath);
+                            }
+                            if (it.isDirectory) {
+                                yield this.downloadRemoteDirectoryRecursive(it.remotePath, targetLocalPath);
+                            }
+                            else {
+                                const dl = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileDownload(targetLocalPath, (_b = it.mode) !== null && _b !== void 0 ? _b : 0o644, (_c = it.size) !== null && _c !== void 0 ? _c : 0);
+                                this.trackTransfer(dl, 'download', it.remotePath, targetLocalPath);
+                                yield this.sftpSession.download(it.remotePath, dl);
+                            }
+                        }
+                        yield this.refreshLocal();
+                    }
+                    catch (e) {
+                        console.error('[SFTP-UI] Download paths failed', e);
+                    }
+                    return;
+                }
+            }
+            // Drag & drop from OS file manager into the local pane (copy into current local folder)
+            const osPaths = this.getDroppedOsPaths(ev);
+            if (osPaths.length) {
+                try {
+                    for (const p of osPaths) {
+                        const baseName = path__WEBPACK_IMPORTED_MODULE_0__.basename(p);
+                        const destPath = path__WEBPACK_IMPORTED_MODULE_0__.join(this.localPath, baseName);
+                        if (fs__WEBPACK_IMPORTED_MODULE_3__.existsSync(destPath)) {
+                            const ok = yield this.showReplaceConfirm(`Replace existing "${baseName}"?`);
+                            if (!ok) {
+                                continue;
+                            }
+                        }
+                        yield this.copyLocalPathIntoLocalDir(this.localPath, p);
+                    }
+                    yield this.refreshLocal();
+                }
+                catch (e) {
+                    console.error('[SFTP-UI] Local copy from OS drop failed', e);
+                }
+                return;
+            }
+            // Fallback: use Tabby's native drag parser, then write files to disk
+            try {
+                const dirUpload = yield ((_e = (_d = this.platform).startUploadFromDragEvent) === null || _e === void 0 ? void 0 : _e.call(_d, ev, true));
+                if (dirUpload) {
+                    yield this.writeDirectoryUploadToLocal(this.localPath, dirUpload);
+                    yield this.refreshLocal();
+                    return;
+                }
+            }
+            catch (e) {
+                console.error('[SFTP-UI] startUploadFromDragEvent (local) failed', e);
+            }
+            const raw = (_f = ev.dataTransfer) === null || _f === void 0 ? void 0 : _f.getData('application/x-tabby-sftp-ui');
+            if (!raw) {
+                return;
+            }
+            let payload;
+            try {
+                payload = JSON.parse(raw);
+            }
+            catch (_h) {
+                return;
+            }
+            if (payload.kind !== 'remote-file' && payload.kind !== 'remote-dir') {
+                return;
+            }
+            try {
+                if (payload.kind === 'remote-file') {
+                    const targetLocalPath = path__WEBPACK_IMPORTED_MODULE_0__.join(this.localPath, payload.name);
+                    if (!this.sftpSession) {
+                        throw new Error('Not connected');
+                    }
+                    if (fs__WEBPACK_IMPORTED_MODULE_3__.existsSync(targetLocalPath)) {
+                        const ok = yield this.showReplaceConfirm(`Replace existing "${payload.name}"?`);
+                        if (!ok) {
+                            return;
+                        }
+                        yield this.deleteLocalPathRecursive(targetLocalPath);
+                    }
+                    const dl = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileDownload(targetLocalPath, payload.mode, payload.size);
+                    this.trackTransfer(dl, 'download', payload.remotePath, targetLocalPath);
+                    yield this.sftpSession.download(payload.remotePath, dl);
+                    yield this.refreshLocal();
+                    return;
+                }
+                // remote-dir -> local-dir (recursive download)
+                if (!this.sftpSession) {
+                    throw new Error('Not connected');
+                }
+                const targetLocalPath = path__WEBPACK_IMPORTED_MODULE_0__.join(this.localPath, payload.name);
+                if (fs__WEBPACK_IMPORTED_MODULE_3__.existsSync(targetLocalPath)) {
+                    const ok = yield this.showReplaceConfirm(`Replace existing folder "${payload.name}"?`);
+                    if (!ok) {
+                        return;
+                    }
+                    yield this.deleteLocalPathRecursive(targetLocalPath);
+                }
+                yield this.downloadRemoteDirectoryRecursive(payload.remotePath, targetLocalPath);
+                yield this.refreshLocal();
+            }
+            catch (e) {
+                console.error('[SFTP-UI] Download failed', e);
+            }
+        });
+    }
+    uploadLocalPathToRemote(remoteDir, localPath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.sftpSession) {
+                return;
+            }
+            const st = yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(localPath).catch(() => null);
+            if (!st) {
+                return;
+            }
+            const baseName = path__WEBPACK_IMPORTED_MODULE_0__.basename(localPath);
+            const remoteTarget = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(remoteDir, baseName);
+            if (st.isDirectory()) {
+                // Ensure destination folder exists, then recursively upload children
+                try {
+                    yield this.sftpSession.mkdir(remoteTarget);
+                }
+                catch (_a) {
+                    // ignore (might already exist)
+                }
+                const children = yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.readdir(localPath);
+                for (const child of children) {
+                    yield this.uploadLocalPathToRemote(remoteTarget, path__WEBPACK_IMPORTED_MODULE_0__.join(localPath, child));
+                }
+                return;
+            }
+            const upload = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileUpload(localPath);
+            this.trackTransfer(upload, 'upload', remoteTarget, localPath);
+            yield this.sftpSession.upload(remoteTarget, upload);
+        });
+    }
+    copyLocalPathIntoLocalDir(destDir, srcPath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const st = yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(srcPath).catch(() => null);
+            if (!st) {
+                return;
+            }
+            const baseName = path__WEBPACK_IMPORTED_MODULE_0__.basename(srcPath);
+            const destPath = path__WEBPACK_IMPORTED_MODULE_0__.join(destDir, baseName);
+            if (st.isDirectory()) {
+                yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.mkdir(destPath, { recursive: true });
+                const children = yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.readdir(srcPath);
+                for (const child of children) {
+                    yield this.copyLocalPathIntoLocalDir(destPath, path__WEBPACK_IMPORTED_MODULE_0__.join(srcPath, child));
+                }
+                return;
+            }
+            yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.copyFile(srcPath, destPath);
+        });
+    }
+    uploadDirectoryUploadToRemote(remoteDir, dirUpload) {
+        var _a, _b, _c;
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.sftpSession) {
+                return;
+            }
+            const childrens = (_b = (_a = dirUpload === null || dirUpload === void 0 ? void 0 : dirUpload.getChildrens) === null || _a === void 0 ? void 0 : _a.call(dirUpload)) !== null && _b !== void 0 ? _b : [];
+            for (const item of childrens) {
+                // DirectoryUpload
+                if (typeof (item === null || item === void 0 ? void 0 : item.getChildrens) === 'function') {
+                    const name = ((_c = item.getName) === null || _c === void 0 ? void 0 : _c.call(item)) || 'folder';
+                    const nextRemote = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(remoteDir, name);
+                    try {
+                        yield this.sftpSession.mkdir(nextRemote);
+                    }
+                    catch (_d) {
+                        // ignore (might already exist)
+                    }
+                    yield this.uploadDirectoryUploadToRemote(nextRemote, item);
+                    continue;
+                }
+                // FileUpload (including HTMLFileUpload)
+                if (typeof (item === null || item === void 0 ? void 0 : item.read) === 'function' && typeof (item === null || item === void 0 ? void 0 : item.getName) === 'function') {
+                    const fileUpload = item;
+                    const name = fileUpload.getName();
+                    const targetRemotePath = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(remoteDir, name);
+                    this.trackTransfer(fileUpload, 'upload', targetRemotePath, name);
+                    yield this.sftpSession.upload(targetRemotePath, fileUpload);
+                }
+            }
+        });
+    }
+    writeDirectoryUploadToLocal(localDir, dirUpload) {
+        var _a, _b, _c, _d;
+        return __awaiter(this, void 0, void 0, function* () {
+            const childrens = (_b = (_a = dirUpload === null || dirUpload === void 0 ? void 0 : dirUpload.getChildrens) === null || _a === void 0 ? void 0 : _a.call(dirUpload)) !== null && _b !== void 0 ? _b : [];
+            for (const item of childrens) {
+                if (typeof (item === null || item === void 0 ? void 0 : item.getChildrens) === 'function') {
+                    const name = ((_c = item.getName) === null || _c === void 0 ? void 0 : _c.call(item)) || 'folder';
+                    const nextLocal = path__WEBPACK_IMPORTED_MODULE_0__.join(localDir, name);
+                    yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.mkdir(nextLocal, { recursive: true });
+                    yield this.writeDirectoryUploadToLocal(nextLocal, item);
+                    continue;
+                }
+                if (typeof (item === null || item === void 0 ? void 0 : item.readAll) === 'function' && typeof (item === null || item === void 0 ? void 0 : item.getName) === 'function') {
+                    const name = item.getName();
+                    const targetLocal = path__WEBPACK_IMPORTED_MODULE_0__.join(localDir, name);
+                    const buf = yield item.readAll();
+                    yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.writeFile(targetLocal, Buffer.from(buf));
+                    try {
+                        (_d = item.close) === null || _d === void 0 ? void 0 : _d.call(item);
+                    }
+                    catch (_e) {
+                        // ignore
+                    }
+                }
+            }
+        });
+    }
+    downloadRemoteDirectoryRecursive(remoteDir, localDir) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.sftpSession) {
+                return;
+            }
+            yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.mkdir(localDir, { recursive: true });
+            const entries = yield this.sftpSession.readdir(remoteDir).catch(() => null);
+            if (!entries) {
+                return;
+            }
+            for (const e of entries) {
+                const targetLocal = path__WEBPACK_IMPORTED_MODULE_0__.join(localDir, e.name);
+                if (e.isDirectory) {
+                    yield this.downloadRemoteDirectoryRecursive(e.fullPath, targetLocal);
+                }
+                else {
+                    const dl = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileDownload(targetLocal, e.mode, e.size);
+                    this.trackTransfer(dl, 'download', e.fullPath, targetLocal);
+                    yield this.sftpSession.download(e.fullPath, dl);
+                }
+            }
+        });
+    }
+    getDroppedOsPaths(ev) {
+        var _a;
+        const dt = ev.dataTransfer;
+        if (!dt) {
+            return [];
+        }
+        const isWin = os__WEBPACK_IMPORTED_MODULE_1__.platform() === 'win32';
+        const isLocalPath = (p) => {
+            if (isWin) {
+                // Accept both `C:\...` and `C:/...` (some drag sources provide forward slashes)
+                return /^[A-Za-z]:[\\/]/.test(p) || p.startsWith('\\\\');
+            }
+            return p.startsWith('/');
+        };
+        // 1) Electron-style File.path
+        const filePaths = Array.from((_a = dt.files) !== null && _a !== void 0 ? _a : [])
+            .map(f => f.path)
+            .filter((p) => Boolean(p));
+        if (filePaths.length) {
+            return filePaths;
+        }
+        // 2) Sometimes paths are exposed as URIs
+        const uriList = dt.getData('text/uri-list') || '';
+        const uris = uriList
+            .split(/\r?\n/g)
+            .map(x => x.trim())
+            .filter(x => x && !x.startsWith('#'))
+            .map(x => {
+            if (x.startsWith('file://')) {
+                try {
+                    return decodeURIComponent(x.replace(/^file:\/\//, ''));
+                }
+                catch (_a) {
+                    return x.replace(/^file:\/\//, '');
+                }
+            }
+            return x;
+        })
+            .map(x => {
+            // Some sources may produce `/C:/Users/...`
+            if (isWin && /^\/[A-Za-z]:[\\/]/.test(x)) {
+                return x.slice(1);
+            }
+            return x;
+        })
+            .filter(x => x && isLocalPath(x));
+        if (uris.length) {
+            return uris;
+        }
+        // 3) Plain text sometimes contains a local path
+        const text = dt.getData('text/plain') || '';
+        const textLines = text.split(/\r?\n/g).map(x => x.trim()).filter(Boolean);
+        const textPaths = textLines
+            .map(x => {
+            if (x.startsWith('file://')) {
+                try {
+                    return decodeURIComponent(x.replace(/^file:\/\//, ''));
+                }
+                catch (_a) {
+                    return x.replace(/^file:\/\//, '');
+                }
+            }
+            return x;
+        })
+            .map(x => {
+            if (isWin && /^\/[A-Za-z]:[\\/]/.test(x)) {
+                return x.slice(1);
+            }
+            return x;
+        })
+            .filter(x => x && isLocalPath(x));
+        return textPaths;
+    }
+    getFilteredLocalEntries() {
+        const entriesRef = this.localEntries;
+        const filter = this.localFilter;
+        const showHidden = this.showHiddenLocal;
+        const sortBy = this.localSortBy;
+        const asc = this.localSortAsc;
+        if (this.localCache &&
+            this.localCache.entriesRef === entriesRef &&
+            this.localCache.filter === filter &&
+            this.localCache.showHidden === showHidden &&
+            this.localCache.sortBy === sortBy &&
+            this.localCache.asc === asc) {
+            return this.localCache.result;
+        }
+        const term = filter.trim().toLowerCase();
+        let entries = entriesRef;
+        if (!showHidden) {
+            entries = entries.filter(e => !e.name.startsWith('.'));
+        }
+        if (term) {
+            entries = entries.filter(e => e.name.toLowerCase().includes(term));
+        }
+        const result = this.sortLocalEntries(entries.slice());
+        this.localCache = { entriesRef, filter, showHidden, sortBy, asc, result };
+        return result;
+    }
+    getFilteredRemoteEntries() {
+        const entriesRef = this.remoteEntries;
+        const filter = this.remoteFilter;
+        const showHidden = this.showHiddenRemote;
+        const sortBy = this.remoteSortBy;
+        const asc = this.remoteSortAsc;
+        if (this.remoteCache &&
+            this.remoteCache.entriesRef === entriesRef &&
+            this.remoteCache.filter === filter &&
+            this.remoteCache.showHidden === showHidden &&
+            this.remoteCache.sortBy === sortBy &&
+            this.remoteCache.asc === asc) {
+            return this.remoteCache.result;
+        }
+        const term = filter.trim().toLowerCase();
+        let entries = entriesRef;
+        if (!showHidden) {
+            entries = entries.filter(e => !e.name.startsWith('.'));
+        }
+        if (term) {
+            entries = entries.filter(e => e.name.toLowerCase().includes(term));
+        }
+        const result = this.sortRemoteEntries(entries.slice());
+        this.remoteCache = { entriesRef, filter, showHidden, sortBy, asc, result };
+        return result;
+    }
+    sortLocalEntries(entries) {
+        const dirFirst = (a, b) => Number(b.isDirectory) - Number(a.isDirectory);
+        const factor = this.localSortAsc ? 1 : -1;
+        const field = this.localSortBy;
+        return entries.sort((a, b) => {
+            var _a, _b, _c, _d;
+            const d = dirFirst(a, b);
+            if (d !== 0)
+                return d;
+            if (field === 'name') {
+                return a.name.localeCompare(b.name) * factor;
+            }
+            if (field === 'size') {
+                const av = (_a = a.size) !== null && _a !== void 0 ? _a : 0;
+                const bv = (_b = b.size) !== null && _b !== void 0 ? _b : 0;
+                return (av - bv) * factor;
+            }
+            const av = (_c = a.mtimeMs) !== null && _c !== void 0 ? _c : 0;
+            const bv = (_d = b.mtimeMs) !== null && _d !== void 0 ? _d : 0;
+            return (av - bv) * factor;
+        });
+    }
+    sortRemoteEntries(entries) {
+        const dirFirst = (a, b) => Number(b.isDirectory) - Number(a.isDirectory);
+        const factor = this.remoteSortAsc ? 1 : -1;
+        const field = this.remoteSortBy;
+        return entries.sort((a, b) => {
+            var _a, _b, _c, _d, _e, _f, _g, _h;
+            const d = dirFirst(a, b);
+            if (d !== 0)
+                return d;
+            if (field === 'name') {
+                return a.name.localeCompare(b.name) * factor;
+            }
+            if (field === 'size') {
+                const av = (_a = a.size) !== null && _a !== void 0 ? _a : 0;
+                const bv = (_b = b.size) !== null && _b !== void 0 ? _b : 0;
+                return (av - bv) * factor;
+            }
+            const av = (_e = (_d = (_c = a.modified) === null || _c === void 0 ? void 0 : _c.getTime) === null || _d === void 0 ? void 0 : _d.call(_c)) !== null && _e !== void 0 ? _e : 0;
+            const bv = (_h = (_g = (_f = b.modified) === null || _f === void 0 ? void 0 : _f.getTime) === null || _g === void 0 ? void 0 : _g.call(_f)) !== null && _h !== void 0 ? _h : 0;
+            return (av - bv) * factor;
+        });
+    }
+    getLocalMovePayload(ev) {
+        var _a;
+        const raw = (_a = ev.dataTransfer) === null || _a === void 0 ? void 0 : _a.getData('application/x-tabby-sftp-ui-local-move');
+        if (!raw) {
+            return null;
+        }
+        try {
+            const arr = JSON.parse(raw);
+            if (Array.isArray(arr)) {
+                return arr;
+            }
+        }
+        catch (_b) {
+            // ignore
+        }
+        return null;
+    }
+    getRemoteMovePayload(ev) {
+        var _a;
+        const raw = (_a = ev.dataTransfer) === null || _a === void 0 ? void 0 : _a.getData('application/x-tabby-sftp-ui-remote-move');
+        if (!raw) {
+            return null;
+        }
+        try {
+            const arr = JSON.parse(raw);
+            if (Array.isArray(arr)) {
+                return arr;
+            }
+        }
+        catch (_b) {
+            // ignore
+        }
+        return null;
+    }
+    formatSize(bytes) {
+        if (bytes === undefined || bytes === null) {
+            return '';
+        }
+        if (bytes === 0) {
+            return '0 B';
+        }
+        const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+        let value = bytes;
+        let unitIndex = 0;
+        while (value >= 1024 && unitIndex < units.length - 1) {
+            value /= 1024;
+            unitIndex++;
+        }
+        const digits = value >= 10 || unitIndex === 0 ? 0 : 1;
+        return `${value.toFixed(digits)} ${units[unitIndex]}`;
+    }
+    formatSpeed(bytesPerSecond) {
+        if (bytesPerSecond === undefined || bytesPerSecond === null) {
+            return '';
+        }
+        if (bytesPerSecond === 0) {
+            return '0 B/s';
+        }
+        const units = ['B/s', 'KB/s', 'MB/s', 'GB/s', 'TB/s', 'PB/s'];
+        let value = bytesPerSecond;
+        let unitIndex = 0;
+        while (value >= 1024 && unitIndex < units.length - 1) {
+            value /= 1024;
+            unitIndex++;
+        }
+        const digits = value >= 10 || unitIndex === 0 ? 0 : 1;
+        return `${value.toFixed(digits)} ${units[unitIndex]}`;
+    }
+    getLocalSizeDisplay(e) {
+        if (!e.isDirectory) {
+            return this.formatSize(e.size);
+        }
+        if (e.size !== undefined) {
+            return this.formatSize(e.size);
+        }
+        if (this.localFolderSizeLoading.has(e.fullPath)) {
+            return '…';
+        }
+        return '';
+    }
+    getRemoteSizeDisplay(e) {
+        if (!e.isDirectory) {
+            return this.formatSize(e.size);
+        }
+        const key = e.fullPath;
+        if (e.dirSize !== undefined) {
+            return this.formatSize(e.dirSize);
+        }
+        if (this.remoteFolderSizeLoading.has(key)) {
+            return '…';
+        }
+        return '';
+    }
+    onLocalEntryDragOver(entry, ev) {
+        if (!entry.isDirectory) {
+            return;
+        }
+        if (!this.getLocalMovePayload(ev)) {
+            return;
+        }
+        ev.preventDefault();
+    }
+    onLocalEntryDrop(entry, ev) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!entry.isDirectory) {
+                return;
+            }
+            const sources = this.getLocalMovePayload(ev);
+            if (!sources || !sources.length) {
+                return;
+            }
+            ev.preventDefault();
+            const targetDir = entry.fullPath;
+            try {
+                for (const src of sources) {
+                    if (!src || src === targetDir) {
+                        continue;
+                    }
+                    // avoid moving a directory into its own subtree
+                    if (targetDir.startsWith(src + path__WEBPACK_IMPORTED_MODULE_0__.sep)) {
+                        continue;
+                    }
+                    const name = path__WEBPACK_IMPORTED_MODULE_0__.basename(src);
+                    const dst = path__WEBPACK_IMPORTED_MODULE_0__.join(targetDir, name);
+                    if (dst === src) {
+                        continue;
+                    }
+                    try {
+                        yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.rename(src, dst);
+                    }
+                    catch (e) {
+                        console.error('[SFTP-UI] Local move failed', e);
+                    }
+                }
+                yield this.refreshLocal();
+            }
+            catch (e) {
+                console.error('[SFTP-UI] Local move batch failed', e);
+            }
+        });
+    }
+    onRemoteEntryDragOver(entry, ev) {
+        if (!entry.isDirectory) {
+            return;
+        }
+        if (!this.getRemoteMovePayload(ev)) {
+            return;
+        }
+        ev.preventDefault();
+    }
+    onRemoteEntryDrop(entry, ev) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!entry.isDirectory || !this.sftpSession || !this.connected) {
+                return;
+            }
+            const sources = this.getRemoteMovePayload(ev);
+            if (!sources || !sources.length) {
+                return;
+            }
+            ev.preventDefault();
+            const targetDir = entry.fullPath;
+            try {
+                for (const src of sources) {
+                    if (!src || src === targetDir) {
+                        continue;
+                    }
+                    // avoid moving a directory into its own subtree
+                    if (targetDir.startsWith(src + '/')) {
+                        continue;
+                    }
+                    const name = src.split('/').filter(Boolean).pop() || '';
+                    if (!name) {
+                        continue;
+                    }
+                    const dst = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(targetDir, name);
+                    if (dst === src) {
+                        continue;
+                    }
+                    try {
+                        yield this.sftpSession.rename(src, dst);
+                    }
+                    catch (e) {
+                        console.error('[SFTP-UI] Remote move failed', e);
+                    }
+                }
+                yield this.refreshRemote();
+            }
+            catch (e) {
+                console.error('[SFTP-UI] Remote move batch failed', e);
+            }
+        });
+    }
+    getRemoteBreadcrumbs() {
+        const parts = this.remotePath.split('/').filter(Boolean);
+        const crumbs = [];
+        let current = '/';
+        crumbs.push({ label: '/', path: '/' });
+        for (const p of parts) {
+            current = current === '/' ? `/${p}` : `${current}/${p}`;
+            crumbs.push({ label: p, path: current });
+        }
+        return crumbs;
+    }
+    navigateRemoteBreadcrumb(index) {
+        const crumbs = this.getRemoteBreadcrumbs();
+        const crumb = crumbs[index];
+        if (!crumb) {
+            return;
+        }
+        this.remotePath = crumb.path;
+        this.remotePathInput = this.remotePath;
+        void this.refreshRemote();
+    }
+    goToRemotePathInput() {
+        if (!this.connected) {
+            return;
+        }
+        const target = this.normalizeRemotePath(this.remotePathInput || '/');
+        this.remotePath = target;
+        this.remotePathInput = target;
+        void this.refreshRemote();
+    }
+    goToLocalPathInput() {
+        const target = this.normalizeLocalPath(this.localPathInput || this.localPath);
+        this.goToLocalPath(target);
+    }
+    getLocalBreadcrumbs() {
+        const currentPath = this.localPath;
+        const parsed = path__WEBPACK_IMPORTED_MODULE_0__.parse(currentPath);
+        const root = parsed.root || path__WEBPACK_IMPORTED_MODULE_0__.sep;
+        const withoutRoot = currentPath.slice(root.length);
+        const parts = withoutRoot.split(path__WEBPACK_IMPORTED_MODULE_0__.sep).filter(Boolean);
+        const crumbs = [];
+        const rootLabel = root.replace(/[\\\/]+$/, '') || root;
+        crumbs.push({ label: rootLabel, path: root });
+        let accum = root;
+        for (const p of parts) {
+            accum = path__WEBPACK_IMPORTED_MODULE_0__.join(accum, p);
+            crumbs.push({ label: p, path: accum });
+        }
+        return crumbs;
+    }
+    navigateLocalBreadcrumb(index) {
+        const crumbs = this.getLocalBreadcrumbs();
+        const crumb = crumbs[index];
+        if (!crumb) {
+            return;
+        }
+        this.goToLocalPath(crumb.path);
+    }
+    goToLocalPath(target) {
+        this.localPath = target;
+        this.localPathInput = target;
+        void this.refreshLocal();
+    }
+    onLocalPresetChange(id) {
+        if (!id) {
+            return;
+        }
+        const preset = this.localPathPresets.find(p => p.id === id);
+        if (!preset) {
+            return;
+        }
+        this.goToLocalPath(preset.path);
+    }
+    isCurrentFavorite() {
+        return this.localFavorites.some(f => f.path === this.localPath);
+    }
+    toggleCurrentFavorite() {
+        const existingIndex = this.localFavorites.findIndex(f => f.path === this.localPath);
+        if (existingIndex >= 0) {
+            this.localFavorites.splice(existingIndex, 1);
+            this.saveLocalFavorites();
+            return;
+        }
+        const label = path__WEBPACK_IMPORTED_MODULE_0__.basename(this.localPath) || this.localPath;
+        const id = `fav-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+        this.localFavorites.push({ id, label, path: this.localPath });
+        this.saveLocalFavorites();
+    }
+    onLocalFavoriteSelect(id) {
+        if (!id) {
+            return;
+        }
+        const fav = this.localFavorites.find(f => f.id === id);
+        if (!fav) {
+            return;
+        }
+        this.goToLocalPath(fav.path);
+    }
+    onLocalBreadcrumbContextMenu(index, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const crumbs = this.getLocalBreadcrumbs();
+        const crumb = crumbs[index];
+        if (!crumb) {
+            return;
+        }
+        const menuItems = [];
+        const isWindows = process.platform === 'win32';
+        const isRootCrumb = index === 0;
+        const basePath = crumb.path;
+        // Root crumb on Windows: offer other drives as "siblings"
+        if (isWindows && isRootCrumb) {
+            const drives = [];
+            for (let code = 67; code <= 90; code++) { // C..Z
+                const letter = String.fromCharCode(code);
+                const rootPath = `${letter}:\\`;
+                try {
+                    if (fs__WEBPACK_IMPORTED_MODULE_3__.existsSync(rootPath)) {
+                        drives.push(rootPath);
+                    }
+                }
+                catch (_a) {
+                    // ignore
+                }
+            }
+            for (const d of drives) {
+                menuItems.push({ label: d, path: d });
+            }
+        }
+        else {
+            // For non-root crumbs (or non-Windows), show sibling folders only
+            const parentPath = path__WEBPACK_IMPORTED_MODULE_0__.dirname(basePath);
+            try {
+                const parentEntries = fs__WEBPACK_IMPORTED_MODULE_3__.readdirSync(parentPath);
+                for (const name of parentEntries) {
+                    const full = path__WEBPACK_IMPORTED_MODULE_0__.join(parentPath, name);
+                    try {
+                        const st = fs__WEBPACK_IMPORTED_MODULE_3__.statSync(full);
+                        if (st.isDirectory()) {
+                            menuItems.push({ label: name, path: full });
+                        }
+                    }
+                    catch (_b) {
+                        // ignore
+                    }
+                }
+            }
+            catch (_c) {
+                // ignore
+            }
+        }
+        if (!menuItems.length) {
+            return;
+        }
+        this.localMenuItems = menuItems;
+        this.localMenuVisible = true;
+        this.localMenuX = event.clientX;
+        this.localMenuY = event.clientY;
+    }
+    loadLocalFavorites() {
+        try {
+            if (typeof window === 'undefined' || !window.localStorage) {
+                return;
+            }
+            const raw = window.localStorage.getItem('tabby-sftp-ui-local-favorites');
+            if (!raw) {
+                return;
+            }
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+                this.localFavorites = parsed
+                    .filter(f => f && typeof f.path === 'string')
+                    .map(f => ({
+                    id: String(f.id || `fav-${Math.random().toString(36).slice(2, 8)}`),
+                    label: String(f.label || path__WEBPACK_IMPORTED_MODULE_0__.basename(f.path) || f.path),
+                    path: String(f.path),
+                }));
+            }
+        }
+        catch (_a) {
+            // ignore
+        }
+    }
+    saveLocalFavorites() {
+        try {
+            if (typeof window === 'undefined' || !window.localStorage) {
+                return;
+            }
+            window.localStorage.setItem('tabby-sftp-ui-local-favorites', JSON.stringify(this.localFavorites));
+        }
+        catch (_a) {
+            // ignore
+        }
+    }
+    onLocalMenuItemClick(item) {
+        this.localMenuVisible = false;
+        this.goToLocalPath(item.path);
+    }
+    normalizeLocalPath(p) {
+        if (!p) {
+            return this.localPath;
+        }
+        let result = p.trim();
+        // On Windows allow drive letters and backslashes, but normalize to current OS-style
+        if (path__WEBPACK_IMPORTED_MODULE_0__.win32.isAbsolute(result) || path__WEBPACK_IMPORTED_MODULE_0__.posix.isAbsolute(result)) {
+            return result;
+        }
+        // relative path from current localPath
+        return path__WEBPACK_IMPORTED_MODULE_0__.join(this.localPath, result);
+    }
+    normalizeRemotePath(p) {
+        if (!p) {
+            return '/';
+        }
+        let result = p.trim();
+        if (!result.startsWith('/')) {
+            result = '/' + result;
+        }
+        // remove duplicate slashes
+        result = result.replace(/\/+/g, '/');
+        return result;
+    }
+    getDefaultRemotePath() {
+        var _a, _b;
+        const username = (this.profile && (((_a = this.profile.options) === null || _a === void 0 ? void 0 : _a.username) || ((_b = this.profile.options) === null || _b === void 0 ? void 0 : _b.user))) || '';
+        if (username) {
+            return `/home/${username}`;
+        }
+        return '/';
+    }
+    loadRecentProfiles() {
+        var _a, _b;
+        try {
+            const rec = (_b = (_a = this.profilesService).getRecentProfiles) === null || _b === void 0 ? void 0 : _b.call(_a);
+            if (Array.isArray(rec)) {
+                this.recentProfiles = rec;
+            }
+        }
+        catch (_c) {
+            this.recentProfiles = [];
+        }
+    }
+    getProfileLabel(p) {
+        var _a;
+        if (!p) {
+            return '';
+        }
+        return p.name || ((_a = p.options) === null || _a === void 0 ? void 0 : _a.host) || p.id || 'Profile';
+    }
+    launchProfileFromSFTP(p) {
+        try {
+            void this.profilesService.launchProfile(p);
+        }
+        catch (e) {
+            console.error('[SFTP-UI] launchProfile failed', e);
+        }
+    }
+    onDocumentClick() {
+        this.localMenuVisible = false;
+    }
+    localRename() {
+        if (this.selectedLocal.length !== 1) {
+            return;
+        }
+        const entry = this.selectedLocal[0];
+        this.openInputDialog({
+            mode: 'local-rename',
+            title: 'Rename (local)',
+            placeholder: 'New name',
+            value: entry.name,
+            targetPath: entry.fullPath,
+        });
+    }
+    localDelete() {
+        if (!this.selectedLocal.length) {
+            return;
+        }
+        this.deleteConfirmMode = 'local';
+        this.pendingLocalDelete = this.selectedLocal.slice();
+        const names = this.pendingLocalDelete.map(e => e.name);
+        this.deleteConfirmText = this.buildDeleteConfirmText('local', names);
+        this.deleteConfirmVisible = true;
+    }
+    localNewFolder() {
+        this.openInputDialog({
+            mode: 'local-new-folder',
+            title: 'New folder (local)',
+            placeholder: 'Folder name',
+            value: 'New folder',
+            targetPath: this.localPath,
+        });
+    }
+    localEditPermissions() {
+        var _a;
+        if (this.selectedLocal.length !== 1 || !((_a = this.localActionPerms) === null || _a === void 0 ? void 0 : _a.trim())) {
+            return;
+        }
+        const entry = this.selectedLocal[0];
+        const mode = parseInt(this.localActionPerms.trim(), 8);
+        if (Number.isNaN(mode)) {
+            console.error('[SFTP-UI] Invalid local permissions value');
+            return;
+        }
+        void fs_promises__WEBPACK_IMPORTED_MODULE_2__.chmod(entry.fullPath, mode)
+            .then(() => this.refreshLocal())
+            .catch(e => console.error('[SFTP-UI] Local chmod failed', e));
+    }
+    localShowSize() {
+        if (this.selectedLocal.length === 1 && this.selectedLocal[0].isDirectory) {
+            this.ensureLocalFolderSize(this.selectedLocal[0]);
+        }
+    }
+    remoteRename() {
+        if (this.selectedRemote.length !== 1 || !this.sftpSession) {
+            return;
+        }
+        const entry = this.selectedRemote[0];
+        this.openInputDialog({
+            mode: 'remote-rename',
+            title: 'Rename (remote)',
+            placeholder: 'New name',
+            value: entry.name,
+            remotePath: entry.fullPath,
+            targetPath: this.remotePath,
+        });
+    }
+    remoteDelete() {
+        if (!this.selectedRemote.length || !this.sftpSession) {
+            return;
+        }
+        this.deleteConfirmMode = 'remote';
+        this.pendingRemoteDelete = this.selectedRemote.slice();
+        const names = this.pendingRemoteDelete.map(e => e.name);
+        this.deleteConfirmText = this.buildDeleteConfirmText('remote', names);
+        this.deleteConfirmVisible = true;
+    }
+    remoteNewFolder() {
+        if (!this.sftpSession) {
+            return;
+        }
+        this.openInputDialog({
+            mode: 'remote-new-folder',
+            title: 'New folder (remote)',
+            placeholder: 'Folder name',
+            value: 'New folder',
+            targetPath: this.remotePath,
+        });
+    }
+    openInputDialog(opts) {
+        var _a;
+        this.inputDialogMode = opts.mode;
+        this.inputDialogTitle = opts.title;
+        this.inputDialogPlaceholder = opts.placeholder;
+        this.inputDialogValue = opts.value;
+        this.inputDialogTargetPath = opts.targetPath;
+        this.inputDialogRemotePath = (_a = opts.remotePath) !== null && _a !== void 0 ? _a : null;
+        this.inputDialogVisible = true;
+    }
+    cancelInputDialog() {
+        this.inputDialogVisible = false;
+        this.inputDialogMode = null;
+        this.inputDialogTitle = '';
+        this.inputDialogPlaceholder = '';
+        this.inputDialogValue = '';
+        this.inputDialogTargetPath = null;
+        this.inputDialogRemotePath = null;
+    }
+    confirmInputDialog() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.inputDialogVisible || !this.inputDialogMode) {
+                return;
+            }
+            const mode = this.inputDialogMode;
+            const value = this.inputDialogValue.trim();
+            const targetPath = this.inputDialogTargetPath;
+            const remotePath = this.inputDialogRemotePath;
+            this.cancelInputDialog();
+            if (!value || !targetPath) {
+                return;
+            }
+            try {
+                if (mode === 'local-new-folder') {
+                    const dir = targetPath;
+                    const folderPath = path__WEBPACK_IMPORTED_MODULE_0__.join(dir, value);
+                    yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.mkdir(folderPath, { recursive: true });
+                    yield this.refreshLocal();
+                    return;
+                }
+                if (mode === 'local-rename') {
+                    const from = targetPath;
+                    const to = path__WEBPACK_IMPORTED_MODULE_0__.join(this.localPath, value);
+                    if (path__WEBPACK_IMPORTED_MODULE_0__.basename(from) === value) {
+                        return;
+                    }
+                    yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.rename(from, to);
+                    yield this.refreshLocal();
+                    return;
+                }
+                if (mode === 'remote-new-folder') {
+                    if (!this.sftpSession) {
+                        return;
+                    }
+                    const dir = targetPath;
+                    const folderPath = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(dir, value);
+                    yield this.sftpSession.mkdir(folderPath);
+                    yield this.refreshRemote();
+                    return;
+                }
+                if (mode === 'remote-rename') {
+                    if (!this.sftpSession || !remotePath) {
+                        return;
+                    }
+                    const to = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(this.remotePath, value);
+                    if (path__WEBPACK_IMPORTED_MODULE_0__.posix.basename(remotePath) === value) {
+                        return;
+                    }
+                    yield this.sftpSession.rename(remotePath, to);
+                    yield this.refreshRemote();
+                }
+            }
+            catch (e) {
+                console.error('[SFTP-UI] Input dialog action failed', e);
+            }
+        });
+    }
+    remoteEditPermissions() {
+        var _a;
+        if (this.selectedRemote.length !== 1 || !((_a = this.remoteActionPerms) === null || _a === void 0 ? void 0 : _a.trim()) || !this.sftpSession) {
+            return;
+        }
+        const entry = this.selectedRemote[0];
+        const mode = parseInt(this.remoteActionPerms.trim(), 8);
+        if (Number.isNaN(mode)) {
+            console.error('[SFTP-UI] Invalid remote permissions value');
+            return;
+        }
+        void this.sftpSession.chmod(entry.fullPath, mode)
+            .then(() => this.refreshRemote())
+            .catch((e) => console.error('[SFTP-UI] Remote chmod failed', e));
+    }
+    remoteShowSize() {
+        if (this.selectedRemote.length === 1 && this.selectedRemote[0].isDirectory) {
+            this.ensureRemoteFolderSize(this.selectedRemote[0]);
+        }
+    }
+    remoteDownload() {
+        if (!this.selectedRemote.length || !this.sftpSession) {
+            return;
+        }
+        for (const entry of this.selectedRemote) {
+            if (entry.isDirectory) {
+                continue;
+            }
+            const targetLocalPath = path__WEBPACK_IMPORTED_MODULE_0__.join(this.localPath, entry.name);
+            const dl = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileDownload(targetLocalPath, entry.mode, entry.size);
+            this.trackTransfer(dl, 'download', entry.fullPath, targetLocalPath);
+            void this.sftpSession.download(entry.fullPath, dl)
+                .then(() => this.refreshLocal())
+                .catch(e => console.error('[SFTP-UI] Remote download failed', e));
+        }
+    }
+    ensureLocalFolderSize(entry) {
+        if (!entry.isDirectory) {
+            return;
+        }
+        if (entry.size !== undefined) {
+            return;
+        }
+        if (this.localFolderSizeLoading.has(entry.fullPath)) {
+            return;
+        }
+        this.localFolderSizeLoading.add(entry.fullPath);
+        void this.computeLocalFolderSize(entry.fullPath)
+            .then(size => {
+            entry.size = size;
+        })
+            .catch(e => {
+            console.error('[SFTP-UI] Local folder size failed', e);
+        })
+            .finally(() => {
+            this.localFolderSizeLoading.delete(entry.fullPath);
+        });
+    }
+    ensureRemoteFolderSize(entry) {
+        if (!entry.isDirectory) {
+            return;
+        }
+        const key = entry.fullPath;
+        if (entry.dirSize !== undefined) {
+            return;
+        }
+        if (this.remoteFolderSizeLoading.has(key)) {
+            return;
+        }
+        if (!this.sftpSession || !this.connected) {
+            return;
+        }
+        this.remoteFolderSizeLoading.add(key);
+        void this.computeRemoteFolderSize(key)
+            .then(size => {
+            ;
+            entry.dirSize = size;
+        })
+            .catch(e => {
+            console.error('[SFTP-UI] Remote folder size failed', e);
+        })
+            .finally(() => {
+            this.remoteFolderSizeLoading.delete(key);
+        });
+    }
+    computeLocalFolderSize(root) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let total = 0;
+            const stack = [root];
+            const maxEntries = 5000;
+            let visited = 0;
+            while (stack.length) {
+                const dir = stack.pop();
+                let names;
+                try {
+                    names = yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.readdir(dir);
+                }
+                catch (_a) {
+                    continue;
+                }
+                for (const name of names) {
+                    if (visited++ > maxEntries) {
+                        return total;
+                    }
+                    const full = path__WEBPACK_IMPORTED_MODULE_0__.join(dir, name);
+                    try {
+                        const st = yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(full);
+                        if (st.isDirectory()) {
+                            stack.push(full);
+                        }
+                        else {
+                            total += st.size;
+                        }
+                    }
+                    catch (_b) {
+                        // ignore
+                    }
+                }
+            }
+            return total;
+        });
+    }
+    computeRemoteFolderSize(root) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.sftpSession) {
+                return 0;
+            }
+            let total = 0;
+            const stack = [root];
+            const maxEntries = 5000;
+            let visited = 0;
+            while (stack.length) {
+                const dir = stack.pop();
+                let entries;
+                try {
+                    entries = yield this.sftpSession.readdir(dir);
+                }
+                catch (_a) {
+                    continue;
+                }
+                for (const item of entries) {
+                    if (visited++ > maxEntries) {
+                        return total;
+                    }
+                    if (item.isDirectory) {
+                        stack.push(item.fullPath);
+                    }
+                    else {
+                        total += item.size;
+                    }
+                }
+            }
+            return total;
+        });
+    }
+    onLocalContextMenu(entry, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        // TODO: полноценное контекстное меню. Пока все действия — через нижнюю панель.
+    }
+    onRemoteContextMenu(entry, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!this.sftpSession) {
+            return;
+        }
+        // TODO: полноценное контекстное меню. Пока все действия — через нижнюю панель.
+    }
+    trackTransfer(transfer, direction, remotePath, localPath) {
+        this.transfers.push({
+            transfer,
+            direction,
+            name: transfer.getName(),
+            remotePath,
+            localPath,
+        });
+    }
+    cancelTransfer(entry) {
+        var _a, _b;
+        try {
+            if (entry.transfer.isComplete() || entry.transfer.isCancelled()) {
+                return;
+            }
+            (_b = (_a = entry.transfer).cancel) === null || _b === void 0 ? void 0 : _b.call(_a);
+        }
+        catch (e) {
+            console.error('[SFTP-UI] Cancel transfer failed', e);
+        }
+    }
+    getTransferProgress(transfer) {
+        var _a, _b;
+        try {
+            const total = (_a = transfer.getSize) === null || _a === void 0 ? void 0 : _a.call(transfer);
+            const done = (_b = transfer.getCompletedBytes) === null || _b === void 0 ? void 0 : _b.call(transfer);
+            if (typeof total !== 'number' || total <= 0 || typeof done !== 'number' || done < 0) {
+                return transfer.isComplete() ? 100 : 0;
+            }
+            const value = (done / total) * 100;
+            const clamped = Math.max(0, Math.min(100, value));
+            return clamped;
+        }
+        catch (_c) {
+            return transfer.isComplete() ? 100 : 0;
+        }
+    }
+    onKeyDown(event) {
+        const target = event.target;
+        const isTypingTarget = Boolean(target) && ((target === null || target === void 0 ? void 0 : target.tagName) === 'INPUT' ||
+            (target === null || target === void 0 ? void 0 : target.tagName) === 'TEXTAREA' ||
+            (target === null || target === void 0 ? void 0 : target.isContentEditable));
+        if (event.key === 'Escape') {
+            if (this.inputDialogVisible) {
+                event.preventDefault();
+                this.cancelInputDialog();
+                return;
+            }
+            if (this.deleteConfirmVisible) {
+                event.preventDefault();
+                this.cancelDelete();
+                return;
+            }
+            if (this.replaceConfirmVisible) {
+                event.preventDefault();
+                this.cancelReplace();
+                return;
+            }
+        }
+        if (event.key === 'Delete' || event.key === 'Backspace') {
+            // Don't intercept Delete/Backspace while typing in inputs
+            if (isTypingTarget) {
+                return;
+            }
+            event.preventDefault();
+            if (this.selectedRemote.length) {
+                this.remoteDelete();
+            }
+            else if (this.selectedLocal.length) {
+                this.localDelete();
+            }
+        }
+    }
+    destroy() {
+        // stop file watchers for opened remote files
+        for (const { watcher } of this.openedRemoteFiles.values()) {
+            try {
+                watcher === null || watcher === void 0 ? void 0 : watcher.close();
+            }
+            catch (_a) {
+                // ignore
+            }
+        }
+        this.openedRemoteFiles.clear();
+        void this.disconnect();
+        if (this.transfersTimer !== null) {
+            clearInterval(this.transfersTimer);
+            this.transfersTimer = null;
+        }
+        super.destroy();
+    }
+    // Prevent Tabby from restoring SFTP-UI tabs across restarts, since they rely
+    // on a live SSH session from a terminal tab.
+    // Typинги допускают RecoveryToken | null, нам достаточно всегда возвращать null.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    getRecoveryToken(_options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return null;
+        });
+    }
+    confirmDelete() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.deleteConfirmVisible) {
+                return;
+            }
+            const mode = this.deleteConfirmMode;
+            this.deleteConfirmVisible = false;
+            try {
+                if (mode === 'local') {
+                    const toDelete = this.pendingLocalDelete.slice();
+                    this.pendingLocalDelete = [];
+                    for (const entry of toDelete) {
+                        yield this.deleteLocalEntry(entry);
+                    }
+                    yield this.refreshLocal();
+                    this.selectedLocal = [];
+                }
+                else if (mode === 'remote' && this.sftpSession) {
+                    const toDelete = this.pendingRemoteDelete.slice();
+                    this.pendingRemoteDelete = [];
+                    for (const entry of toDelete) {
+                        yield this.deleteRemoteEntry(entry);
+                    }
+                    yield this.refreshRemote();
+                    this.selectedRemote = [];
+                }
+            }
+            catch (e) {
+                console.error('[SFTP-UI] Delete failed', e);
+            }
+            finally {
+                this.deleteConfirmMode = null;
+                this.deleteConfirmText = '';
+            }
+        });
+    }
+    cancelDelete() {
+        this.deleteConfirmVisible = false;
+        this.deleteConfirmMode = null;
+        this.deleteConfirmText = '';
+        this.pendingLocalDelete = [];
+        this.pendingRemoteDelete = [];
+    }
+    showReplaceConfirm(text) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.replaceConfirmVisible) {
+                // Prevent stacking multiple confirmations; choose the latest replacement intent.
+                return false;
+            }
+            this.replaceConfirmText = text;
+            this.replaceConfirmVisible = true;
+            return new Promise(resolve => {
+                this.replaceConfirmResolve = resolve;
+            });
+        });
+    }
+    confirmReplace() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.replaceConfirmVisible) {
+                return;
+            }
+            this.replaceConfirmVisible = false;
+            const resolve = this.replaceConfirmResolve;
+            this.replaceConfirmResolve = null;
+            this.replaceConfirmText = '';
+            resolve === null || resolve === void 0 ? void 0 : resolve(true);
+        });
+    }
+    cancelReplace() {
+        if (!this.replaceConfirmVisible) {
+            return;
+        }
+        this.replaceConfirmVisible = false;
+        const resolve = this.replaceConfirmResolve;
+        this.replaceConfirmResolve = null;
+        this.replaceConfirmText = '';
+        resolve === null || resolve === void 0 ? void 0 : resolve(false);
+    }
+    deleteLocalEntry(entry) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.deleteLocalPathRecursive(entry.fullPath);
+        });
+    }
+    deleteRemoteEntry(entry) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.sftpSession) {
+                return;
+            }
+            yield this.deleteRemotePathRecursive(entry.fullPath);
+        });
+    }
+    buildDeleteConfirmText(scope, names) {
+        const total = names.length;
+        const label = scope === 'local' ? 'local' : 'remote';
+        if (!total) {
+            return `Delete 0 item(s) from ${label}?`;
+        }
+        const maxShown = 5;
+        const shown = names.slice(0, maxShown);
+        const list = shown.join(', ');
+        if (total <= maxShown) {
+            return `Delete ${total} item(s) from ${label}: ${list}?`;
+        }
+        const rest = total - maxShown;
+        return `Delete ${total} item(s) from ${label}: ${list} and ${rest} more?`;
+    }
+    deleteLocalPathRecursive(target) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const st = yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(target);
+                if (!st.isDirectory()) {
+                    yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.unlink(target);
+                    return;
+                }
+            }
+            catch (e) {
+                console.error('[SFTP-UI] Local delete failed (stat)', e);
+                return;
+            }
+            try {
+                const names = yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.readdir(target);
+                for (const name of names) {
+                    const child = path__WEBPACK_IMPORTED_MODULE_0__.join(target, name);
+                    yield this.deleteLocalPathRecursive(child);
+                }
+                yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.rmdir(target);
+            }
+            catch (e) {
+                console.error('[SFTP-UI] Local recursive delete failed', e);
+            }
+        });
+    }
+    deleteRemotePathRecursive(target) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.sftpSession) {
+                return;
+            }
+            try {
+                const entries = yield this.sftpSession.readdir(target).catch(() => null);
+                if (!entries) {
+                    // treat as file
+                    try {
+                        yield this.sftpSession.unlink(target);
+                    }
+                    catch (e) {
+                        console.error('[SFTP-UI] Remote delete failed', e);
+                    }
+                    return;
+                }
+                for (const item of entries) {
+                    const full = item.fullPath;
+                    if (item.isDirectory) {
+                        yield this.deleteRemotePathRecursive(full);
+                    }
+                    else {
+                        try {
+                            yield this.sftpSession.unlink(full);
+                        }
+                        catch (e) {
+                            console.error('[SFTP-UI] Remote unlink failed', e);
+                        }
+                    }
+                }
+                try {
+                    yield this.sftpSession.rmdir(target);
+                }
+                catch (e) {
+                    console.error('[SFTP-UI] Remote rmdir failed', e);
+                }
+            }
+            catch (e) {
+                console.error('[SFTP-UI] Remote recursive delete failed', e);
+            }
+        });
+    }
+    openRemoteFile(entry) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.sftpSession || !this.connected || entry.isDirectory) {
+                return;
+            }
+            try {
+                const tmpRoot = path__WEBPACK_IMPORTED_MODULE_0__.join(os__WEBPACK_IMPORTED_MODULE_1__.tmpdir(), 'tabby-sftp-ui');
+                yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.mkdir(tmpRoot, { recursive: true });
+                const hash = crypto__WEBPACK_IMPORTED_MODULE_4__.createHash('sha1').update(entry.fullPath).digest('hex').slice(0, 10);
+                const safeName = entry.name.replace(/[<>:"/\\|?*\x00-\x1F]/g, '_');
+                const localPath = path__WEBPACK_IMPORTED_MODULE_0__.join(tmpRoot, `${hash}-${safeName}`);
+                // если уже есть watcher на этот файл – закроем его и перезапишем
+                const existing = this.openedRemoteFiles.get(localPath);
+                if (existing === null || existing === void 0 ? void 0 : existing.watcher) {
+                    try {
+                        existing.watcher.close();
+                    }
+                    catch (_a) {
+                        // ignore
+                    }
+                }
+                if ((existing === null || existing === void 0 ? void 0 : existing.debounceTimer) != null) {
+                    try {
+                        clearTimeout(existing.debounceTimer);
+                    }
+                    catch (_b) {
+                        // ignore
+                    }
+                }
+                const dl = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileDownload(localPath, entry.mode, entry.size);
+                this.trackTransfer(dl, 'download', entry.fullPath, localPath);
+                yield this.sftpSession.download(entry.fullPath, dl);
+                // настроим наблюдение за изменениями локального файла
+                const schedule = () => this.scheduleSyncBackRemoteFile(localPath);
+                const watcher = fs__WEBPACK_IMPORTED_MODULE_3__.watch(localPath, { persistent: false }, (eventType) => {
+                    // Many editors save atomically (rename) or emit multiple change events.
+                    if (eventType === 'change' || eventType === 'rename') {
+                        schedule();
+                    }
+                });
+                this.openedRemoteFiles.set(localPath, {
+                    remotePath: entry.fullPath,
+                    mode: entry.mode,
+                    watcher,
+                    debounceTimer: null,
+                    syncing: false,
+                    pending: false,
+                    lastUploadedSignature: null,
+                });
+                this.platform.openPath(localPath);
+            }
+            catch (e) {
+                console.error('[SFTP-UI] Open remote file failed', e);
+            }
+        });
+    }
+    scheduleSyncBackRemoteFile(localPath) {
+        const info = this.openedRemoteFiles.get(localPath);
+        if (!info) {
+            return;
+        }
+        if (info.debounceTimer != null) {
+            clearTimeout(info.debounceTimer);
+        }
+        // Debounce a burst of editor save events
+        info.debounceTimer = window.setTimeout(() => {
+            info.debounceTimer = null;
+            void this.syncBackRemoteFile(localPath);
+        }, 650);
+    }
+    waitForStableLocalFile(localPath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Wait until the file stops changing (editors often write in multiple passes)
+            let last = null;
+            for (let i = 0; i < 10; i++) {
+                const st = yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(localPath).catch(() => null);
+                if (!st || !st.isFile()) {
+                    return null;
+                }
+                const cur = { size: st.size, mtimeMs: st.mtimeMs };
+                if (last && cur.size === last.size && cur.mtimeMs === last.mtimeMs) {
+                    // stable for one interval
+                    return cur;
+                }
+                last = cur;
+                yield new Promise(resolve => setTimeout(resolve, 180));
+            }
+            return last;
+        });
+    }
+    syncBackRemoteFile(localPath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.sftpSession || !this.connected) {
+                return;
+            }
+            const info = this.openedRemoteFiles.get(localPath);
+            if (!info) {
+                return;
+            }
+            if (info.syncing) {
+                info.pending = true;
+                return;
+            }
+            info.syncing = true;
+            try {
+                const stable = yield this.waitForStableLocalFile(localPath);
+                if (!stable) {
+                    return;
+                }
+                const signature = `${stable.size}:${stable.mtimeMs}`;
+                if (info.lastUploadedSignature === signature) {
+                    return;
+                }
+                const upload = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileUpload(localPath);
+                this.trackTransfer(upload, 'upload', info.remotePath, localPath);
+                yield this.sftpSession.upload(info.remotePath, upload);
+                info.lastUploadedSignature = signature;
+                yield this.refreshRemote();
+            }
+            catch (e) {
+                console.error('[SFTP-UI] Sync-back remote file failed', e);
+            }
+            finally {
+                info.syncing = false;
+                if (info.pending) {
+                    info.pending = false;
+                    this.scheduleSyncBackRemoteFile(localPath);
+                }
+            }
+        });
+    }
+};
+__decorate([
+    (0,_angular_core__WEBPACK_IMPORTED_MODULE_5__.HostListener)('document:click'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], SftpManagerTabComponent.prototype, "onDocumentClick", null);
+SftpManagerTabComponent = __decorate([
+    (0,_angular_core__WEBPACK_IMPORTED_MODULE_5__.Component)({
+        selector: 'tabby-sftp-manager-tab',
+        template: `
+    <div class="sftp-root" tabindex="0" (keydown)="onKeyDown($event)">
+      <div class="top-profiles" *ngIf="profile || recentProfiles.length">
+        <div class="current" *ngIf="profile">
+          <span class="label">Device:</span>
+          <span class="value">{{ getProfileLabel(profile) }}</span>
+        </div>
+        <div class="recent" *ngIf="recentProfiles.length">
+          <span class="label">Recent:</span>
+          <button
+            class="profile-chip"
+            *ngFor="let p of recentProfiles"
+            (click)="launchProfileFromSFTP(p)"
+          >
+            {{ getProfileLabel(p) }}
+          </button>
+        </div>
+      </div>
+      <div class="sftp-body">
+        <div class="pane">
+          <div class="pane-title">
+            <div class="pane-label">Local</div>
+            <div class="pane-path">
+              <input
+                [(ngModel)]="localPathInput"
+                (keyup.enter)="goToLocalPathInput()"
+              />
+            </div>
+            <div class="pane-actions">
+              <select class="path-preset" (change)="onLocalPresetChange($event.target.value)">
+                <option value="">Go to…</option>
+                <option *ngFor="let p of localPathPresets" [value]="p.id">
+                  {{ p.label }}
+                </option>
+              </select>
+              <button
+                class="fav-toggle"
+                [class.active]="isCurrentFavorite()"
+                (click)="toggleCurrentFavorite()"
+                title="Toggle favorite for this path"
+              >
+                ★
+              </button>
+              <select class="path-favorite" (change)="onLocalFavoriteSelect($event.target.value)">
+                <option value="">Favorites…</option>
+                <option *ngFor="let f of localFavorites" [value]="f.id">
+                  {{ f.label }}
+                </option>
+              </select>
+              <button (click)="localUp()" [disabled]="!canLocalUp()">Up</button>
+              <button (click)="goToLocalPathInput()">Go</button>
+              <button (click)="refreshLocal()">Refresh</button>
+            </div>
+          </div>
+          <div class="pane-filters">
+            <div class="breadcrumbs">
+              <ng-container *ngFor="let part of getLocalBreadcrumbs(); let i = index; let last = last">
+                <button
+                  class="crumb-button"
+                  (click)="navigateLocalBreadcrumb(i)"
+                  (contextmenu)="onLocalBreadcrumbContextMenu(i, $event)"
+                >
+                  {{ part.label }}
+                </button>
+                <span class="crumb-separator" *ngIf="!last">›</span>
+              </ng-container>
+            </div>
+            <input [(ngModel)]="localFilter" placeholder="Filter files..." />
+            <label class="show-hidden-toggle">
+              <input type="checkbox" [(ngModel)]="showHiddenLocal" />
+              <span>Show hidden</span>
+            </label>
+          </div>
+          <div class="pane-list"
+            (dragover)="onDragOver($event)"
+            (drop)="onDropOnLocal($event)"
+          >
+            <div class="entry header">
+              <span class="icon"></span>
+              <span class="name sortable" (click)="setLocalSort('name')">Name</span>
+              <span class="size sortable" (click)="setLocalSort('size')">Size</span>
+              <span class="date sortable" (click)="setLocalSort('modified')">Modified</span>
+            </div>
+            <div
+              class="entry"
+              *ngIf="canLocalUp()"
+              (dblclick)="localUp()"
+            >
+              <span class="icon">⬆</span>
+              <span class="name">Go up</span>
+              <span class="size"></span>
+              <span class="date"></span>
+            </div>
+            <div
+              class="entry"
+              *ngFor="let e of getFilteredLocalEntries()"
+              (click)="selectLocal(e, $event)"
+              (dblclick)="openLocal(e)"
+              (mousedown)="onLocalMouseDown(e, $event)"
+              (contextmenu)="onLocalContextMenu(e, $event)"
+              (dragover)="onLocalEntryDragOver(e, $event)"
+              (drop)="onLocalEntryDrop(e, $event)"
+              [class.drop-target]="localDropActive"
+              [class.selected]="isLocalSelected(e)"
+              [draggable]="true"
+              (dragstart)="onDragStartLocal($event, e)"
+            >
+              <span class="icon">{{ e.isDirectory ? '📁' : '📄' }}</span>
+              <span class="name">{{ e.name }}</span>
+              <span class="size">{{ getLocalSizeDisplay(e) }}</span>
+              <span class="date">{{ e.mtimeMs ? (e.mtimeMs | date:'yyyy-MM-dd HH:mm') : '' }}</span>
+            </div>
+          </div>
+          <div class="pane-actions-bar">
+            <div class="selection" *ngIf="selectedLocal.length">
+              Selected: {{ selectedLocal.length === 1 ? selectedLocal[0].name : (selectedLocal.length + ' items') }}
+            </div>
+            <div class="action-inputs">
+              <input [(ngModel)]="localActionName" placeholder="Name / new name" />
+              <input [(ngModel)]="localActionPerms" placeholder="Perms (e.g. 755)" />
+            </div>
+            <div class="action-buttons">
+              <button (click)="localRename()" [disabled]="selectedLocal.length !== 1">Rename</button>
+              <button (click)="refreshLocal()">Refresh</button>
+              <button (click)="localDelete()" [disabled]="!selectedLocal.length">Delete</button>
+              <button (click)="localNewFolder()">New Folder</button>
+              <button (click)="localEditPermissions()" [disabled]="selectedLocal.length !== 1 || !localActionPerms">Edit Permissions</button>
+              <button (click)="localShowSize()" [disabled]="selectedLocal.length !== 1 || !selectedLocal[0].isDirectory">Show Size</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pane">
+          <div class="pane-title">
+            <div class="pane-label">
+              Remote
+              <span *ngIf="connected && profile?.options?.host" class="pane-sub">
+                — {{ profile.options.host }}
+              </span>
+            </div>
+            <div class="pane-path">
+              <input
+                [(ngModel)]="remotePathInput"
+                (keyup.enter)="goToRemotePathInput()"
+                [disabled]="!connected"
+              />
+            </div>
+            <div class="pane-actions">
+              <button (click)="remoteUp()" [disabled]="!connected || remotePath === '/'">Up</button>
+              <button (click)="goToRemotePathInput()" [disabled]="!connected">Go</button>
+              <button (click)="refreshRemote()" [disabled]="!connected">Refresh</button>
+            </div>
+          </div>
+          <div class="pane-filters">
+            <div class="breadcrumbs" *ngIf="connected">
+              <ng-container *ngFor="let part of getRemoteBreadcrumbs(); let i = index; let last = last">
+                <button
+                  class="crumb-button"
+                  (click)="navigateRemoteBreadcrumb(i)"
+                >
+                  {{ part.label }}
+                </button>
+                <span class="crumb-separator" *ngIf="!last">›</span>
+              </ng-container>
+            </div>
+            <input [(ngModel)]="remoteFilter" placeholder="Filter files..." />
+            <label class="show-hidden-toggle">
+              <input type="checkbox" [(ngModel)]="showHiddenRemote" />
+              <span>Show hidden</span>
+            </label>
+          </div>
+          <div class="pane-list"
+            (dragover)="onDragOver($event)"
+            (drop)="onDropOnRemote($event)"
+          >
+            <div class="entry dim" *ngIf="!connected">
+              <span class="name">Not connected</span>
+            </div>
+            <div class="entry header" *ngIf="connected">
+              <span class="icon"></span>
+              <span class="name sortable" (click)="setRemoteSort('name')">Name</span>
+              <span class="size sortable" (click)="setRemoteSort('size')">Size</span>
+              <span class="date sortable" (click)="setRemoteSort('modified')">Modified</span>
+            </div>
+            <div
+              class="entry"
+              *ngIf="connected && remotePath !== '/'"
+              (dblclick)="remoteUp()"
+            >
+              <span class="icon">⬆</span>
+              <span class="name">Go up</span>
+              <span class="size"></span>
+              <span class="date"></span>
+            </div>
+            <div
+              class="entry"
+              *ngFor="let e of getFilteredRemoteEntries()"
+              (click)="selectRemote(e, $event)"
+              (dblclick)="openRemote(e)"
+              (mousedown)="onRemoteMouseDown(e, $event)"
+              (contextmenu)="onRemoteContextMenu(e, $event)"
+              (dragover)="onRemoteEntryDragOver(e, $event)"
+              (drop)="onRemoteEntryDrop(e, $event)"
+              [class.drop-target]="remoteDropActive"
+              [class.selected]="isRemoteSelected(e)"
+              [draggable]="connected"
+              (dragstart)="onDragStartRemote($event, e)"
+            >
+              <span class="icon">{{ e.isDirectory ? '📁' : '📄' }}</span>
+              <span class="name">{{ e.name }}</span>
+              <span class="size">{{ getRemoteSizeDisplay(e) }}</span>
+              <span class="date">{{ e.modified | date:'yyyy-MM-dd HH:mm' }}</span>
+            </div>
+          </div>
+          <div class="pane-actions-bar">
+            <div class="selection" *ngIf="selectedRemote.length">
+              Selected: {{ selectedRemote.length === 1 ? selectedRemote[0].name : (selectedRemote.length + ' items') }}
+            </div>
+            <div class="action-inputs">
+              <input [(ngModel)]="remoteActionName" placeholder="Name / new name" />
+              <input [(ngModel)]="remoteActionPerms" placeholder="Perms (e.g. 755)" />
+            </div>
+            <div class="action-buttons">
+              <button (click)="remoteRename()" [disabled]="selectedRemote.length !== 1">Rename</button>
+              <button (click)="refreshRemote()" [disabled]="!connected">Refresh</button>
+              <button (click)="remoteDelete()" [disabled]="!selectedRemote.length">Delete</button>
+              <button (click)="remoteNewFolder()" [disabled]="!connected">New Folder</button>
+              <button (click)="remoteEditPermissions()" [disabled]="selectedRemote.length !== 1 || !remoteActionPerms">Edit Permissions</button>
+              <button (click)="remoteShowSize()" [disabled]="selectedRemote.length !== 1 || !selectedRemote[0].isDirectory">Show Size</button>
+              <button (click)="remoteDownload()" [disabled]="!selectedRemote.length">Download</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sftp-transfers" *ngIf="transfers.length">
+        <div class="transfer" *ngFor="let t of transfers">
+          <div class="transfer-main">
+            <div class="transfer-title">
+              <span class="direction">{{ t.direction === 'upload' ? 'Upload' : 'Download' }}</span>
+              <span class="name">{{ t.name }}</span>
+            </div>
+            <div class="transfer-path">
+              <span class="label">Remote:</span>
+              <span class="value">{{ t.remotePath }}</span>
+            </div>
+            <div class="transfer-path">
+              <span class="label">Local:</span>
+              <span class="value">{{ t.localPath }}</span>
+            </div>
+            <div class="bar">
+              <div class="fill" [style.width.%]="getTransferProgress(t.transfer)"></div>
+            </div>
+          </div>
+          <div class="transfer-stats">
+            <div class="percent">{{ getTransferProgress(t.transfer) | number:'1.0-0' }}%</div>
+            <div class="speed">{{ formatSpeed(t.transfer.getSpeed()) }}</div>
+            <button class="btn-cancel" (click)="cancelTransfer(t)" [disabled]="t.transfer.isComplete() || t.transfer.isCancelled()">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="delete-overlay" *ngIf="deleteConfirmVisible">
+        <div class="delete-dialog">
+          <div class="delete-text">{{ deleteConfirmText }}</div>
+          <div class="delete-buttons">
+            <button class="danger" (click)="confirmDelete()">Delete</button>
+            <button (click)="cancelDelete()">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="delete-overlay" *ngIf="replaceConfirmVisible">
+        <div class="delete-dialog">
+          <div class="delete-text">{{ replaceConfirmText }}</div>
+          <div class="delete-buttons">
+            <button class="danger" (click)="confirmReplace()">Replace</button>
+            <button (click)="cancelReplace()">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="delete-overlay" *ngIf="inputDialogVisible">
+        <div class="delete-dialog" (click)="$event.stopPropagation()">
+          <div class="delete-text">{{ inputDialogTitle }}</div>
+          <input
+            class="dialog-input"
+            [(ngModel)]="inputDialogValue"
+            [placeholder]="inputDialogPlaceholder"
+            (keyup.enter)="confirmInputDialog()"
+          />
+          <div class="delete-buttons">
+            <button class="danger" (click)="confirmInputDialog()" [disabled]="!inputDialogValue.trim()">OK</button>
+            <button (click)="cancelInputDialog()">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="local-menu"
+        *ngIf="localMenuVisible"
+        [style.left.px]="localMenuX"
+        [style.top.px]="localMenuY"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="local-menu-item" *ngFor="let item of localMenuItems" (click)="onLocalMenuItemClick(item)">
+          {{ item.label }}
+        </div>
+      </div>
+    </div>
+  `,
+        styles: [`
+    .sftp-root { display: flex; flex-direction: column; height: 100%; padding: 10px; gap: 10px; position: relative; }
+    button { padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: inherit; cursor: pointer; }
+    button:disabled { opacity: 0.5; cursor: default; }
+    .top-profiles { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px 8px; gap: 12px; font-size: 11px; opacity: 0.9; }
+    .top-profiles .current .label,
+    .top-profiles .recent .label { text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; margin-right: 4px; }
+    .top-profiles .value { font-weight: 600; }
+    .top-profiles .profile-chip { padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.04); color: inherit; cursor: pointer; font-size: 11px; }
+    .top-profiles .profile-chip:hover { background: rgba(255,255,255,0.12); }
+    .sftp-body { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex: 1; min-height: 0; }
+    .pane { display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; overflow: hidden; min-height: 0; }
+    .pane-title { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 8px 10px; background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .pane-label { font-weight: 600; display: flex; align-items: baseline; gap: 6px; }
+    .pane-sub { font-weight: 400; font-size: 11px; opacity: 0.75; }
+    .pane-path { opacity: 0.8; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pane-path input { width: 100%; padding: 4px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.18); background: rgba(0,0,0,0.3); color: inherit; font-family: inherit; font-size: 12px; }
+    .pane-actions { display: flex; gap: 8px; align-items: center; }
+    .pane-actions .path-preset,
+    .pane-actions .path-favorite { max-width: 150px; padding: 3px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.22); background: rgba(20,20,20,0.95); color: inherit; font-size: 11px; }
+    .pane-actions .path-preset option { background: #151515; color: #f5f5f5; }
+    .pane-actions .path-favorite option { background: #151515; color: #f5f5f5; }
+    .pane-actions .fav-toggle { padding: 2px 6px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.05); font-size: 11px; line-height: 1; }
+    .pane-actions .fav-toggle.active { background: rgba(255,215,0,0.2); border-color: rgba(255,215,0,0.6); color: #ffd700; }
+    .pane-filters { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(0,0,0,0.12); }
+    .pane-filters input { flex: 1; padding: 4px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.18); background: rgba(0,0,0,0.3); color: inherit; font-size: 12px; }
+    .show-hidden-toggle { display: flex; align-items: center; gap: 4px; font-size: 11px; opacity: 0.8; white-space: nowrap; }
+    .show-hidden-toggle input[type="checkbox"] { margin: 0; }
+    .breadcrumbs { display: flex; flex-wrap: wrap; gap: 4px; font-size: 11px; opacity: 0.9; align-items: center; }
+    .crumb-button { padding: 2px 6px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.04); color: inherit; cursor: pointer; font-size: 11px; }
+    .crumb-button:hover { background: rgba(255,255,255,0.10); }
+    .crumb-separator { opacity: 0.6; }
+    .pane-list { flex: 1; overflow: auto; padding: 4px; }
+    .entry { display: grid; grid-template-columns: 24px minmax(0, 1.5fr) 80px 140px; gap: 8px; padding: 6px 8px; border-radius: 8px; user-select: none; align-items: center; }
+    .entry:hover { background: rgba(255,255,255,0.06); }
+    .entry.drop-target { outline: 1px dashed rgba(255,255,255,0.35); background: rgba(80, 160, 255, 0.10); }
+    .entry.dim { opacity: 0.7; }
+    .icon { text-align: center; opacity: 0.85; }
+    .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .size { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; text-align: right; opacity: 0.8; }
+    .date { font-size: 11px; opacity: 0.75; text-align: right; white-space: nowrap; }
+    .entry.header { font-weight: 600; opacity: 0.9; background: rgba(255,255,255,0.02); }
+    .sortable { cursor: pointer; }
+    .entry.selected { background: rgba(80,160,255,0.18); }
+    .pane-actions-bar { display: flex; flex-direction: column; gap: 4px; padding: 6px 8px; border-top: 1px solid rgba(255,255,255,0.06); background: rgba(0,0,0,0.18); }
+    .pane-actions-bar .selection { font-size: 11px; opacity: 0.85; }
+    .pane-actions-bar .action-inputs { display: flex; gap: 6px; }
+    .pane-actions-bar .action-inputs input { flex: 1; padding: 3px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.18); background: rgba(0,0,0,0.3); color: inherit; font-size: 11px; }
+    .pane-actions-bar .action-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .sftp-transfers { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; max-height: 120px; overflow-y: auto; }
+    .transfer { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 6px 8px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); font-size: 11px; }
+    .transfer-title { display: flex; gap: 6px; align-items: baseline; margin-bottom: 2px; }
+    .transfer-title .direction { text-transform: uppercase; letter-spacing: 0.04em; opacity: 0.7; font-weight: 600; font-size: 10px; }
+    .transfer-title .name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .transfer-path { display: flex; gap: 4px; opacity: 0.75; }
+    .transfer-path .label { min-width: 48px; }
+    .transfer-path .value { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .bar { position: relative; height: 4px; border-radius: 999px; background: rgba(255,255,255,0.07); margin-top: 4px; overflow: hidden; }
+    .bar .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: inherit; background: linear-gradient(90deg, #4dabff, #78ffce); transition: width 0.15s linear; }
+    .transfer-stats { display: flex; flex-direction: column; justify-content: center; align-items: flex-end; gap: 4px; opacity: 0.8; }
+    .transfer-stats .percent { font-weight: 600; }
+    .transfer-stats .speed { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .btn-cancel { padding: 2px 6px; font-size: 10px; border-radius: 999px; }
+    .delete-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; z-index: 20; }
+    .delete-dialog { min-width: 260px; max-width: 360px; padding: 14px 16px; border-radius: 10px; background: rgba(20,20,20,0.96); border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 18px 45px rgba(0,0,0,0.75); display: flex; flex-direction: column; gap: 10px; }
+    .delete-text { font-size: 13px; }
+    .dialog-input { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.18); background: rgba(0,0,0,0.3); color: inherit; font-size: 13px; }
+    .delete-buttons { display: flex; justify-content: flex-end; gap: 8px; }
+    .delete-buttons .danger { background: rgba(255,80,80,0.85); border-color: rgba(255,120,120,0.85); }
+    .local-menu { position: absolute; min-width: 180px; max-width: 260px; max-height: 260px; overflow-y: auto; padding: 4px 0; border-radius: 10px; background: rgba(18,18,22,0.98); border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 18px 45px rgba(0,0,0,0.8); z-index: 30; backdrop-filter: blur(12px); }
+    .local-menu-item { padding: 6px 12px; font-size: 12px; cursor: pointer; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+    .local-menu-item:hover { background: linear-gradient(90deg, rgba(120,200,255,0.24), rgba(120,255,206,0.15)); }
+  `],
+    }),
+    __metadata("design:paramtypes", [_angular_core__WEBPACK_IMPORTED_MODULE_5__.Injector,
+        _sftp_service__WEBPACK_IMPORTED_MODULE_8__.SftpConnectionService,
+        tabby_core__WEBPACK_IMPORTED_MODULE_6__.ProfilesService,
+        tabby_core__WEBPACK_IMPORTED_MODULE_6__.AppService])
+], SftpManagerTabComponent);
+
+
+
+/***/ },
+
+/***/ "./src/sftp/sftp-ui.service.ts"
+/*!*************************************!*\
+  !*** ./src/sftp/sftp-ui.service.ts ***!
+  \*************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   SftpUiService: () => (/* binding */ SftpUiService)
+/* harmony export */ });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "@angular/core");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_angular_core__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! tabby-core */ "tabby-core");
+/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(tabby_core__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _sftp_manager_tab_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./sftp-manager-tab.component */ "./src/sftp/sftp-manager-tab.component.ts");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (undefined && undefined.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+
+let SftpUiService = class SftpUiService {
+    constructor(app, hotkeys, log, zone, notifications) {
+        this.app = app;
+        this.hotkeys = hotkeys;
+        this.log = log;
+        this.zone = zone;
+        this.notifications = notifications;
+        this.logger = this.log.create('sftp-ui');
+        this.hotkeys.hotkey$.subscribe(h => {
+            if (h === 'open-sftp-ui') {
+                this.open();
+            }
+        });
+        this.logger.info('loaded');
+    }
+    open() {
+        var _a, _b;
+        const active = this.app.activeTab;
+        const focused = active instanceof tabby_core__WEBPACK_IMPORTED_MODULE_1__.SplitTabComponent ? ((_b = (_a = active.getFocusedTab) === null || _a === void 0 ? void 0 : _a.call(active)) !== null && _b !== void 0 ? _b : null) : active;
+        this.openForSourceTab(focused);
+    }
+    openForSourceTab(sourceTab) {
+        var _a, _b;
+        const sshSession = (_a = sourceTab === null || sourceTab === void 0 ? void 0 : sourceTab.sshSession) !== null && _a !== void 0 ? _a : null;
+        const profile = (_b = sourceTab === null || sourceTab === void 0 ? void 0 : sourceTab.profile) !== null && _b !== void 0 ? _b : null;
+        this.zone.run(() => {
+            var _a;
+            try {
+                if (!sshSession) {
+                    this.notifications.error('SFTP-UI', 'No SSH session on current tab');
+                    return;
+                }
+                const baseTitle = (sourceTab === null || sourceTab === void 0 ? void 0 : sourceTab.customTitle) ||
+                    (sourceTab === null || sourceTab === void 0 ? void 0 : sourceTab.title) ||
+                    (profile === null || profile === void 0 ? void 0 : profile.name) ||
+                    ((_a = profile === null || profile === void 0 ? void 0 : profile.options) === null || _a === void 0 ? void 0 : _a.host) ||
+                    'SFTP';
+                const tab = this.app.openNewTab({
+                    type: _sftp_manager_tab_component__WEBPACK_IMPORTED_MODULE_2__.SftpManagerTabComponent,
+                    inputs: {
+                        sshSession,
+                        profile,
+                    },
+                });
+                tab.setTitle(`${baseTitle} + SFTP`);
+                this.notifications.notice('SFTP-UI opened');
+            }
+            catch (e) {
+                this.notifications.error('SFTP-UI failed to open', String(e));
+                this.logger.error('openForSourceTab failed', e);
+            }
+        });
+    }
+};
+SftpUiService = __decorate([
+    (0,_angular_core__WEBPACK_IMPORTED_MODULE_0__.Injectable)(),
+    __metadata("design:paramtypes", [tabby_core__WEBPACK_IMPORTED_MODULE_1__.AppService,
+        tabby_core__WEBPACK_IMPORTED_MODULE_1__.HotkeysService,
+        tabby_core__WEBPACK_IMPORTED_MODULE_1__.LogService,
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__.NgZone,
+        tabby_core__WEBPACK_IMPORTED_MODULE_1__.NotificationsService])
+], SftpUiService);
+
+
+
+/***/ },
+
+/***/ "./src/sftp/sftp.service.ts"
+/*!**********************************!*\
+  !*** ./src/sftp/sftp.service.ts ***!
+  \**********************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   SftpConnectionService: () => (/* binding */ SftpConnectionService)
+/* harmony export */ });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "@angular/core");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_angular_core__WEBPACK_IMPORTED_MODULE_0__);
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+let SftpConnectionService = class SftpConnectionService {
+    openFromSSHSession(sshSession) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield sshSession.openSFTP();
+        });
+    }
+};
+SftpConnectionService = __decorate([
+    (0,_angular_core__WEBPACK_IMPORTED_MODULE_0__.Injectable)({ providedIn: 'root' })
+], SftpConnectionService);
+
+
+
+/***/ },
+
+/***/ "./src/terminalDecorator.ts"
+/*!**********************************!*\
+  !*** ./src/terminalDecorator.ts ***!
+  \**********************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   QuickScriptsDecorator: () => (/* binding */ QuickScriptsDecorator)
+/* harmony export */ });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "@angular/core");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_angular_core__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @ng-bootstrap/ng-bootstrap */ "@ng-bootstrap/ng-bootstrap");
+/* harmony import */ var _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! tabby-core */ "tabby-core");
+/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(tabby_core__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var tabby_terminal__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! tabby-terminal */ "tabby-terminal");
+/* harmony import */ var tabby_terminal__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(tabby_terminal__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _scriptEditModal__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./scriptEditModal */ "./src/scriptEditModal.ts");
+/* harmony import */ var _sftp_sftp_ui_service__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./sftp/sftp-ui.service */ "./src/sftp/sftp-ui.service.ts");
+/* harmony import */ var _quickScriptsBar_scss__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./quickScriptsBar.scss */ "./src/quickScriptsBar.scss");
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (undefined && undefined.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+
+
 let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__WEBPACK_IMPORTED_MODULE_3__.TerminalDecorator {
-    constructor(config, injector) {
+    constructor(config, injector, sftpUi) {
         super();
         this.config = config;
         this.injector = injector;
+        this.sftpUi = sftpUi;
     }
     attach(tab) {
         // 等待 tab 的 DOM 元素就绪后再注入按钮栏
@@ -787,6 +3656,30 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
             this.addScript(tab);
         });
         bar.appendChild(addBtn);
+        // SFTP 按钮
+        const sftpBtn = document.createElement('button');
+        sftpBtn.className = 'script-btn sftp-btn';
+        sftpBtn.style.backgroundColor = '#f1c40f'; // 黄色背景
+        sftpBtn.style.color = '#000'; // 黑色文字，保证可读性
+        sftpBtn.style.marginLeft = 'auto'; // 推到最右侧
+        sftpBtn.style.display = 'inline-flex';
+        sftpBtn.style.alignItems = 'center';
+        sftpBtn.style.fontWeight = 'bold';
+        sftpBtn.style.borderColor = 'rgba(0, 0, 0, 0.2)';
+        sftpBtn.title = '打开 SFTP 文件传输';
+        // 文件夹图标
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-folder me-1';
+        sftpBtn.appendChild(icon);
+        // 文字
+        const text = document.createTextNode(' sftp');
+        sftpBtn.appendChild(text);
+        sftpBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.sftpUi.openForSourceTab(tab);
+        });
+        bar.appendChild(sftpBtn);
     }
     /**
      * 执行脚本：按顺序逐条发送命令
@@ -958,10 +3851,51 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
 QuickScriptsDecorator = __decorate([
     (0,_angular_core__WEBPACK_IMPORTED_MODULE_0__.Injectable)(),
     __metadata("design:paramtypes", [tabby_core__WEBPACK_IMPORTED_MODULE_2__.ConfigService,
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__.Injector])
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__.Injector,
+        _sftp_sftp_ui_service__WEBPACK_IMPORTED_MODULE_5__.SftpUiService])
 ], QuickScriptsDecorator);
 
 
+
+/***/ },
+
+/***/ "crypto"
+/*!*************************!*\
+  !*** external "crypto" ***!
+  \*************************/
+(module) {
+
+module.exports = require("crypto");
+
+/***/ },
+
+/***/ "fs/promises"
+/*!******************************!*\
+  !*** external "fs/promises" ***!
+  \******************************/
+(module) {
+
+module.exports = require("fs/promises");
+
+/***/ },
+
+/***/ "os"
+/*!*********************!*\
+  !*** external "os" ***!
+  \*********************/
+(module) {
+
+module.exports = require("os");
+
+/***/ },
+
+/***/ "path"
+/*!***********************!*\
+  !*** external "path" ***!
+  \***********************/
+(module) {
+
+module.exports = require("path");
 
 /***/ },
 
@@ -1002,6 +3936,16 @@ module.exports = __WEBPACK_EXTERNAL_MODULE__angular_forms__;
 (module) {
 
 module.exports = __WEBPACK_EXTERNAL_MODULE__ng_bootstrap_ng_bootstrap__;
+
+/***/ },
+
+/***/ "fs"
+/*!*********************!*\
+  !*** external "fs" ***!
+  \*********************/
+(module) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_fs__;
 
 /***/ },
 
@@ -1127,12 +4071,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _configProvider__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./configProvider */ "./src/configProvider.ts");
 /* harmony import */ var _terminalDecorator__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./terminalDecorator */ "./src/terminalDecorator.ts");
 /* harmony import */ var _scriptEditModal__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./scriptEditModal */ "./src/scriptEditModal.ts");
+/* harmony import */ var _sftp_sftp_manager_tab_component__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./sftp/sftp-manager-tab.component */ "./src/sftp/sftp-manager-tab.component.ts");
+/* harmony import */ var _sftp_sftp_ui_service__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./sftp/sftp-ui.service */ "./src/sftp/sftp-ui.service.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+
+
 
 
 
@@ -1153,12 +4101,15 @@ QuickScriptsModule = __decorate([
         providers: [
             { provide: tabby_core__WEBPACK_IMPORTED_MODULE_3__.ConfigProvider, useClass: _configProvider__WEBPACK_IMPORTED_MODULE_5__.QuickScriptsConfigProvider, multi: true },
             { provide: tabby_terminal__WEBPACK_IMPORTED_MODULE_4__.TerminalDecorator, useClass: _terminalDecorator__WEBPACK_IMPORTED_MODULE_6__.QuickScriptsDecorator, multi: true },
+            _sftp_sftp_ui_service__WEBPACK_IMPORTED_MODULE_9__.SftpUiService,
         ],
         entryComponents: [
             _scriptEditModal__WEBPACK_IMPORTED_MODULE_7__.ScriptEditModalComponent,
+            _sftp_sftp_manager_tab_component__WEBPACK_IMPORTED_MODULE_8__.SftpManagerTabComponent,
         ],
         declarations: [
             _scriptEditModal__WEBPACK_IMPORTED_MODULE_7__.ScriptEditModalComponent,
+            _sftp_sftp_manager_tab_component__WEBPACK_IMPORTED_MODULE_8__.SftpManagerTabComponent,
         ],
     })
 ], QuickScriptsModule);
