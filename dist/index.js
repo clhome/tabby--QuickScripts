@@ -1189,6 +1189,54 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
             if (!this.sftpSession) {
                 return;
             }
+            const raw = (_a = ev.dataTransfer) === null || _a === void 0 ? void 0 : _a.getData('application/x-tabby-sftp-ui');
+            if (raw) {
+                let payload;
+                try {
+                    payload = JSON.parse(raw);
+                }
+                catch (_d) {
+                    return;
+                }
+                try {
+                    if (payload.kind === 'local-file') {
+                        const targetRemotePath = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(this.remotePath, payload.name);
+                        const existsOnRemote = this.remoteEntries.some(e => e.name === payload.name);
+                        if (existsOnRemote) {
+                            const ok = yield this.showReplaceConfirm(`Replace existing "${payload.name}" on remote?`);
+                            if (!ok) {
+                                return;
+                            }
+                            yield this.deleteRemotePathRecursive(targetRemotePath);
+                        }
+                        const upload = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileUpload(payload.fullPath);
+                        this.trackTransfer(upload, 'upload', targetRemotePath, payload.fullPath);
+                        yield this.sftpSession.upload(targetRemotePath, upload);
+                        yield this.refreshRemote();
+                        return;
+                    }
+                    if (payload.kind === 'local-paths') {
+                        for (const p of payload.paths) {
+                            const targetRemotePath = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(this.remotePath, p.name);
+                            const existsOnRemote = this.remoteEntries.some(e => e.name === p.name);
+                            if (existsOnRemote) {
+                                const ok = yield this.showReplaceConfirm(`Replace existing "${p.name}" on remote?`);
+                                if (!ok) {
+                                    continue;
+                                }
+                                yield this.deleteRemotePathRecursive(targetRemotePath);
+                            }
+                            yield this.uploadLocalPathToRemote(this.remotePath, p.fullPath);
+                        }
+                        yield this.refreshRemote();
+                        return;
+                    }
+                }
+                catch (e) {
+                    console.error('[SFTP-UI] Upload failed', e);
+                    return;
+                }
+            }
             // Drag & drop from OS file manager (Explorer/Finder) into the remote pane
             const osPaths = this.getDroppedOsPaths(ev);
             if (osPaths.length) {
@@ -1215,7 +1263,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
             }
             // Fallback: use Tabby's native drag parser (supports directories and HTMLFileUpload)
             try {
-                const dirUpload = yield ((_b = (_a = this.platform).startUploadFromDragEvent) === null || _b === void 0 ? void 0 : _b.call(_a, ev, true));
+                const dirUpload = yield ((_c = (_b = this.platform).startUploadFromDragEvent) === null || _c === void 0 ? void 0 : _c.call(_b, ev, true));
                 if (dirUpload && this.sftpSession) {
                     yield this.uploadDirectoryUploadToRemote(this.remotePath, dirUpload);
                     yield this.refreshRemote();
@@ -1224,55 +1272,6 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
             }
             catch (e) {
                 console.error('[SFTP-UI] startUploadFromDragEvent failed', e);
-            }
-            const raw = (_c = ev.dataTransfer) === null || _c === void 0 ? void 0 : _c.getData('application/x-tabby-sftp-ui');
-            if (!raw) {
-                return;
-            }
-            let payload;
-            try {
-                payload = JSON.parse(raw);
-            }
-            catch (_d) {
-                return;
-            }
-            try {
-                if (payload.kind === 'local-file') {
-                    const targetRemotePath = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(this.remotePath, payload.name);
-                    const existsOnRemote = this.remoteEntries.some(e => e.name === payload.name);
-                    if (existsOnRemote) {
-                        const ok = yield this.showReplaceConfirm(`Replace existing "${payload.name}" on remote?`);
-                        if (!ok) {
-                            return;
-                        }
-                        yield this.deleteRemotePathRecursive(targetRemotePath);
-                    }
-                    const upload = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileUpload(payload.fullPath);
-                    this.trackTransfer(upload, 'upload', targetRemotePath, payload.fullPath);
-                    yield this.sftpSession.upload(targetRemotePath, upload);
-                    yield this.refreshRemote();
-                    return;
-                }
-                if (payload.kind === 'local-paths') {
-                    for (const p of payload.paths) {
-                        const targetRemotePath = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(this.remotePath, p.name);
-                        const existsOnRemote = this.remoteEntries.some(e => e.name === p.name);
-                        if (existsOnRemote) {
-                            const ok = yield this.showReplaceConfirm(`Replace existing "${p.name}" on remote?`);
-                            if (!ok) {
-                                continue;
-                            }
-                            yield this.deleteRemotePathRecursive(targetRemotePath);
-                        }
-                        // uploadLocalPathToRemote handles both files and directories
-                        yield this.uploadLocalPathToRemote(this.remotePath, p.fullPath);
-                    }
-                    yield this.refreshRemote();
-                    return;
-                }
-            }
-            catch (e) {
-                console.error('[SFTP-UI] Upload failed', e);
             }
         });
     }

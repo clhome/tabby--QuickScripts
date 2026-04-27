@@ -900,6 +900,55 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
       return
     }
 
+    const raw = ev.dataTransfer?.getData('application/x-tabby-sftp-ui')
+    if (raw) {
+      let payload: DragPayload
+      try {
+        payload = JSON.parse(raw) as DragPayload
+      } catch {
+        return
+      }
+
+      try {
+        if (payload.kind === 'local-file') {
+          const targetRemotePath = path.posix.join(this.remotePath, payload.name)
+          const existsOnRemote = this.remoteEntries.some(e => e.name === payload.name)
+          if (existsOnRemote) {
+            const ok = await this.showReplaceConfirm(`Replace existing "${payload.name}" on remote?`)
+            if (!ok) {
+              return
+            }
+            await this.deleteRemotePathRecursive(targetRemotePath)
+          }
+          const upload = new LocalPathFileUpload(payload.fullPath)
+          this.trackTransfer(upload, 'upload', targetRemotePath, payload.fullPath)
+          await this.sftpSession.upload(targetRemotePath, upload)
+          await this.refreshRemote()
+          return
+        }
+
+        if (payload.kind === 'local-paths') {
+          for (const p of payload.paths) {
+            const targetRemotePath = path.posix.join(this.remotePath, p.name)
+            const existsOnRemote = this.remoteEntries.some(e => e.name === p.name)
+            if (existsOnRemote) {
+              const ok = await this.showReplaceConfirm(`Replace existing "${p.name}" on remote?`)
+              if (!ok) {
+                continue
+              }
+              await this.deleteRemotePathRecursive(targetRemotePath)
+            }
+            await this.uploadLocalPathToRemote(this.remotePath, p.fullPath)
+          }
+          await this.refreshRemote()
+          return
+        }
+      } catch (e) {
+        console.error('[SFTP-UI] Upload failed', e)
+        return
+      }
+    }
+
     // Drag & drop from OS file manager (Explorer/Finder) into the remote pane
     const osPaths = this.getDroppedOsPaths(ev)
     if (osPaths.length) {
@@ -936,55 +985,6 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
       console.error('[SFTP-UI] startUploadFromDragEvent failed', e)
     }
 
-    const raw = ev.dataTransfer?.getData('application/x-tabby-sftp-ui')
-    if (!raw) {
-      return
-    }
-    let payload: DragPayload
-    try {
-      payload = JSON.parse(raw) as DragPayload
-    } catch {
-      return
-    }
-
-    try {
-      if (payload.kind === 'local-file') {
-        const targetRemotePath = path.posix.join(this.remotePath, payload.name)
-        const existsOnRemote = this.remoteEntries.some(e => e.name === payload.name)
-        if (existsOnRemote) {
-          const ok = await this.showReplaceConfirm(`Replace existing "${payload.name}" on remote?`)
-          if (!ok) {
-            return
-          }
-          await this.deleteRemotePathRecursive(targetRemotePath)
-        }
-        const upload = new LocalPathFileUpload(payload.fullPath)
-        this.trackTransfer(upload, 'upload', targetRemotePath, payload.fullPath)
-        await this.sftpSession.upload(targetRemotePath, upload)
-        await this.refreshRemote()
-        return
-      }
-
-      if (payload.kind === 'local-paths') {
-        for (const p of payload.paths) {
-          const targetRemotePath = path.posix.join(this.remotePath, p.name)
-          const existsOnRemote = this.remoteEntries.some(e => e.name === p.name)
-          if (existsOnRemote) {
-            const ok = await this.showReplaceConfirm(`Replace existing "${p.name}" on remote?`)
-            if (!ok) {
-              continue
-            }
-            await this.deleteRemotePathRecursive(targetRemotePath)
-          }
-          // uploadLocalPathToRemote handles both files and directories
-          await this.uploadLocalPathToRemote(this.remotePath, p.fullPath)
-        }
-        await this.refreshRemote()
-        return
-      }
-    } catch (e) {
-      console.error('[SFTP-UI] Upload failed', e)
-    }
   }
 
   async onDropOnLocal (ev: DragEvent): Promise<void> {
