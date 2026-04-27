@@ -91,6 +91,13 @@
   - [x] 追踪 sourceTab 的运行时 cwd 字段 <!-- id: 64 -->
   - [x] 注入 inputs 参数完成穿透式加载 <!-- id: 65 -->
   - [x] 动态隐式注入 pwd 指令并监听 session.output$ 提取绝对路径 <!-- id: 66 -->
+- [x] Remote 收藏夹重构与站点隔离落盘 <!-- id: 67 -->
+  - [x] 移除 remote 顶部的 Up / Go 冗余操作按钮 <!-- id: 68 -->
+  - [x] 注册 sftpRemoteFavorites Schema 白名单机制 <!-- id: 69 -->
+  - [x] 以 Profile ID 映射策略，在 config.yaml 写入遥测数据 <!-- id: 70 -->
+  - [x] 支持在编辑 remote 收藏夹时修改名称、路径以及二次弹窗拦截 <!-- id: 71 -->
+
+
 
 
 

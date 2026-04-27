@@ -23,6 +23,8 @@ export class QuickScriptsConfigProvider extends ConfigProvider {
             minDelay: 500,
         },
         sftpLocalFavorites: [] as Array<{ id: string, label: string, path: string }>,
+        sftpRemoteFavorites: {} as Record<string, Array<{ id: string, label: string, path: string }>>,
     }
+
 
 }

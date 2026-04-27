@@ -25,5 +25,10 @@ export declare class QuickScriptsConfigProvider extends ConfigProvider {
             label: string;
             path: string;
         }[];
+        sftpRemoteFavorites: Record<string, {
+            id: string;
+            label: string;
+            path: string;
+        }[]>;
     };
 }

@@ -496,6 +496,7 @@ class QuickScriptsConfigProvider extends tabby_core__WEBPACK_IMPORTED_MODULE_0__
                 minDelay: 500,
             },
             sftpLocalFavorites: [],
+            sftpRemoteFavorites: {},
         };
     }
 }
@@ -874,6 +875,9 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         this.openedRemoteFiles = new Map();
         this.localPathPresets = [];
         this.localFavorites = [];
+        this.remoteFavorites = [];
+        this.remoteDropdownOpen = false;
+        this.selectedRemoteFavId = '';
         this.recentProfiles = [];
         this.localMenuVisible = false;
         this.localMenuX = 0;
@@ -883,6 +887,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         this.platform = injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_6__.PlatformService);
         this.config = injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_6__.ConfigService);
         this.loadLocalFavorites();
+        this.loadRemoteFavorites();
         void this.refreshLocal();
         this.transfersTimer = window.setInterval(() => {
             this.transfers = this.transfers.filter(t => !t.transfer.isComplete() && !t.transfer.isCancelled());
@@ -2135,6 +2140,51 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         this.localMenuX = event.clientX;
         this.localMenuY = event.clientY;
     }
+    toggleRemoteFavDropdown() {
+        this.remoteDropdownOpen = !this.remoteDropdownOpen;
+    }
+    getSelectedRemoteFavLabel() {
+        const fav = this.remoteFavorites.find(f => f.path === this.remotePath);
+        return fav ? fav.label : '====';
+    }
+    onRemoteFavoriteSelect(favId) {
+        const fav = this.remoteFavorites.find(f => f.id === favId);
+        if (fav && fav.path) {
+            this.remotePath = fav.path;
+            this.remotePathInput = fav.path;
+            void this.refreshRemote();
+        }
+    }
+    isCurrentRemoteFavorite() {
+        return this.remoteFavorites.some(f => f.path === this.remotePath);
+    }
+    toggleCurrentRemoteFavorite() {
+        const idx = this.remoteFavorites.findIndex(f => f.path === this.remotePath);
+        if (idx >= 0) {
+            this.remoteFavorites.splice(idx, 1);
+        }
+        else {
+            this.remoteFavorites.push({
+                id: `fav-${Math.random().toString(36).slice(2, 8)}`,
+                label: path__WEBPACK_IMPORTED_MODULE_0__.posix.basename(this.remotePath) || this.remotePath,
+                path: this.remotePath,
+            });
+        }
+        this.saveRemoteFavorites();
+    }
+    onRemoteFavEditNameClick(event, fav) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.remoteDropdownOpen = false;
+        this.inputDialogPathValue = fav.path || '';
+        this.openInputDialog({
+            mode: 'remote-favorite-rename',
+            title: 'Edit Favorite',
+            placeholder: 'Enter new name',
+            value: fav.label,
+            targetPath: fav.id,
+        });
+    }
     loadLocalFavorites() {
         try {
             if (!this.config || !this.config.store) {
@@ -2161,6 +2211,53 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
                 return;
             }
             this.config.store.sftpLocalFavorites = this.localFavorites;
+            this.config.save();
+        }
+        catch (_a) {
+            // ignore
+        }
+    }
+    getRemoteProfileId() {
+        var _a, _b, _c, _d;
+        return ((_a = this.profile) === null || _a === void 0 ? void 0 : _a.id)
+            || ((_b = this.profile) === null || _b === void 0 ? void 0 : _b.name)
+            || ((_d = (_c = this.profile) === null || _c === void 0 ? void 0 : _c.options) === null || _d === void 0 ? void 0 : _d.host)
+            || 'global';
+    }
+    loadRemoteFavorites() {
+        try {
+            if (!this.config || !this.config.store) {
+                return;
+            }
+            const profileId = this.getRemoteProfileId();
+            const allRemoteFavs = this.config.store.sftpRemoteFavorites || {};
+            const parsed = allRemoteFavs[profileId];
+            if (Array.isArray(parsed)) {
+                this.remoteFavorites = parsed
+                    .filter(f => f && typeof f.path === 'string')
+                    .map(f => ({
+                    id: String(f.id || `fav-${Math.random().toString(36).slice(2, 8)}`),
+                    label: String(f.label || path__WEBPACK_IMPORTED_MODULE_0__.basename(f.path) || f.path),
+                    path: String(f.path),
+                }));
+            }
+            else {
+                this.remoteFavorites = [];
+            }
+        }
+        catch (_a) {
+            this.remoteFavorites = [];
+        }
+    }
+    saveRemoteFavorites() {
+        try {
+            if (!this.config || !this.config.store) {
+                return;
+            }
+            const profileId = this.getRemoteProfileId();
+            const allRemoteFavs = Object.assign({}, (this.config.store.sftpRemoteFavorites || {}));
+            allRemoteFavs[profileId] = this.remoteFavorites;
+            this.config.store.sftpRemoteFavorites = allRemoteFavs;
             this.config.save();
         }
         catch (_a) {
@@ -2332,11 +2429,16 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         this.inputDialogVisible = true;
     }
     deleteFavoriteFromDialog() {
-        if (!this.inputDialogVisible || this.inputDialogMode !== 'local-favorite-rename') {
+        if (!this.inputDialogVisible ||
+            (this.inputDialogMode !== 'local-favorite-rename' &&
+                this.inputDialogMode !== 'remote-favorite-rename')) {
             return;
         }
         const id = this.inputDialogTargetPath;
-        const fav = this.localFavorites.find(f => f.id === id);
+        const isRemote = this.inputDialogMode === 'remote-favorite-rename';
+        const fav = isRemote
+            ? this.remoteFavorites.find(f => f.id === id)
+            : this.localFavorites.find(f => f.id === id);
         this.cancelInputDialog();
         if (fav) {
             this.pendingFavDeleteId = id;
@@ -2346,8 +2448,15 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
     }
     confirmFavDelete() {
         if (this.pendingFavDeleteId) {
-            this.localFavorites = this.localFavorites.filter(f => f.id !== this.pendingFavDeleteId);
-            this.saveLocalFavorites();
+            const isRemote = this.remoteFavorites.some(f => f.id === this.pendingFavDeleteId);
+            if (isRemote) {
+                this.remoteFavorites = this.remoteFavorites.filter(f => f.id !== this.pendingFavDeleteId);
+                this.saveRemoteFavorites();
+            }
+            else {
+                this.localFavorites = this.localFavorites.filter(f => f.id !== this.pendingFavDeleteId);
+                this.saveLocalFavorites();
+            }
         }
         this.cancelFavDelete();
     }
@@ -2388,6 +2497,17 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
                             fav.path = this.inputDialogPathValue.trim();
                         }
                         this.saveLocalFavorites();
+                    }
+                    return;
+                }
+                if (mode === 'remote-favorite-rename') {
+                    const fav = this.remoteFavorites.find(f => f.id === targetPath);
+                    if (fav) {
+                        fav.label = value;
+                        if (this.inputDialogPathValue && this.inputDialogPathValue.trim()) {
+                            fav.path = this.inputDialogPathValue.trim();
+                        }
+                        this.saveRemoteFavorites();
                     }
                     return;
                 }
@@ -3185,10 +3305,42 @@ SftpManagerTabComponent = __decorate([
               />
             </div>
             <div class="pane-actions">
-              <button (click)="remoteUp()" [disabled]="!connected || remotePath === '/'">Up</button>
-              <button (click)="goToRemotePathInput()" [disabled]="!connected">Go</button>
+              <button
+                class="fav-toggle"
+                [disabled]="!connected"
+                [class.active]="isCurrentRemoteFavorite()"
+                (click)="toggleCurrentRemoteFavorite()"
+                title="Toggle favorite for this path"
+              >
+                ★
+              </button>
+
+              <div class="fav-dropdown" *ngIf="connected" style="position: relative; display: inline-block;">
+                <button class="fav-dropdown-btn" (click)="toggleRemoteFavDropdown()" style="padding: 2px 20px 2px 10px; font-size: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 3px; color: #ccc; cursor: pointer; min-width: 240px; text-align: left; position: relative;">
+                  {{ getSelectedRemoteFavLabel() }}
+                  <span style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%);">▾</span>
+                </button>
+                <div class="fav-dropdown-menu" *ngIf="remoteDropdownOpen" style="position: absolute; top: 100%; left: 0; z-index: 1000; background: #1e1e1e; border: 1px solid #333; border-radius: 3px; min-width: 240px; box-shadow: 0 4px 8px rgba(0,0,0,0.5); max-height: 200px; overflow-y: auto;">
+                  <div class="fav-dropdown-item" style="padding: 5px 10px; font-size: 12px; color: #ccc; cursor: pointer; background: #1e1e1e;" (click)="toggleRemoteFavDropdown()">
+                    <em>====</em>
+                  </div>
+
+                  <div class="fav-dropdown-item" *ngFor="let f of remoteFavorites" 
+                       style="padding: 5px 10px; font-size: 12px; color: #ccc; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                       (click)="onRemoteFavoriteSelect(f.id); toggleRemoteFavDropdown()">
+                    <span>{{ f.label }}</span>
+                    <span style="color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.5); border-radius: 4px; padding: 1px 6px; font-size: 11px; cursor: pointer; transition: all 0.2s;" 
+                          (click)="onRemoteFavEditNameClick($event, f)"
+                          (mouseover)="$event.target.style.borderColor='#ffc107'; $event.target.style.background='rgba(255, 193, 7, 0.15)'"
+                          (mouseout)="$event.target.style.borderColor='rgba(255, 193, 7, 0.5)'; $event.target.style.background='transparent'">✎</span>
+                  </div>
+
+                </div>
+              </div>
+
               <button (click)="refreshRemote()" [disabled]="!connected">Refresh</button>
             </div>
+
           </div>
           <div class="pane-filters">
             <div class="breadcrumbs" *ngIf="connected">
@@ -3321,7 +3473,7 @@ SftpManagerTabComponent = __decorate([
       <div class="delete-overlay" *ngIf="inputDialogVisible">
         <div class="delete-dialog" (click)="$event.stopPropagation()">
           <div class="delete-text">{{ inputDialogTitle }}</div>
-          <ng-container *ngIf="inputDialogMode === 'local-favorite-rename'">
+          <ng-container *ngIf="inputDialogMode === 'local-favorite-rename' || inputDialogMode === 'remote-favorite-rename'">
             <div style="margin-bottom: 4px; font-size: 12px; color: #aaa; text-align: left;">名称:</div>
             <input
               class="dialog-input"
@@ -3339,7 +3491,7 @@ SftpManagerTabComponent = __decorate([
             />
           </ng-container>
 
-          <ng-container *ngIf="inputDialogMode !== 'local-favorite-rename'">
+          <ng-container *ngIf="inputDialogMode !== 'local-favorite-rename' && inputDialogMode !== 'remote-favorite-rename'">
             <input
               class="dialog-input"
               [(ngModel)]="inputDialogValue"
@@ -3350,9 +3502,10 @@ SftpManagerTabComponent = __decorate([
 
           <div class="delete-buttons">
             <button class="danger" (click)="confirmInputDialog()" [disabled]="!inputDialogValue.trim()">OK</button>
-            <button class="danger" *ngIf="inputDialogMode === 'local-favorite-rename'" (click)="deleteFavoriteFromDialog()" style="background-color: #dc3545; border-color: #dc3545; margin-left: 5px; margin-right: 5px;">Delete</button>
+            <button class="danger" *ngIf="inputDialogMode === 'local-favorite-rename' || inputDialogMode === 'remote-favorite-rename'" (click)="deleteFavoriteFromDialog()" style="background-color: #dc3545; border-color: #dc3545; margin-left: 5px; margin-right: 5px;">Delete</button>
             <button (click)="cancelInputDialog()">Cancel</button>
           </div>
+
 
         </div>
       </div>
