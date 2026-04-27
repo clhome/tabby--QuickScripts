@@ -629,7 +629,7 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
 
 
     this.loadLocalFavorites()
-    this.loadRemoteFavorites()
+
 
 
     void this.refreshLocal()
@@ -652,7 +652,9 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
       return
     }
 
+    this.loadRemoteFavorites()
     this.remotePathInput = this.remotePath
+
     this.localPathInput = this.localPath
     if (this.sshSession) {
       void this.connect()

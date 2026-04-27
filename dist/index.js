@@ -887,7 +887,6 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         this.platform = injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_6__.PlatformService);
         this.config = injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_6__.ConfigService);
         this.loadLocalFavorites();
-        this.loadRemoteFavorites();
         void this.refreshLocal();
         this.transfersTimer = window.setInterval(() => {
             this.transfers = this.transfers.filter(t => !t.transfer.isComplete() && !t.transfer.isCancelled());
@@ -906,6 +905,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
             }
             return;
         }
+        this.loadRemoteFavorites();
         this.remotePathInput = this.remotePath;
         this.localPathInput = this.localPath;
         if (this.sshSession) {
