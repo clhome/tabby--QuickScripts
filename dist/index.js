@@ -921,7 +921,9 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
             try {
                 this.sftpSession = yield this.sftp.openFromSSHSession(this.sshSession);
                 this.connected = true;
-                this.remotePath = this.getDefaultRemotePath();
+                if (!this.remotePath || this.remotePath === '/') {
+                    this.remotePath = this.getDefaultRemotePath();
+                }
                 this.remotePathInput = this.remotePath;
                 yield this.refreshRemote();
             }
@@ -3513,10 +3515,18 @@ let SftpUiService = class SftpUiService {
         const focused = active instanceof tabby_core__WEBPACK_IMPORTED_MODULE_1__.SplitTabComponent ? ((_b = (_a = active.getFocusedTab) === null || _a === void 0 ? void 0 : _a.call(active)) !== null && _b !== void 0 ? _b : null) : active;
         this.openForSourceTab(focused);
     }
-    openForSourceTab(sourceTab) {
-        var _a, _b;
+    openForSourceTab(sourceTab, explicitRemotePath) {
+        var _a, _b, _c, _d;
         const sshSession = (_a = sourceTab === null || sourceTab === void 0 ? void 0 : sourceTab.sshSession) !== null && _a !== void 0 ? _a : null;
         const profile = (_b = sourceTab === null || sourceTab === void 0 ? void 0 : sourceTab.profile) !== null && _b !== void 0 ? _b : null;
+        let remoteCwd = explicitRemotePath || '/';
+        if (!explicitRemotePath && sourceTab) {
+            remoteCwd = sourceTab.cwd
+                || ((_c = sourceTab.session) === null || _c === void 0 ? void 0 : _c.cwd)
+                || sourceTab.path
+                || ((_d = sourceTab.session) === null || _d === void 0 ? void 0 : _d.path)
+                || '/';
+        }
         this.zone.run(() => {
             var _a;
             try {
@@ -3534,6 +3544,7 @@ let SftpUiService = class SftpUiService {
                     inputs: {
                         sshSession,
                         profile,
+                        remotePath: remoteCwd,
                     },
                 });
                 tab.setTitle(`${baseTitle} + SFTP`);
@@ -3786,11 +3797,44 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
         // 文字
         const text = document.createTextNode(' sftp');
         sftpBtn.appendChild(text);
-        sftpBtn.addEventListener('click', (e) => {
+        sftpBtn.addEventListener('click', (e) => __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c, _d, _e, _f, _g;
             e.preventDefault();
             e.stopPropagation();
-            this.sftpUi.openForSourceTab(tab);
-        });
+            const session = tab.session
+                || ((_b = (_a = tab).getActiveSession) === null || _b === void 0 ? void 0 : _b.call(_a))
+                || ((_e = (_d = (_c = tab).getActivePane) === null || _d === void 0 ? void 0 : _d.call(_c)) === null || _e === void 0 ? void 0 : _e.session)
+                || ((_f = tab.activePane) === null || _f === void 0 ? void 0 : _f.session);
+            if (!session || typeof ((_g = session.output$) === null || _g === void 0 ? void 0 : _g.subscribe) !== 'function') {
+                this.sftpUi.openForSourceTab(tab);
+                return;
+            }
+            let capturedPath = '';
+            let outputBuffer = '';
+            const sub = session.output$.subscribe((data) => {
+                outputBuffer += data;
+            });
+            if (typeof tab.sendInput === 'function') {
+                tab.sendInput('pwd\n');
+            }
+            else {
+                session.write('pwd\r');
+            }
+            yield new Promise(resolve => setTimeout(resolve, 400));
+            sub.unsubscribe();
+            const lines = outputBuffer.split(/[\r\n]+/);
+            for (let i = lines.length - 1; i >= 0; i--) {
+                const line = lines[i].trim();
+                if (line.startsWith('/') && !line.includes(' ') && line.length > 1) {
+                    if (line === 'pwd') {
+                        continue;
+                    }
+                    capturedPath = line;
+                    break;
+                }
+            }
+            this.sftpUi.openForSourceTab(tab, capturedPath);
+        }));
         bar.appendChild(sftpBtn);
     }
     /**

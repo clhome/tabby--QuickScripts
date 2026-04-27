@@ -174,11 +174,51 @@ export class QuickScriptsDecorator extends TerminalDecorator {
         const text = document.createTextNode(' sftp')
         sftpBtn.appendChild(text)
 
-        sftpBtn.addEventListener('click', (e) => {
+        sftpBtn.addEventListener('click', async (e) => {
             e.preventDefault()
             e.stopPropagation()
-            this.sftpUi.openForSourceTab(tab)
+
+            const session = tab.session 
+                || (tab as any).getActiveSession?.() 
+                || (tab as any).getActivePane?.()?.session 
+                || (tab as any).activePane?.session
+
+            if (!session || typeof session.output$?.subscribe !== 'function') {
+                this.sftpUi.openForSourceTab(tab)
+                return
+            }
+
+            let capturedPath = ''
+            let outputBuffer = ''
+            
+            const sub = session.output$.subscribe((data: string) => {
+                outputBuffer += data
+            })
+
+            if (typeof (tab as any).sendInput === 'function') {
+                (tab as any).sendInput('pwd\n')
+            } else {
+                session.write('pwd\r')
+            }
+
+            await new Promise(resolve => setTimeout(resolve, 400))
+            sub.unsubscribe()
+
+            const lines = outputBuffer.split(/[\r\n]+/)
+            for (let i = lines.length - 1; i >= 0; i--) {
+                const line = lines[i].trim()
+                if (line.startsWith('/') && !line.includes(' ') && line.length > 1) {
+                    if (line === 'pwd') {
+                        continue
+                    }
+                    capturedPath = line
+                    break
+                }
+            }
+
+            this.sftpUi.openForSourceTab(tab, capturedPath)
         })
+
         bar.appendChild(sftpBtn)
     }
 

@@ -31,9 +31,19 @@ export class SftpUiService {
     this.openForSourceTab(focused)
   }
 
-  openForSourceTab (sourceTab: any): void {
+  openForSourceTab (sourceTab: any, explicitRemotePath?: string): void {
     const sshSession = sourceTab?.sshSession ?? null
     const profile = sourceTab?.profile ?? null
+
+    let remoteCwd = explicitRemotePath || '/'
+    if (!explicitRemotePath && sourceTab) {
+      remoteCwd = sourceTab.cwd 
+        || sourceTab.session?.cwd 
+        || sourceTab.path 
+        || sourceTab.session?.path 
+        || '/'
+    }
+
 
     this.zone.run(() => {
       try {
@@ -52,8 +62,10 @@ export class SftpUiService {
           inputs: {
             sshSession,
             profile,
+            remotePath: remoteCwd,
           },
         })
+
         tab.setTitle(`${baseTitle} + SFTP`)
         this.notifications.notice('SFTP-UI opened')
       } catch (e) {

@@ -633,7 +633,10 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     try {
       this.sftpSession = await this.sftp.openFromSSHSession(this.sshSession)
       this.connected = true
-      this.remotePath = this.getDefaultRemotePath()
+      if (!this.remotePath || this.remotePath === '/') {
+        this.remotePath = this.getDefaultRemotePath()
+      }
+
       this.remotePathInput = this.remotePath
       await this.refreshRemote()
     } catch (e) {
