@@ -3053,6 +3053,15 @@ SftpManagerTabComponent = __decorate([
               />
             </div>
             <div class="pane-actions">
+              <button
+                class="fav-toggle"
+                [class.active]="isCurrentFavorite()"
+                (click)="toggleCurrentFavorite()"
+                title="Toggle favorite for this path"
+              >
+                ★
+              </button>
+
               <div class="fav-dropdown" style="position: relative; display: inline-block;">
                 <button class="fav-dropdown-btn" (click)="toggleFavDropdown()" style="padding: 2px 20px 2px 10px; font-size: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 3px; color: #ccc; cursor: pointer; min-width: 240px; text-align: left; position: relative;">
                   {{ getSelectedFavLabel() }}
@@ -3076,14 +3085,6 @@ SftpManagerTabComponent = __decorate([
                 </div>
               </div>
 
-              <button
-                class="fav-toggle"
-                [class.active]="isCurrentFavorite()"
-                (click)="toggleCurrentFavorite()"
-                title="Toggle favorite for this path"
-              >
-                ★
-              </button>
 
               <button (click)="refreshLocal()">Refresh</button>
             </div>
@@ -3401,8 +3402,9 @@ SftpManagerTabComponent = __decorate([
     .pane-actions .path-favorite { max-width: 150px; padding: 3px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.22); background: rgba(20,20,20,0.95); color: inherit; font-size: 11px; }
     .pane-actions .path-preset option { background: #151515; color: #f5f5f5; }
     .pane-actions .path-favorite option { background: #151515; color: #f5f5f5; }
-    .pane-actions .fav-toggle { padding: 2px 6px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.05); font-size: 11px; line-height: 1; }
+    .pane-actions .fav-toggle { padding: 3px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.05); font-size: 12px; line-height: 1; cursor: pointer; }
     .pane-actions .fav-toggle.active { background: rgba(255,215,0,0.2); border-color: rgba(255,215,0,0.6); color: #ffd700; }
+
     .pane-filters { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(0,0,0,0.12); }
     .pane-filters input { flex: 1; padding: 4px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.18); background: rgba(0,0,0,0.3); color: inherit; font-size: 12px; }
     .show-hidden-toggle { display: flex; align-items: center; gap: 4px; font-size: 11px; opacity: 0.8; white-space: nowrap; }
