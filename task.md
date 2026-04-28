@@ -121,6 +121,11 @@
   - [x] 适配 `terminalDecorator.ts` 的多语言显示 <!-- id: 90 -->
   - [x] 适配 `sftp-manager-tab.component.ts` 的多语言显示 <!-- id: 91 -->
 
+- [x] 实现 Tag 自动打包发布精简版 Release 插件 <!-- id: 92 -->
+  - [x] 方案设计：提供 GitHub/Gitea Actions 或本地打包发布脚本选项 <!-- id: 93 -->
+  - [x] 编写相应的自动化打包配置文件 <!-- id: 94 -->
+
+
 
 
 
