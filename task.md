@@ -106,10 +106,21 @@
   - [x] 扩展 `inputDialogMode` 支持 permissions 模式 <!-- id: 77 -->
   - [x] 重构 `localEditPermissions()` 与 `remoteEditPermissions()` 触发弹窗 <!-- id: 78 -->
   - [x] 在 `confirmInputDialog()` 接入最终修改逻辑 <!-- id: 79 -->
-- [x] 在 Remote 列表显示权限和用户组 <!-- id: 80 -->
-  - [x] 修改 `SFTPFile` 定义，追加 `owner`、`group` 等字段 <!-- id: 81 -->
-  - [x] 在 `refreshRemote()` 中抓取属性落盘 <!-- id: 82 -->
-  - [x] 在 HTML 模板中渲染八进制权限和用户/组 <!-- id: 83 -->
+
+- [x] 在 remote 列表中显示权限 <!-- id: 80 -->
+  - [x] 定位 Remote 列表的 HTML 模板位置 <!-- id: 81 -->
+  - [x] 在列表头追加 `Perms` 列 <!-- id: 82 -->
+  - [x] 在列表项中显示八进制权限 <!-- id: 83 -->
+
+- [x] 调整 remote 列表的 Perms 位置 <!-- id: 84 -->
+  - [x] 将表头的 Perms 移到 Size 和 Modified 之间 <!-- id: 85 -->
+  - [x] 将循环项 feather 移到 Size 和 Modified 之间 <!-- id: 86 -->
+  - [x] 调整 grid-template-columns 布局对应顺序 <!-- id: 87 -->
+
+
+
+
+
 
 
 

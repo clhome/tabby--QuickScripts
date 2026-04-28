@@ -805,6 +805,12 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__WEBPACK_IMPORTED_MODULE_6__.BaseTabComponent {
+    getOctalPerms(mode) {
+        if (mode === undefined) {
+            return '';
+        }
+        return (mode & 0o777).toString(8);
+    }
     constructor(injector, sftp, profilesService, app) {
         // Tabby runtime BaseTabComponent expects Injector in constructor, but typings in this SDK may differ.
         // @ts-expect-error runtime-compatible super(injector)
@@ -1006,31 +1012,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
                 if (!this.sftpSession) {
                     throw new Error('Not connected');
                 }
-                const entries = yield this.sftpSession.readdir(this.remotePath);
-                for (const item of entries) {
-                    const raw = item;
-                    if (item.mode !== undefined) {
-                        item.permsStr = (item.mode & 0o777).toString(8);
-                    }
-                    if (!raw.owner || !raw.group) {
-                        if (raw.longname && typeof raw.longname === 'string') {
-                            const parts = raw.longname.trim().split(/\s+/);
-                            if (parts.length >= 4) {
-                                raw.owner = parts[2];
-                                raw.group = parts[3];
-                            }
-                        }
-                        else if (raw.attributes && raw.attributes.uid !== undefined) {
-                            raw.owner = String(raw.attributes.uid);
-                            raw.group = String(raw.attributes.gid);
-                        }
-                        else {
-                            raw.owner = 'root';
-                            raw.group = 'root';
-                        }
-                    }
-                }
-                this.remoteEntries = entries;
+                this.remoteEntries = yield this.sftpSession.readdir(this.remotePath);
             }
             catch (e) {
                 console.error('[SFTP-UI] Remote listing failed', e);
@@ -3438,7 +3420,7 @@ SftpManagerTabComponent = __decorate([
           </div>
         </div>
 
-        <div class="pane">
+        <div class="pane remote-pane">
           <div class="pane-title">
             <div class="pane-label">
               Remote
@@ -3516,28 +3498,25 @@ SftpManagerTabComponent = __decorate([
             <div class="entry dim" *ngIf="!connected">
               <span class="name">Not connected</span>
             </div>
-            <div class="remote-entry header" *ngIf="connected">
+            <div class="entry header" *ngIf="connected">
               <span class="icon"></span>
               <span class="name sortable" (click)="setRemoteSort('name')">Name</span>
-              <span class="perms">Perms</span>
-              <span class="owner">Owner/Group</span>
               <span class="size sortable" (click)="setRemoteSort('size')">Size</span>
+              <span class="perms">Perms</span>
               <span class="date sortable" (click)="setRemoteSort('modified')">Modified</span>
             </div>
             <div
-              class="remote-entry"
+              class="entry"
               *ngIf="connected && remotePath !== '/'"
               (dblclick)="remoteUp()"
             >
               <span class="icon">⬆</span>
               <span class="name">Go up</span>
-              <span class="perms"></span>
-              <span class="owner"></span>
               <span class="size"></span>
               <span class="date"></span>
             </div>
             <div
-              class="remote-entry"
+              class="entry"
               *ngFor="let e of getFilteredRemoteEntries()"
               (click)="selectRemote(e, $event)"
               (dblclick)="openRemote(e)"
@@ -3552,9 +3531,8 @@ SftpManagerTabComponent = __decorate([
             >
               <span class="icon">{{ e.isDirectory ? '📁' : '📄' }}</span>
               <span class="name">{{ e.name }}</span>
-              <span class="perms">{{ e.permsStr }}</span>
-              <span class="owner">{{ e.owner }}/{{ e.group }}</span>
               <span class="size">{{ getRemoteSizeDisplay(e) }}</span>
+              <span class="perms">{{ getOctalPerms(e.mode) }}</span>
               <span class="date">{{ e.modified | date:'yyyy-MM-dd HH:mm' }}</span>
             </div>
           </div>
@@ -3724,19 +3702,16 @@ SftpManagerTabComponent = __decorate([
     .crumb-separator { opacity: 0.6; }
     .pane-list { flex: 1; overflow: auto; padding: 4px; }
     .entry { display: grid; grid-template-columns: 24px minmax(0, 1.5fr) 80px 140px; gap: 8px; padding: 6px 8px; border-radius: 8px; user-select: none; align-items: center; }
-    .remote-entry { display: grid; grid-template-columns: 24px minmax(0, 1.5fr) 60px 100px 80px 140px; gap: 8px; padding: 6px 8px; border-radius: 8px; user-select: none; align-items: center; }
-    .entry:hover, .remote-entry:hover { background: rgba(255,255,255,0.06); }
-    .entry.drop-target, .remote-entry.drop-target { outline: 1px dashed rgba(255,255,255,0.35); background: rgba(80, 160, 255, 0.10); }
-    .entry.dim, .remote-entry.dim { opacity: 0.7; }
+    .entry:hover { background: rgba(255,255,255,0.06); }
+    .entry.drop-target { outline: 1px dashed rgba(255,255,255,0.35); background: rgba(80, 160, 255, 0.10); }
+    .entry.dim { opacity: 0.7; }
     .icon { text-align: center; opacity: 0.85; }
     .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .perms { text-align: center; opacity: 0.85; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-    .owner { text-align: center; opacity: 0.8; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .size { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; text-align: right; opacity: 0.8; }
     .date { font-size: 11px; opacity: 0.75; text-align: right; white-space: nowrap; }
-    .entry.header, .remote-entry.header { font-weight: 600; opacity: 0.9; background: rgba(255,255,255,0.02); }
+    .entry.header { font-weight: 600; opacity: 0.9; background: rgba(255,255,255,0.02); }
     .sortable { cursor: pointer; }
-    .entry.selected, .remote-entry.selected { background: rgba(80,160,255,0.18); }
+    .entry.selected { background: rgba(80,160,255,0.18); }
     .pane-actions-bar { display: flex; flex-direction: column; gap: 4px; padding: 6px 8px; border-top: 1px solid rgba(255,255,255,0.06); background: rgba(0,0,0,0.18); }
     .pane-actions-bar .selection { font-size: 11px; opacity: 0.85; }
     .pane-actions-bar .action-inputs { display: flex; gap: 6px; }
@@ -3765,6 +3740,8 @@ SftpManagerTabComponent = __decorate([
     .local-menu { position: absolute; min-width: 180px; max-width: 260px; max-height: 260px; overflow-y: auto; padding: 4px 0; border-radius: 10px; background: rgba(18,18,22,0.98); border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 18px 45px rgba(0,0,0,0.8); z-index: 30; backdrop-filter: blur(12px); }
     .local-menu-item { padding: 6px 12px; font-size: 12px; cursor: pointer; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
     .local-menu-item:hover { background: linear-gradient(90deg, rgba(120,200,255,0.24), rgba(120,255,206,0.15)); }
+    .remote-pane .entry { grid-template-columns: 24px minmax(0, 1.5fr) 80px 60px 140px; }
+    .remote-pane .perms { font-size: 11px; opacity: 0.75; text-align: right; white-space: nowrap; }
   `],
     }),
     __metadata("design:paramtypes", [_angular_core__WEBPACK_IMPORTED_MODULE_5__.Injector,
