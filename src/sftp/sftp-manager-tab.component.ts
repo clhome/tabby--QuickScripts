@@ -254,24 +254,28 @@ type DragPayload = {
             <div class="entry dim" *ngIf="!connected">
               <span class="name">Not connected</span>
             </div>
-            <div class="entry header" *ngIf="connected">
+            <div class="remote-entry header" *ngIf="connected">
               <span class="icon"></span>
               <span class="name sortable" (click)="setRemoteSort('name')">Name</span>
+              <span class="perms">Perms</span>
+              <span class="owner">Owner/Group</span>
               <span class="size sortable" (click)="setRemoteSort('size')">Size</span>
               <span class="date sortable" (click)="setRemoteSort('modified')">Modified</span>
             </div>
             <div
-              class="entry"
+              class="remote-entry"
               *ngIf="connected && remotePath !== '/'"
               (dblclick)="remoteUp()"
             >
               <span class="icon">⬆</span>
               <span class="name">Go up</span>
+              <span class="perms"></span>
+              <span class="owner"></span>
               <span class="size"></span>
               <span class="date"></span>
             </div>
             <div
-              class="entry"
+              class="remote-entry"
               *ngFor="let e of getFilteredRemoteEntries()"
               (click)="selectRemote(e, $event)"
               (dblclick)="openRemote(e)"
@@ -286,6 +290,8 @@ type DragPayload = {
             >
               <span class="icon">{{ e.isDirectory ? '📁' : '📄' }}</span>
               <span class="name">{{ e.name }}</span>
+              <span class="perms">{{ e.permsStr }}</span>
+              <span class="owner">{{ e.owner }}/{{ e.group }}</span>
               <span class="size">{{ getRemoteSizeDisplay(e) }}</span>
               <span class="date">{{ e.modified | date:'yyyy-MM-dd HH:mm' }}</span>
             </div>
@@ -456,16 +462,19 @@ type DragPayload = {
     .crumb-separator { opacity: 0.6; }
     .pane-list { flex: 1; overflow: auto; padding: 4px; }
     .entry { display: grid; grid-template-columns: 24px minmax(0, 1.5fr) 80px 140px; gap: 8px; padding: 6px 8px; border-radius: 8px; user-select: none; align-items: center; }
-    .entry:hover { background: rgba(255,255,255,0.06); }
-    .entry.drop-target { outline: 1px dashed rgba(255,255,255,0.35); background: rgba(80, 160, 255, 0.10); }
-    .entry.dim { opacity: 0.7; }
+    .remote-entry { display: grid; grid-template-columns: 24px minmax(0, 1.5fr) 60px 100px 80px 140px; gap: 8px; padding: 6px 8px; border-radius: 8px; user-select: none; align-items: center; }
+    .entry:hover, .remote-entry:hover { background: rgba(255,255,255,0.06); }
+    .entry.drop-target, .remote-entry.drop-target { outline: 1px dashed rgba(255,255,255,0.35); background: rgba(80, 160, 255, 0.10); }
+    .entry.dim, .remote-entry.dim { opacity: 0.7; }
     .icon { text-align: center; opacity: 0.85; }
     .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .perms { text-align: center; opacity: 0.85; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .owner { text-align: center; opacity: 0.8; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .size { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; text-align: right; opacity: 0.8; }
     .date { font-size: 11px; opacity: 0.75; text-align: right; white-space: nowrap; }
-    .entry.header { font-weight: 600; opacity: 0.9; background: rgba(255,255,255,0.02); }
+    .entry.header, .remote-entry.header { font-weight: 600; opacity: 0.9; background: rgba(255,255,255,0.02); }
     .sortable { cursor: pointer; }
-    .entry.selected { background: rgba(80,160,255,0.18); }
+    .entry.selected, .remote-entry.selected { background: rgba(80,160,255,0.18); }
     .pane-actions-bar { display: flex; flex-direction: column; gap: 4px; padding: 6px 8px; border-top: 1px solid rgba(255,255,255,0.06); background: rgba(0,0,0,0.18); }
     .pane-actions-bar .selection { font-size: 11px; opacity: 0.85; }
     .pane-actions-bar .action-inputs { display: flex; gap: 6px; }
@@ -753,7 +762,33 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
       if (!this.sftpSession) {
         throw new Error('Not connected')
       }
-      this.remoteEntries = await this.sftpSession.readdir(this.remotePath)
+      const entries = await this.sftpSession.readdir(this.remotePath)
+      
+      for (const item of entries) {
+        const raw = item as any
+        
+        if (item.mode !== undefined) {
+          item.permsStr = (item.mode & 0o777).toString(8)
+        }
+
+        if (!raw.owner || !raw.group) {
+          if (raw.longname && typeof raw.longname === 'string') {
+            const parts = raw.longname.trim().split(/\s+/)
+            if (parts.length >= 4) {
+              raw.owner = parts[2]
+              raw.group = parts[3]
+            }
+          } else if (raw.attributes && raw.attributes.uid !== undefined) {
+            raw.owner = String(raw.attributes.uid)
+            raw.group = String(raw.attributes.gid)
+          } else {
+            raw.owner = 'root'
+            raw.group = 'root'
+          }
+        }
+      }
+      
+      this.remoteEntries = entries
     } catch (e) {
       console.error('[SFTP-UI] Remote listing failed', e)
     }

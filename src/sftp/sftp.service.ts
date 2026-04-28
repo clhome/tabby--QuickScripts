@@ -8,6 +8,9 @@ export type SFTPFile = {
   mode: number
   size: number
   modified: Date
+  owner?: string
+  group?: string
+  permsStr?: string
 }
 
 export type SFTPSessionLike = {

@@ -106,7 +106,10 @@
   - [x] 扩展 `inputDialogMode` 支持 permissions 模式 <!-- id: 77 -->
   - [x] 重构 `localEditPermissions()` 与 `remoteEditPermissions()` 触发弹窗 <!-- id: 78 -->
   - [x] 在 `confirmInputDialog()` 接入最终修改逻辑 <!-- id: 79 -->
-
+- [x] 在 Remote 列表显示权限和用户组 <!-- id: 80 -->
+  - [x] 修改 `SFTPFile` 定义，追加 `owner`、`group` 等字段 <!-- id: 81 -->
+  - [x] 在 `refreshRemote()` 中抓取属性落盘 <!-- id: 82 -->
+  - [x] 在 HTML 模板中渲染八进制权限和用户/组 <!-- id: 83 -->
 
 
 
