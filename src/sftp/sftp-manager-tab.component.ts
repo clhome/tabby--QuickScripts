@@ -5,7 +5,7 @@ import * as fsSync from 'fs'
 import * as crypto from 'crypto'
 
 import { Component, Injector, OnInit, HostListener } from '@angular/core'
-import { AppService, BaseTabComponent, ConfigService, FileTransfer, FileUpload, PlatformService, ProfilesService } from 'tabby-core'
+import { AppService, BaseTabComponent, ConfigService, FileTransfer, FileUpload, NotificationsService, PlatformService, ProfilesService } from 'tabby-core'
 
 
 import { LocalPathFileDownload, LocalPathFileUpload } from './local-transfers'
@@ -588,7 +588,7 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
   inputDialogValue = ''
   inputDialogPathValue = ''
 
-  private inputDialogMode: 'local-new-folder' | 'remote-new-folder' | 'local-rename' | 'remote-rename' | null = null
+  private inputDialogMode: 'local-new-folder' | 'remote-new-folder' | 'local-rename' | 'remote-rename' | 'local-edit-permissions' | 'remote-edit-permissions' | null = null
   private inputDialogTargetPath: string | null = null
   private inputDialogRemotePath: string | null = null
   private platform!: PlatformService
@@ -615,6 +615,8 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
   localMenuY = 0
   localMenuItems: Array<{ label: string, path: string }> = []
 
+  private notifications!: NotificationsService
+
   constructor (
     injector: Injector,
     private sftp: SftpConnectionService,
@@ -626,6 +628,7 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     super(injector)
     this.platform = injector.get(PlatformService as any)
     this.config = injector.get(ConfigService as any)
+    this.notifications = injector.get(NotificationsService as any)
 
 
     this.loadLocalFavorites()
@@ -2152,18 +2155,24 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
   }
 
   localEditPermissions (): void {
-    if (this.selectedLocal.length !== 1 || !this.localActionPerms?.trim()) {
+    if (this.selectedLocal.length !== 1) {
       return
     }
     const entry = this.selectedLocal[0]
-    const mode = parseInt(this.localActionPerms.trim(), 8)
-    if (Number.isNaN(mode)) {
-      console.error('[SFTP-UI] Invalid local permissions value')
-      return
+    let currentPerms = '644'
+    try {
+      const st = fsSync.statSync(entry.fullPath)
+      currentPerms = (st.mode & 0o777).toString(8)
+    } catch {
+      // ignore
     }
-    void fs.chmod(entry.fullPath, mode as any)
-      .then(() => this.refreshLocal())
-      .catch(e => console.error('[SFTP-UI] Local chmod failed', e))
+    this.openInputDialog({
+      mode: 'local-edit-permissions' as any,
+      title: 'Edit Permissions (local)',
+      placeholder: 'Permissions (e.g. 755)',
+      value: currentPerms,
+      targetPath: entry.fullPath,
+    })
   }
 
   localShowSize (): void {
@@ -2298,6 +2307,30 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
       return
     }
 
+    if (mode === ('local-edit-permissions' as any)) {
+      const modeNum = parseInt(value, 8)
+      if (Number.isNaN(modeNum)) {
+        this.notifications?.error('SFTP-UI', 'Invalid permissions value')
+        return
+      }
+      try {
+        await fs.chmod(targetPath, modeNum as any)
+        await this.refreshLocal()
+        this.notifications?.notice('Permissions changed successfully')
+      } catch (e: any) {
+        this.notifications?.error('SFTP-UI', `Local chmod failed: ${e.message || e}`)
+      }
+      return
+    }
+
+    if (mode === ('remote-edit-permissions' as any)) {
+      const entry = this.selectedRemote.find(e => e.fullPath === targetPath) || this.selectedRemote[0]
+      if (entry) {
+        this.applyRemoteEditPermissions(entry, value)
+      }
+      return
+    }
+
     try {
       if (mode === 'local-favorite-rename' as any) {
         const fav = this.localFavorites.find(f => f.id === targetPath)
@@ -2374,18 +2407,109 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
   }
 
   remoteEditPermissions (): void {
-    if (this.selectedRemote.length !== 1 || !this.remoteActionPerms?.trim() || !this.sftpSession) {
+    if (this.selectedRemote.length !== 1 || !this.sftpSession) {
       return
     }
     const entry = this.selectedRemote[0]
-    const mode = parseInt(this.remoteActionPerms.trim(), 8)
-    if (Number.isNaN(mode)) {
-      console.error('[SFTP-UI] Invalid remote permissions value')
+    const currentPerms = (entry.mode & 0o777).toString(8)
+    this.openInputDialog({
+      mode: 'remote-edit-permissions' as any,
+      title: 'Edit Permissions (remote)',
+      placeholder: 'Permissions (e.g. 755)',
+      value: currentPerms || '644',
+      targetPath: entry.fullPath,
+    })
+  }
+
+  private applyRemoteEditPermissions (entry: SFTPFile, value: string): void {
+    if (!this.sftpSession) {
       return
     }
-    void (this.sftpSession as any).chmod(entry.fullPath, mode)
-      .then(() => this.refreshRemote())
-      .catch((e: any) => console.error('[SFTP-UI] Remote chmod failed', e))
+    const mode = parseInt(value.trim(), 8)
+    if (Number.isNaN(mode)) {
+      this.notifications?.error('SFTP-UI', 'Invalid permissions value')
+      return
+    }
+
+    const sftp = this.sftpSession as any
+
+    if (typeof sftp.chmod === 'function') {
+      try {
+        let calledBack = false
+        const result = sftp.chmod(entry.fullPath, mode, (err: any) => {
+          if (calledBack) {
+            return
+          }
+          calledBack = true
+          if (err) {
+            this.notifications?.error('SFTP-UI', `Failed to change permissions: ${err.message || err}`)
+          } else {
+            this.notifications?.notice('Permissions changed successfully')
+            this.refreshRemote()
+          }
+        })
+
+        if (result && typeof result.then === 'function') {
+          result
+            .then(() => {
+              if (!calledBack) {
+                calledBack = true
+                this.notifications?.notice('Permissions changed successfully')
+                this.refreshRemote()
+              }
+            })
+            .catch((e: any) => {
+              if (!calledBack) {
+                calledBack = true
+                this.notifications?.error('SFTP-UI', `Failed to change permissions: ${e.message || e}`)
+              }
+            })
+        }
+        return
+      } catch (e: any) {
+        console.error('[SFTP-UI] chmod call error', e)
+      }
+    }
+
+    if (typeof sftp.setstat === 'function') {
+      try {
+        let calledBack = false
+        const result = sftp.setstat(entry.fullPath, { mode }, (err: any) => {
+          if (calledBack) {
+            return
+          }
+          calledBack = true
+          if (err) {
+            this.notifications?.error('SFTP-UI', `Failed to change permissions (setstat): ${err.message || err}`)
+          } else {
+            this.notifications?.notice('Permissions changed successfully')
+            this.refreshRemote()
+          }
+        })
+
+        if (result && typeof result.then === 'function') {
+          result
+            .then(() => {
+              if (!calledBack) {
+                calledBack = true
+                this.notifications?.notice('Permissions changed successfully')
+                this.refreshRemote()
+              }
+            })
+            .catch((e: any) => {
+              if (!calledBack) {
+                calledBack = true
+                this.notifications?.error('SFTP-UI', `Failed to change permissions (setstat): ${e.message || e}`)
+              }
+            })
+        }
+        return
+      } catch (e: any) {
+        console.error('[SFTP-UI] setstat call error', e)
+      }
+    }
+
+    this.notifications?.error('SFTP-UI', 'Operation not supported by the underlying SFTP client')
   }
 
   remoteShowSize (): void {

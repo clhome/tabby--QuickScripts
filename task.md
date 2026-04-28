@@ -97,6 +97,20 @@
   - [x] 以 Profile ID 映射策略，在 config.yaml 写入遥测数据 <!-- id: 70 -->
   - [x] 支持在编辑 remote 收藏夹时修改名称、路径以及二次弹窗拦截 <!-- id: 71 -->
 
+- [x] 修复 SFTP Remote 点击 Edit Permissions 无效问题 <!-- id: 72 -->
+  - [x] 定位 `remoteEditPermissions()` 的触发逻辑与失效原因 <!-- id: 73 -->
+  - [x] 实现修改 Remote 文件权限的底层协议通信与界面交互 <!-- id: 74 -->
+  - [x] 验证修改后的权限能否正确落盘生效 <!-- id: 75 -->
+
+- [x] 弹窗修改 SFTP 文件权限 <!-- id: 76 -->
+  - [x] 扩展 `inputDialogMode` 支持 permissions 模式 <!-- id: 77 -->
+  - [x] 重构 `localEditPermissions()` 与 `remoteEditPermissions()` 触发弹窗 <!-- id: 78 -->
+  - [x] 在 `confirmInputDialog()` 接入最终修改逻辑 <!-- id: 79 -->
+
+
+
+
+
 
 
 

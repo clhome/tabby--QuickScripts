@@ -886,6 +886,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         this.favDropdownOpen = false;
         this.platform = injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_6__.PlatformService);
         this.config = injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_6__.ConfigService);
+        this.notifications = injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_6__.NotificationsService);
         this.loadLocalFavorites();
         void this.refreshLocal();
         this.transfersTimer = window.setInterval(() => {
@@ -2363,19 +2364,25 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         });
     }
     localEditPermissions() {
-        var _a;
-        if (this.selectedLocal.length !== 1 || !((_a = this.localActionPerms) === null || _a === void 0 ? void 0 : _a.trim())) {
+        if (this.selectedLocal.length !== 1) {
             return;
         }
         const entry = this.selectedLocal[0];
-        const mode = parseInt(this.localActionPerms.trim(), 8);
-        if (Number.isNaN(mode)) {
-            console.error('[SFTP-UI] Invalid local permissions value');
-            return;
+        let currentPerms = '644';
+        try {
+            const st = fs__WEBPACK_IMPORTED_MODULE_3__.statSync(entry.fullPath);
+            currentPerms = (st.mode & 0o777).toString(8);
         }
-        void fs_promises__WEBPACK_IMPORTED_MODULE_2__.chmod(entry.fullPath, mode)
-            .then(() => this.refreshLocal())
-            .catch(e => console.error('[SFTP-UI] Local chmod failed', e));
+        catch (_a) {
+            // ignore
+        }
+        this.openInputDialog({
+            mode: 'local-edit-permissions',
+            title: 'Edit Permissions (local)',
+            placeholder: 'Permissions (e.g. 755)',
+            value: currentPerms,
+            targetPath: entry.fullPath,
+        });
     }
     localShowSize() {
         if (this.selectedLocal.length === 1 && this.selectedLocal[0].isDirectory) {
@@ -2476,6 +2483,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         this.inputDialogRemotePath = null;
     }
     confirmInputDialog() {
+        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.inputDialogVisible || !this.inputDialogMode) {
                 return;
@@ -2486,6 +2494,29 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
             const remotePath = this.inputDialogRemotePath;
             this.cancelInputDialog();
             if (!value || !targetPath) {
+                return;
+            }
+            if (mode === 'local-edit-permissions') {
+                const modeNum = parseInt(value, 8);
+                if (Number.isNaN(modeNum)) {
+                    (_a = this.notifications) === null || _a === void 0 ? void 0 : _a.error('SFTP-UI', 'Invalid permissions value');
+                    return;
+                }
+                try {
+                    yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.chmod(targetPath, modeNum);
+                    yield this.refreshLocal();
+                    (_b = this.notifications) === null || _b === void 0 ? void 0 : _b.notice('Permissions changed successfully');
+                }
+                catch (e) {
+                    (_c = this.notifications) === null || _c === void 0 ? void 0 : _c.error('SFTP-UI', `Local chmod failed: ${e.message || e}`);
+                }
+                return;
+            }
+            if (mode === 'remote-edit-permissions') {
+                const entry = this.selectedRemote.find(e => e.fullPath === targetPath) || this.selectedRemote[0];
+                if (entry) {
+                    this.applyRemoteEditPermissions(entry, value);
+                }
                 return;
             }
             try {
@@ -2556,19 +2587,113 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         });
     }
     remoteEditPermissions() {
-        var _a;
-        if (this.selectedRemote.length !== 1 || !((_a = this.remoteActionPerms) === null || _a === void 0 ? void 0 : _a.trim()) || !this.sftpSession) {
+        if (this.selectedRemote.length !== 1 || !this.sftpSession) {
             return;
         }
         const entry = this.selectedRemote[0];
-        const mode = parseInt(this.remoteActionPerms.trim(), 8);
-        if (Number.isNaN(mode)) {
-            console.error('[SFTP-UI] Invalid remote permissions value');
+        const currentPerms = (entry.mode & 0o777).toString(8);
+        this.openInputDialog({
+            mode: 'remote-edit-permissions',
+            title: 'Edit Permissions (remote)',
+            placeholder: 'Permissions (e.g. 755)',
+            value: currentPerms || '644',
+            targetPath: entry.fullPath,
+        });
+    }
+    applyRemoteEditPermissions(entry, value) {
+        var _a, _b;
+        if (!this.sftpSession) {
             return;
         }
-        void this.sftpSession.chmod(entry.fullPath, mode)
-            .then(() => this.refreshRemote())
-            .catch((e) => console.error('[SFTP-UI] Remote chmod failed', e));
+        const mode = parseInt(value.trim(), 8);
+        if (Number.isNaN(mode)) {
+            (_a = this.notifications) === null || _a === void 0 ? void 0 : _a.error('SFTP-UI', 'Invalid permissions value');
+            return;
+        }
+        const sftp = this.sftpSession;
+        if (typeof sftp.chmod === 'function') {
+            try {
+                let calledBack = false;
+                const result = sftp.chmod(entry.fullPath, mode, (err) => {
+                    var _a, _b;
+                    if (calledBack) {
+                        return;
+                    }
+                    calledBack = true;
+                    if (err) {
+                        (_a = this.notifications) === null || _a === void 0 ? void 0 : _a.error('SFTP-UI', `Failed to change permissions: ${err.message || err}`);
+                    }
+                    else {
+                        (_b = this.notifications) === null || _b === void 0 ? void 0 : _b.notice('Permissions changed successfully');
+                        this.refreshRemote();
+                    }
+                });
+                if (result && typeof result.then === 'function') {
+                    result
+                        .then(() => {
+                        var _a;
+                        if (!calledBack) {
+                            calledBack = true;
+                            (_a = this.notifications) === null || _a === void 0 ? void 0 : _a.notice('Permissions changed successfully');
+                            this.refreshRemote();
+                        }
+                    })
+                        .catch((e) => {
+                        var _a;
+                        if (!calledBack) {
+                            calledBack = true;
+                            (_a = this.notifications) === null || _a === void 0 ? void 0 : _a.error('SFTP-UI', `Failed to change permissions: ${e.message || e}`);
+                        }
+                    });
+                }
+                return;
+            }
+            catch (e) {
+                console.error('[SFTP-UI] chmod call error', e);
+            }
+        }
+        if (typeof sftp.setstat === 'function') {
+            try {
+                let calledBack = false;
+                const result = sftp.setstat(entry.fullPath, { mode }, (err) => {
+                    var _a, _b;
+                    if (calledBack) {
+                        return;
+                    }
+                    calledBack = true;
+                    if (err) {
+                        (_a = this.notifications) === null || _a === void 0 ? void 0 : _a.error('SFTP-UI', `Failed to change permissions (setstat): ${err.message || err}`);
+                    }
+                    else {
+                        (_b = this.notifications) === null || _b === void 0 ? void 0 : _b.notice('Permissions changed successfully');
+                        this.refreshRemote();
+                    }
+                });
+                if (result && typeof result.then === 'function') {
+                    result
+                        .then(() => {
+                        var _a;
+                        if (!calledBack) {
+                            calledBack = true;
+                            (_a = this.notifications) === null || _a === void 0 ? void 0 : _a.notice('Permissions changed successfully');
+                            this.refreshRemote();
+                        }
+                    })
+                        .catch((e) => {
+                        var _a;
+                        if (!calledBack) {
+                            calledBack = true;
+                            (_a = this.notifications) === null || _a === void 0 ? void 0 : _a.error('SFTP-UI', `Failed to change permissions (setstat): ${e.message || e}`);
+                        }
+                    });
+                }
+                return;
+            }
+            catch (e) {
+                console.error('[SFTP-UI] setstat call error', e);
+            }
+        }
+        (_b = this.notifications) === null || _b === void 0 ? void 0 : _b.error('SFTP-UI', 'Operation not supported by the underlying SFTP client');
     }
     remoteShowSize() {
         if (this.selectedRemote.length === 1 && this.selectedRemote[0].isDirectory) {
