@@ -1,4 +1,5 @@
 import { Injectable, Injector } from '@angular/core'
+import { t } from './i18n'
 import { Subscription } from 'rxjs'
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
 import { ConfigService } from 'tabby-core'
@@ -116,7 +117,7 @@ export class QuickScriptsDecorator extends TerminalDecorator {
             const btn = document.createElement('button')
             btn.className = 'script-btn'
             btn.textContent = script.name
-            btn.title = `点击执行: ${script.commands.join(' → ')}`
+            btn.title = t('点击执行', 'Click to run') + `: ${script.commands.join(' → ')}`
 
             if (script.color) {
                 btn.style.backgroundColor = script.color
@@ -145,7 +146,7 @@ export class QuickScriptsDecorator extends TerminalDecorator {
         const addBtn = document.createElement('button')
         addBtn.className = 'script-btn-add'
         addBtn.textContent = '+'
-        addBtn.title = '新建脚本'
+        addBtn.title = t('新建脚本', 'New Script')
         addBtn.addEventListener('click', (e) => {
             e.preventDefault()
             e.stopPropagation()
@@ -163,7 +164,7 @@ export class QuickScriptsDecorator extends TerminalDecorator {
         sftpBtn.style.alignItems = 'center'
         sftpBtn.style.fontWeight = 'bold'
         sftpBtn.style.borderColor = 'rgba(0, 0, 0, 0.2)'
-        sftpBtn.title = '打开 SFTP 文件传输'
+        sftpBtn.title = t('打开 SFTP 文件传输', 'Open SFTP File Transfer')
 
         // 文件夹图标
         const icon = document.createElement('i')

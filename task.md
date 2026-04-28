@@ -116,11 +116,10 @@
   - [x] 将表头的 Perms 移到 Size 和 Modified 之间 <!-- id: 85 -->
   - [x] 将循环项 feather 移到 Size 和 Modified 之间 <!-- id: 86 -->
   - [x] 调整 grid-template-columns 布局对应顺序 <!-- id: 87 -->
-
-
-
-
-
+- [x] 插件实现双语适配 <!-- id: 88 -->
+  - [x] 创建 `src/i18n.ts` 通用翻译函数 <!-- id: 89 -->
+  - [x] 适配 `terminalDecorator.ts` 的多语言显示 <!-- id: 90 -->
+  - [x] 适配 `sftp-manager-tab.component.ts` 的多语言显示 <!-- id: 91 -->
 
 
 

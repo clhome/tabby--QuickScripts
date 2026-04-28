@@ -504,6 +504,35 @@ class QuickScriptsConfigProvider extends tabby_core__WEBPACK_IMPORTED_MODULE_0__
 
 /***/ },
 
+/***/ "./src/i18n.ts"
+/*!*********************!*\
+  !*** ./src/i18n.ts ***!
+  \*********************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   isZh: () => (/* binding */ isZh),
+/* harmony export */   t: () => (/* binding */ t)
+/* harmony export */ });
+let isChinese = false;
+try {
+    const lang = ((navigator === null || navigator === void 0 ? void 0 : navigator.language) || process.env.LANG || '').toLowerCase();
+    isChinese = lang.startsWith('zh');
+}
+catch (_a) {
+    // ignore
+}
+function t(zhText, enText) {
+    return isChinese ? zhText : enText;
+}
+function isZh() {
+    return isChinese;
+}
+
+
+/***/ },
+
 /***/ "./src/scriptEditModal.ts"
 /*!********************************!*\
   !*** ./src/scriptEditModal.ts ***!
@@ -775,8 +804,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_angular_core__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! tabby-core */ "tabby-core");
 /* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(tabby_core__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var _local_transfers__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./local-transfers */ "./src/sftp/local-transfers.ts");
-/* harmony import */ var _sftp_service__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./sftp.service */ "./src/sftp/sftp.service.ts");
+/* harmony import */ var _i18n__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../i18n */ "./src/i18n.ts");
+/* harmony import */ var _local_transfers__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./local-transfers */ "./src/sftp/local-transfers.ts");
+/* harmony import */ var _sftp_service__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./sftp.service */ "./src/sftp/sftp.service.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -804,7 +834,11 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
+
 let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__WEBPACK_IMPORTED_MODULE_6__.BaseTabComponent {
+    t(zhText, enText) {
+        return (0,_i18n__WEBPACK_IMPORTED_MODULE_7__.t)(zhText, enText);
+    }
     getOctalPerms(mode) {
         if (mode === undefined) {
             return '';
@@ -1221,7 +1255,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
                             }
                             yield this.deleteRemotePathRecursive(targetRemotePath);
                         }
-                        const upload = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileUpload(payload.fullPath);
+                        const upload = new _local_transfers__WEBPACK_IMPORTED_MODULE_8__.LocalPathFileUpload(payload.fullPath);
                         this.trackTransfer(upload, 'upload', targetRemotePath, payload.fullPath);
                         yield this.sftpSession.upload(targetRemotePath, upload);
                         yield this.refreshRemote();
@@ -1314,7 +1348,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
                                 return;
                             }
                         }
-                        const dl = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileDownload(targetLocalPath, payload.mode, payload.size);
+                        const dl = new _local_transfers__WEBPACK_IMPORTED_MODULE_8__.LocalPathFileDownload(targetLocalPath, payload.mode, payload.size);
                         this.trackTransfer(dl, 'download', payload.remotePath, targetLocalPath);
                         yield this.sftpSession.download(payload.remotePath, dl);
                         yield this.refreshLocal();
@@ -1363,7 +1397,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
                                 yield this.downloadRemoteDirectoryRecursive(it.remotePath, targetLocalPath);
                             }
                             else {
-                                const dl = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileDownload(targetLocalPath, (_b = it.mode) !== null && _b !== void 0 ? _b : 0o644, (_c = it.size) !== null && _c !== void 0 ? _c : 0);
+                                const dl = new _local_transfers__WEBPACK_IMPORTED_MODULE_8__.LocalPathFileDownload(targetLocalPath, (_b = it.mode) !== null && _b !== void 0 ? _b : 0o644, (_c = it.size) !== null && _c !== void 0 ? _c : 0);
                                 this.trackTransfer(dl, 'download', it.remotePath, targetLocalPath);
                                 yield this.sftpSession.download(it.remotePath, dl);
                             }
@@ -1437,7 +1471,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
                         }
                         yield this.deleteLocalPathRecursive(targetLocalPath);
                     }
-                    const dl = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileDownload(targetLocalPath, payload.mode, payload.size);
+                    const dl = new _local_transfers__WEBPACK_IMPORTED_MODULE_8__.LocalPathFileDownload(targetLocalPath, payload.mode, payload.size);
                     this.trackTransfer(dl, 'download', payload.remotePath, targetLocalPath);
                     yield this.sftpSession.download(payload.remotePath, dl);
                     yield this.refreshLocal();
@@ -1488,7 +1522,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
                 }
                 return;
             }
-            const upload = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileUpload(localPath);
+            const upload = new _local_transfers__WEBPACK_IMPORTED_MODULE_8__.LocalPathFileUpload(localPath);
             this.trackTransfer(upload, 'upload', remoteTarget, localPath);
             yield this.sftpSession.upload(remoteTarget, upload);
         });
@@ -1587,7 +1621,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
                     yield this.downloadRemoteDirectoryRecursive(e.fullPath, targetLocal);
                 }
                 else {
-                    const dl = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileDownload(targetLocal, e.mode, e.size);
+                    const dl = new _local_transfers__WEBPACK_IMPORTED_MODULE_8__.LocalPathFileDownload(targetLocal, e.mode, e.size);
                     this.trackTransfer(dl, 'download', e.fullPath, targetLocal);
                     yield this.sftpSession.download(e.fullPath, dl);
                 }
@@ -2715,7 +2749,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
                 continue;
             }
             const targetLocalPath = path__WEBPACK_IMPORTED_MODULE_0__.join(this.localPath, entry.name);
-            const dl = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileDownload(targetLocalPath, entry.mode, entry.size);
+            const dl = new _local_transfers__WEBPACK_IMPORTED_MODULE_8__.LocalPathFileDownload(targetLocalPath, entry.mode, entry.size);
             this.trackTransfer(dl, 'download', entry.fullPath, targetLocalPath);
             void this.sftpSession.download(entry.fullPath, dl)
                 .then(() => this.refreshLocal())
@@ -3158,7 +3192,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
                         // ignore
                     }
                 }
-                const dl = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileDownload(localPath, entry.mode, entry.size);
+                const dl = new _local_transfers__WEBPACK_IMPORTED_MODULE_8__.LocalPathFileDownload(localPath, entry.mode, entry.size);
                 this.trackTransfer(dl, 'download', entry.fullPath, localPath);
                 yield this.sftpSession.download(entry.fullPath, dl);
                 // настроим наблюдение за изменениями локального файла
@@ -3242,7 +3276,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
                 if (info.lastUploadedSignature === signature) {
                     return;
                 }
-                const upload = new _local_transfers__WEBPACK_IMPORTED_MODULE_7__.LocalPathFileUpload(localPath);
+                const upload = new _local_transfers__WEBPACK_IMPORTED_MODULE_8__.LocalPathFileUpload(localPath);
                 this.trackTransfer(upload, 'upload', info.remotePath, localPath);
                 yield this.sftpSession.upload(info.remotePath, upload);
                 info.lastUploadedSignature = signature;
@@ -3367,9 +3401,9 @@ SftpManagerTabComponent = __decorate([
           >
             <div class="entry header">
               <span class="icon"></span>
-              <span class="name sortable" (click)="setLocalSort('name')">Name</span>
-              <span class="size sortable" (click)="setLocalSort('size')">Size</span>
-              <span class="date sortable" (click)="setLocalSort('modified')">Modified</span>
+              <span class="name sortable" (click)="setLocalSort('name')">{{ t('名称', 'Name') }}</span>
+              <span class="size sortable" (click)="setLocalSort('size')">{{ t('大小', 'Size') }}</span>
+              <span class="date sortable" (click)="setLocalSort('modified')">{{ t('修改时间', 'Modified') }}</span>
             </div>
             <div
               class="entry"
@@ -3377,7 +3411,7 @@ SftpManagerTabComponent = __decorate([
               (dblclick)="localUp()"
             >
               <span class="icon">⬆</span>
-              <span class="name">Go up</span>
+              <span class="name">{{ t('返回上级', 'Go up') }}</span>
               <span class="size"></span>
               <span class="date"></span>
             </div>
@@ -3410,12 +3444,12 @@ SftpManagerTabComponent = __decorate([
               <input [(ngModel)]="localActionPerms" placeholder="Perms (e.g. 755)" />
             </div>
             <div class="action-buttons">
-              <button (click)="localRename()" [disabled]="selectedLocal.length !== 1">Rename</button>
-              <button (click)="refreshLocal()">Refresh</button>
-              <button (click)="localDelete()" [disabled]="!selectedLocal.length">Delete</button>
-              <button (click)="localNewFolder()">New Folder</button>
-              <button (click)="localEditPermissions()" [disabled]="selectedLocal.length !== 1 || !localActionPerms">Edit Permissions</button>
-              <button (click)="localShowSize()" [disabled]="selectedLocal.length !== 1 || !selectedLocal[0].isDirectory">Show Size</button>
+              <button (click)="localRename()" [disabled]="selectedLocal.length !== 1">{{ t('重命名', 'Rename') }}</button>
+              <button (click)="refreshLocal()">{{ t('刷新', 'Refresh') }}</button>
+              <button (click)="localDelete()" [disabled]="!selectedLocal.length">{{ t('删除', 'Delete') }}</button>
+              <button (click)="localNewFolder()">{{ t('新建文件夹', 'New Folder') }}</button>
+              <button (click)="localEditPermissions()" [disabled]="selectedLocal.length !== 1">{{ t('修改权限', 'Edit Permissions') }}</button>
+              <button (click)="localShowSize()" [disabled]="selectedLocal.length !== 1 || !selectedLocal[0].isDirectory">{{ t('查看大小', 'Show Size') }}</button>
             </div>
           </div>
         </div>
@@ -3500,10 +3534,10 @@ SftpManagerTabComponent = __decorate([
             </div>
             <div class="entry header" *ngIf="connected">
               <span class="icon"></span>
-              <span class="name sortable" (click)="setRemoteSort('name')">Name</span>
-              <span class="size sortable" (click)="setRemoteSort('size')">Size</span>
-              <span class="perms">Perms</span>
-              <span class="date sortable" (click)="setRemoteSort('modified')">Modified</span>
+              <span class="name sortable" (click)="setRemoteSort('name')">{{ t('名称', 'Name') }}</span>
+              <span class="size sortable" (click)="setRemoteSort('size')">{{ t('大小', 'Size') }}</span>
+              <span class="perms">{{ t('权限', 'Perms') }}</span>
+              <span class="date sortable" (click)="setRemoteSort('modified')">{{ t('修改时间', 'Modified') }}</span>
             </div>
             <div
               class="entry"
@@ -3511,7 +3545,7 @@ SftpManagerTabComponent = __decorate([
               (dblclick)="remoteUp()"
             >
               <span class="icon">⬆</span>
-              <span class="name">Go up</span>
+              <span class="name">{{ t('返回上级', 'Go up') }}</span>
               <span class="size"></span>
               <span class="date"></span>
             </div>
@@ -3545,13 +3579,13 @@ SftpManagerTabComponent = __decorate([
               <input [(ngModel)]="remoteActionPerms" placeholder="Perms (e.g. 755)" />
             </div>
             <div class="action-buttons">
-              <button (click)="remoteRename()" [disabled]="selectedRemote.length !== 1">Rename</button>
-              <button (click)="refreshRemote()" [disabled]="!connected">Refresh</button>
-              <button (click)="remoteDelete()" [disabled]="!selectedRemote.length">Delete</button>
-              <button (click)="remoteNewFolder()" [disabled]="!connected">New Folder</button>
-              <button (click)="remoteEditPermissions()" [disabled]="selectedRemote.length !== 1 || !remoteActionPerms">Edit Permissions</button>
-              <button (click)="remoteShowSize()" [disabled]="selectedRemote.length !== 1 || !selectedRemote[0].isDirectory">Show Size</button>
-              <button (click)="remoteDownload()" [disabled]="!selectedRemote.length">Download</button>
+              <button (click)="remoteRename()" [disabled]="selectedRemote.length !== 1">{{ t('重命名', 'Rename') }}</button>
+              <button (click)="refreshRemote()" [disabled]="!connected">{{ t('刷新', 'Refresh') }}</button>
+              <button (click)="remoteDelete()" [disabled]="!selectedRemote.length">{{ t('删除', 'Delete') }}</button>
+              <button (click)="remoteNewFolder()" [disabled]="!connected">{{ t('新建文件夹', 'New Folder') }}</button>
+              <button (click)="remoteEditPermissions()" [disabled]="selectedRemote.length !== 1">{{ t('修改权限', 'Edit Permissions') }}</button>
+              <button (click)="remoteShowSize()" [disabled]="selectedRemote.length !== 1 || !selectedRemote[0].isDirectory">{{ t('查看大小', 'Show Size') }}</button>
+              <button (click)="remoteDownload()" [disabled]="!selectedRemote.length">{{ t('下载', 'Download') }}</button>
             </div>
           </div>
         </div>
@@ -3607,19 +3641,19 @@ SftpManagerTabComponent = __decorate([
         <div class="delete-dialog" (click)="$event.stopPropagation()">
           <div class="delete-text">{{ inputDialogTitle }}</div>
           <ng-container *ngIf="inputDialogMode === 'local-favorite-rename' || inputDialogMode === 'remote-favorite-rename'">
-            <div style="margin-bottom: 4px; font-size: 12px; color: #aaa; text-align: left;">名称:</div>
+            <div style="margin-bottom: 4px; font-size: 12px; color: #aaa; text-align: left;">{{ t('名称', 'Name') }}:</div>
             <input
               class="dialog-input"
               style="margin-bottom: 12px; width: 100%;"
               [(ngModel)]="inputDialogValue"
-              placeholder="名称"
+              [placeholder]="t('名称', 'Name')"
             />
-            <div style="margin-bottom: 4px; font-size: 12px; color: #aaa; text-align: left;">路径:</div>
+            <div style="margin-bottom: 4px; font-size: 12px; color: #aaa; text-align: left;">{{ t('路径', 'Path') }}:</div>
             <input
               class="dialog-input"
               style="width: 100%;"
               [(ngModel)]="inputDialogPathValue"
-              placeholder="路径"
+              [placeholder]="t('路径', 'Path')"
               (keyup.enter)="confirmInputDialog()"
             />
           </ng-container>
@@ -3745,7 +3779,7 @@ SftpManagerTabComponent = __decorate([
   `],
     }),
     __metadata("design:paramtypes", [_angular_core__WEBPACK_IMPORTED_MODULE_5__.Injector,
-        _sftp_service__WEBPACK_IMPORTED_MODULE_8__.SftpConnectionService,
+        _sftp_service__WEBPACK_IMPORTED_MODULE_9__.SftpConnectionService,
         tabby_core__WEBPACK_IMPORTED_MODULE_6__.ProfilesService,
         tabby_core__WEBPACK_IMPORTED_MODULE_6__.AppService])
 ], SftpManagerTabComponent);
@@ -3912,15 +3946,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "@angular/core");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_angular_core__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @ng-bootstrap/ng-bootstrap */ "@ng-bootstrap/ng-bootstrap");
-/* harmony import */ var _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! tabby-core */ "tabby-core");
-/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(tabby_core__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var tabby_terminal__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! tabby-terminal */ "tabby-terminal");
-/* harmony import */ var tabby_terminal__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(tabby_terminal__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _scriptEditModal__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./scriptEditModal */ "./src/scriptEditModal.ts");
-/* harmony import */ var _sftp_sftp_ui_service__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./sftp/sftp-ui.service */ "./src/sftp/sftp-ui.service.ts");
-/* harmony import */ var _quickScriptsBar_scss__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./quickScriptsBar.scss */ "./src/quickScriptsBar.scss");
+/* harmony import */ var _i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./i18n */ "./src/i18n.ts");
+/* harmony import */ var _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @ng-bootstrap/ng-bootstrap */ "@ng-bootstrap/ng-bootstrap");
+/* harmony import */ var _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! tabby-core */ "tabby-core");
+/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(tabby_core__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var tabby_terminal__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! tabby-terminal */ "tabby-terminal");
+/* harmony import */ var tabby_terminal__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(tabby_terminal__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _scriptEditModal__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./scriptEditModal */ "./src/scriptEditModal.ts");
+/* harmony import */ var _sftp_sftp_ui_service__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./sftp/sftp-ui.service */ "./src/sftp/sftp-ui.service.ts");
+/* harmony import */ var _quickScriptsBar_scss__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./quickScriptsBar.scss */ "./src/quickScriptsBar.scss");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -3946,7 +3981,8 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
-let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__WEBPACK_IMPORTED_MODULE_3__.TerminalDecorator {
+
+let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__WEBPACK_IMPORTED_MODULE_4__.TerminalDecorator {
     constructor(config, injector, sftpUi) {
         super();
         this.config = config;
@@ -4035,7 +4071,7 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
             const btn = document.createElement('button');
             btn.className = 'script-btn';
             btn.textContent = script.name;
-            btn.title = `点击执行: ${script.commands.join(' → ')}`;
+            btn.title = (0,_i18n__WEBPACK_IMPORTED_MODULE_1__.t)('点击执行', 'Click to run') + `: ${script.commands.join(' → ')}`;
             if (script.color) {
                 btn.style.backgroundColor = script.color;
                 btn.style.color = '#fff';
@@ -4059,7 +4095,7 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
         const addBtn = document.createElement('button');
         addBtn.className = 'script-btn-add';
         addBtn.textContent = '+';
-        addBtn.title = '新建脚本';
+        addBtn.title = (0,_i18n__WEBPACK_IMPORTED_MODULE_1__.t)('新建脚本', 'New Script');
         addBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -4076,7 +4112,7 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
         sftpBtn.style.alignItems = 'center';
         sftpBtn.style.fontWeight = 'bold';
         sftpBtn.style.borderColor = 'rgba(0, 0, 0, 0.2)';
-        sftpBtn.title = '打开 SFTP 文件传输';
+        sftpBtn.title = (0,_i18n__WEBPACK_IMPORTED_MODULE_1__.t)('打开 SFTP 文件传输', 'Open SFTP File Transfer');
         // 文件夹图标
         const icon = document.createElement('i');
         icon.className = 'fas fa-folder me-1';
@@ -4216,8 +4252,8 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
     addScript(tab) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            const ngbModal = this.injector.get(_ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_1__.NgbModal);
-            const modal = ngbModal.open(_scriptEditModal__WEBPACK_IMPORTED_MODULE_4__.ScriptEditModalComponent);
+            const ngbModal = this.injector.get(_ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_2__.NgbModal);
+            const modal = ngbModal.open(_scriptEditModal__WEBPACK_IMPORTED_MODULE_5__.ScriptEditModalComponent);
             modal.componentInstance.isNew = true;
             modal.componentInstance.scriptName = '';
             modal.componentInstance.commandsText = '';
@@ -4250,8 +4286,8 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
     editScript(tab, script) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            const ngbModal = this.injector.get(_ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_1__.NgbModal);
-            const modal = ngbModal.open(_scriptEditModal__WEBPACK_IMPORTED_MODULE_4__.ScriptEditModalComponent);
+            const ngbModal = this.injector.get(_ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_2__.NgbModal);
+            const modal = ngbModal.open(_scriptEditModal__WEBPACK_IMPORTED_MODULE_5__.ScriptEditModalComponent);
             modal.componentInstance.isNew = false;
             modal.componentInstance.scriptName = script.name;
             modal.componentInstance.commandsText = script.commands.join('\n');
@@ -4293,9 +4329,9 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
 };
 QuickScriptsDecorator = __decorate([
     (0,_angular_core__WEBPACK_IMPORTED_MODULE_0__.Injectable)(),
-    __metadata("design:paramtypes", [tabby_core__WEBPACK_IMPORTED_MODULE_2__.ConfigService,
+    __metadata("design:paramtypes", [tabby_core__WEBPACK_IMPORTED_MODULE_3__.ConfigService,
         _angular_core__WEBPACK_IMPORTED_MODULE_0__.Injector,
-        _sftp_sftp_ui_service__WEBPACK_IMPORTED_MODULE_5__.SftpUiService])
+        _sftp_sftp_ui_service__WEBPACK_IMPORTED_MODULE_6__.SftpUiService])
 ], QuickScriptsDecorator);
 
 

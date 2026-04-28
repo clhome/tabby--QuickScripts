@@ -8,6 +8,7 @@ import { Component, Injector, OnInit, HostListener } from '@angular/core'
 import { AppService, BaseTabComponent, ConfigService, FileTransfer, FileUpload, NotificationsService, PlatformService, ProfilesService } from 'tabby-core'
 
 
+import { t } from '../i18n'
 import { LocalPathFileDownload, LocalPathFileUpload } from './local-transfers'
 import { SftpConnectionService, SFTPFile, SFTPSessionLike, SSHSessionLike } from './sftp.service'
 
@@ -123,9 +124,9 @@ type DragPayload = {
           >
             <div class="entry header">
               <span class="icon"></span>
-              <span class="name sortable" (click)="setLocalSort('name')">Name</span>
-              <span class="size sortable" (click)="setLocalSort('size')">Size</span>
-              <span class="date sortable" (click)="setLocalSort('modified')">Modified</span>
+              <span class="name sortable" (click)="setLocalSort('name')">{{ t('名称', 'Name') }}</span>
+              <span class="size sortable" (click)="setLocalSort('size')">{{ t('大小', 'Size') }}</span>
+              <span class="date sortable" (click)="setLocalSort('modified')">{{ t('修改时间', 'Modified') }}</span>
             </div>
             <div
               class="entry"
@@ -133,7 +134,7 @@ type DragPayload = {
               (dblclick)="localUp()"
             >
               <span class="icon">⬆</span>
-              <span class="name">Go up</span>
+              <span class="name">{{ t('返回上级', 'Go up') }}</span>
               <span class="size"></span>
               <span class="date"></span>
             </div>
@@ -166,12 +167,12 @@ type DragPayload = {
               <input [(ngModel)]="localActionPerms" placeholder="Perms (e.g. 755)" />
             </div>
             <div class="action-buttons">
-              <button (click)="localRename()" [disabled]="selectedLocal.length !== 1">Rename</button>
-              <button (click)="refreshLocal()">Refresh</button>
-              <button (click)="localDelete()" [disabled]="!selectedLocal.length">Delete</button>
-              <button (click)="localNewFolder()">New Folder</button>
-              <button (click)="localEditPermissions()" [disabled]="selectedLocal.length !== 1 || !localActionPerms">Edit Permissions</button>
-              <button (click)="localShowSize()" [disabled]="selectedLocal.length !== 1 || !selectedLocal[0].isDirectory">Show Size</button>
+              <button (click)="localRename()" [disabled]="selectedLocal.length !== 1">{{ t('重命名', 'Rename') }}</button>
+              <button (click)="refreshLocal()">{{ t('刷新', 'Refresh') }}</button>
+              <button (click)="localDelete()" [disabled]="!selectedLocal.length">{{ t('删除', 'Delete') }}</button>
+              <button (click)="localNewFolder()">{{ t('新建文件夹', 'New Folder') }}</button>
+              <button (click)="localEditPermissions()" [disabled]="selectedLocal.length !== 1">{{ t('修改权限', 'Edit Permissions') }}</button>
+              <button (click)="localShowSize()" [disabled]="selectedLocal.length !== 1 || !selectedLocal[0].isDirectory">{{ t('查看大小', 'Show Size') }}</button>
             </div>
           </div>
         </div>
@@ -256,10 +257,10 @@ type DragPayload = {
             </div>
             <div class="entry header" *ngIf="connected">
               <span class="icon"></span>
-              <span class="name sortable" (click)="setRemoteSort('name')">Name</span>
-              <span class="size sortable" (click)="setRemoteSort('size')">Size</span>
-              <span class="perms">Perms</span>
-              <span class="date sortable" (click)="setRemoteSort('modified')">Modified</span>
+              <span class="name sortable" (click)="setRemoteSort('name')">{{ t('名称', 'Name') }}</span>
+              <span class="size sortable" (click)="setRemoteSort('size')">{{ t('大小', 'Size') }}</span>
+              <span class="perms">{{ t('权限', 'Perms') }}</span>
+              <span class="date sortable" (click)="setRemoteSort('modified')">{{ t('修改时间', 'Modified') }}</span>
             </div>
             <div
               class="entry"
@@ -267,7 +268,7 @@ type DragPayload = {
               (dblclick)="remoteUp()"
             >
               <span class="icon">⬆</span>
-              <span class="name">Go up</span>
+              <span class="name">{{ t('返回上级', 'Go up') }}</span>
               <span class="size"></span>
               <span class="date"></span>
             </div>
@@ -301,13 +302,13 @@ type DragPayload = {
               <input [(ngModel)]="remoteActionPerms" placeholder="Perms (e.g. 755)" />
             </div>
             <div class="action-buttons">
-              <button (click)="remoteRename()" [disabled]="selectedRemote.length !== 1">Rename</button>
-              <button (click)="refreshRemote()" [disabled]="!connected">Refresh</button>
-              <button (click)="remoteDelete()" [disabled]="!selectedRemote.length">Delete</button>
-              <button (click)="remoteNewFolder()" [disabled]="!connected">New Folder</button>
-              <button (click)="remoteEditPermissions()" [disabled]="selectedRemote.length !== 1 || !remoteActionPerms">Edit Permissions</button>
-              <button (click)="remoteShowSize()" [disabled]="selectedRemote.length !== 1 || !selectedRemote[0].isDirectory">Show Size</button>
-              <button (click)="remoteDownload()" [disabled]="!selectedRemote.length">Download</button>
+              <button (click)="remoteRename()" [disabled]="selectedRemote.length !== 1">{{ t('重命名', 'Rename') }}</button>
+              <button (click)="refreshRemote()" [disabled]="!connected">{{ t('刷新', 'Refresh') }}</button>
+              <button (click)="remoteDelete()" [disabled]="!selectedRemote.length">{{ t('删除', 'Delete') }}</button>
+              <button (click)="remoteNewFolder()" [disabled]="!connected">{{ t('新建文件夹', 'New Folder') }}</button>
+              <button (click)="remoteEditPermissions()" [disabled]="selectedRemote.length !== 1">{{ t('修改权限', 'Edit Permissions') }}</button>
+              <button (click)="remoteShowSize()" [disabled]="selectedRemote.length !== 1 || !selectedRemote[0].isDirectory">{{ t('查看大小', 'Show Size') }}</button>
+              <button (click)="remoteDownload()" [disabled]="!selectedRemote.length">{{ t('下载', 'Download') }}</button>
             </div>
           </div>
         </div>
@@ -363,19 +364,19 @@ type DragPayload = {
         <div class="delete-dialog" (click)="$event.stopPropagation()">
           <div class="delete-text">{{ inputDialogTitle }}</div>
           <ng-container *ngIf="inputDialogMode === 'local-favorite-rename' || inputDialogMode === 'remote-favorite-rename'">
-            <div style="margin-bottom: 4px; font-size: 12px; color: #aaa; text-align: left;">名称:</div>
+            <div style="margin-bottom: 4px; font-size: 12px; color: #aaa; text-align: left;">{{ t('名称', 'Name') }}:</div>
             <input
               class="dialog-input"
               style="margin-bottom: 12px; width: 100%;"
               [(ngModel)]="inputDialogValue"
-              placeholder="名称"
+              [placeholder]="t('名称', 'Name')"
             />
-            <div style="margin-bottom: 4px; font-size: 12px; color: #aaa; text-align: left;">路径:</div>
+            <div style="margin-bottom: 4px; font-size: 12px; color: #aaa; text-align: left;">{{ t('路径', 'Path') }}:</div>
             <input
               class="dialog-input"
               style="width: 100%;"
               [(ngModel)]="inputDialogPathValue"
-              placeholder="路径"
+              [placeholder]="t('路径', 'Path')"
               (keyup.enter)="confirmInputDialog()"
             />
           </ng-container>
@@ -504,6 +505,10 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
   // injected from the SSH tab when opened via SFTP-UI button
   sshSession: SSHSessionLike | null = null
   profile: any = null
+
+  t (zhText: string, enText: string): string {
+    return t(zhText, enText)
+  }
 
   getOctalPerms (mode: number | undefined): string {
     if (mode === undefined) {
