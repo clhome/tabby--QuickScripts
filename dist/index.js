@@ -845,6 +845,22 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         }
         return (mode & 0o777).toString(8);
     }
+    getDateColorParts(timeValue) {
+        if (!timeValue)
+            return null;
+        const d = new Date(timeValue);
+        if (isNaN(d.getTime()))
+            return null;
+        const pad = (n) => n.toString().padStart(2, '0');
+        const dateStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        const hourStr = pad(d.getHours());
+        const minuteStr = pad(d.getMinutes());
+        const now = new Date();
+        const dateMatch = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+        const hourMatch = dateMatch && d.getHours() === now.getHours();
+        const minuteMatch = hourMatch && d.getMinutes() === now.getMinutes();
+        return { date: dateStr, hour: hourStr, minute: minuteStr, dateMatch, hourMatch, minuteMatch };
+    }
     constructor(injector, sftp, profilesService, app) {
         // Tabby runtime BaseTabComponent expects Injector in constructor, but typings in this SDK may differ.
         // @ts-expect-error runtime-compatible super(injector)
@@ -877,10 +893,10 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         this.localPathInput = this.localPath;
         this.localFolderSizeLoading = new Set();
         this.remoteFolderSizeLoading = new Set();
-        this.localSortBy = 'name';
-        this.localSortAsc = true;
-        this.remoteSortBy = 'name';
-        this.remoteSortAsc = true;
+        this.localSortBy = 'modified';
+        this.localSortAsc = false;
+        this.remoteSortBy = 'modified';
+        this.remoteSortAsc = false;
         this.localCache = null;
         this.remoteCache = null;
         this.showHiddenLocal = false;
@@ -3432,7 +3448,14 @@ SftpManagerTabComponent = __decorate([
               <span class="icon">{{ e.isDirectory ? '📁' : '📄' }}</span>
               <span class="name">{{ e.name }}</span>
               <span class="size">{{ getLocalSizeDisplay(e) }}</span>
-              <span class="date">{{ e.mtimeMs ? (e.mtimeMs | date:'yyyy-MM-dd HH:mm') : '' }}</span>
+              <span class="date">
+                <ng-container *ngIf="getDateColorParts(e.mtimeMs) as parts">
+                  <span [style.color]="parts.dateMatch ? '#FBF732' : 'inherit'">{{ parts.date }}</span>
+                  <span>_</span>
+                  <span [style.color]="parts.hourMatch ? '#FBF732' : 'inherit'">{{ parts.hour }}</span>
+                  <span [style.color]="parts.minuteMatch ? '#FBF732' : 'inherit'">:{{ parts.minute }}</span>
+                </ng-container>
+              </span>
             </div>
           </div>
           <div class="pane-actions-bar">
@@ -3567,7 +3590,14 @@ SftpManagerTabComponent = __decorate([
               <span class="name">{{ e.name }}</span>
               <span class="size">{{ getRemoteSizeDisplay(e) }}</span>
               <span class="perms">{{ getOctalPerms(e.mode) }}</span>
-              <span class="date">{{ e.modified | date:'yyyy-MM-dd HH:mm' }}</span>
+              <span class="date">
+                <ng-container *ngIf="getDateColorParts(e.modified) as parts">
+                  <span [style.color]="parts.dateMatch ? '#FBF732' : 'inherit'">{{ parts.date }}</span>
+                  <span>_</span>
+                  <span [style.color]="parts.hourMatch ? '#FBF732' : 'inherit'">{{ parts.hour }}</span>
+                  <span [style.color]="parts.minuteMatch ? '#FBF732' : 'inherit'">:{{ parts.minute }}</span>
+                </ng-container>
+              </span>
             </div>
           </div>
           <div class="pane-actions-bar">
