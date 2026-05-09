@@ -1,10 +1,13 @@
 {
-  "name": "tabby-quick-scripts",
+  "name": "tabby-quick-scripts-chenlei",
   "version": "1.0.0",
   "description": "在终端上方显示快捷脚本按钮，点击即可按顺序执行预设命令",
   "keywords": [
     "tabby-plugin"
   ],
+  "engines": {
+    "tabby": ">=1.0.0"
+  },
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
