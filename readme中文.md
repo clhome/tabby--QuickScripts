@@ -1,125 +1,99 @@
-# Tabby Quick Scripts 插件
+# 🚀 Tabby Quick Scripts 插件
 
-`tabby-quick-scripts` 是一款专为 [Tabby 终端](https://github.com/Eugeny/tabby) 开发的快捷脚本面板插件。它能够在终端标签页上方显示常驻的快捷脚本按钮，方便一键执行多条预设的运维或开发命令。
+[![Tabby Version](https://img.shields.io/badge/Tabby-%3E%3D1.0.0-blueviolet)](https://github.com/Eugeny/tabby)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
----
-
-## 🌟 功能特性
-
-* **常驻工具栏**：在 SSH、串口等终端面板的顶部注入一个快捷按钮栏。
-* **顺序执行机制**：支持逐行、按顺序发送多条命令。插件会自动检测终端提示符（如 `$`, `#`, `>`, `%`），确保上一条命令完成响应后再发送下一条。
-* **可视化管理**：
-  * **新建**：点击工具栏最右侧的 `+` 号添加新脚本。
-  * **执行**：左键单击脚本名称即可开始依次运行预设指令。
-  * **管理**：右键单击对应脚本可进入编辑模式或进行删除。
+`tabby-quick-scripts` 是一款专为 **[Tabby 终端](https://github.com/Eugeny/tabby)** 量身定制的增强型插件。它通过在标签页上方注入一个快捷工具栏，帮助用户高效管理并一键执行多行预设命令，同时集成了强大的 SFTP 辅助功能。
 
 ---
 
-## 直接下载使用
+## ✨ 核心特性
 
-在tabby插件中直接搜索`tabby-quick-scripts-chenlei`点击`获取`按钮直接使用。
+*   **⚡ 快捷脚本工具栏**：在 SSH、Serial、Telnet 等终端面板顶部显示常驻按钮。
+*   **🤖 智能顺序执行**：支持多行命令按序发送。内置提示符检测（`$`, `#`, `>`, `%`），确保上一条命令响应完成后再发送下一条，避免指令堆叠。
+*   **📂 增强版 SFTP 模块**：
+    *   **目录自动同步**：打开 SFTP 面板时，远程端自动跳转至当前终端的工作路径。
+    *   **双端路径收藏**：支持对本地和远程常用路径进行收藏，实现快速跳转。
+    *   **智能时间高亮**：文件修改时间（年月日时分）若与当前系统时间匹配，将自动以 **绿色/黄色** 高亮显示，助你瞬间锁定最新生成的日志或文件。
+    *   **原生拖拽支持**：支持文件/文件夹在左右面板间拖拽传输，或从系统文件夹直接拖入。
+*   **🎨 可视化管理**：
+    *   **新建**：点击工具栏右侧的 `+` 号即可快速创建。
+    *   **执行**：左键单击脚本按钮一键运行。
+    *   **管理**：右键单击按钮进入编辑模式，支持颜色自定义与顺序调整。
+
+---
+
+## 📦 安装方式
+
+### 方式一：官方插件市场安装（推荐）
+
+1.  打开 Tabby 的 **Settings** -> **Plugins**。
+2.  在搜索框输入 `tabby-quick-scripts-chenlei`。
+3.  点击 **Install** 按钮，安装完成后重启 Tabby 即可。
 
 ![image-20260509105621928](readme中文.assets/image-20260509105621928.png)
 
-## 使用方法简介
+---
 
-### 脚本部分
+## 📖 使用指南
 
-左上方为创建好的脚本按钮：
-
-​	左键点击：执行脚本
-
-​	右键点击：编辑脚本
+### 1. 快捷脚本管理
+*   **左键点击**：立即触发脚本执行。
+*   **右键点击**：唤起编辑模态框，修改指令或删除脚本。
 
 ![image-20260509111520036](readme中文.assets/image-20260509111520036.png)
-
 ![image-20260509111751792](readme中文.assets/image-20260509111751792.png)
 
-### 文件传输加强模块
-
-点击右上方`sftp`
-
-
+### 2. SFTP 增强模块
+点击终端右上角的 **`SFTP`** 按钮开启增强面板。
 
 ![image-20260509111928140](readme中文.assets/image-20260509111928140.png)
 
-远程服务器自动打开当前目录对应的路径
-
-![image-20260509112053862](readme中文.assets/image-20260509112053862.png)
-
-![image-20260509112137794](readme中文.assets/image-20260509112137794.png)
-
-本地及远程服务器增加路径收藏功能，可以快速打开对应路径
-
-![image-20260509112344830](readme中文.assets/image-20260509112344830.png)
-
-右侧下拉菜单可以快速选择收藏夹及路径
-
-![image-20260509112408875](readme中文.assets/image-20260509112408875.png)
-
-时间匹配功能，当年月日时分秒只要和当前时间匹配到就标黄，帮助你快速定位最新文件和次新文件。
-
-示例图片中，年月日+小时标黄，分钟为默认颜色
+*   **路径收藏**：点击星号图标即可收藏当前路径，通过右侧下拉菜单快速切换。
+*   **时间匹配**：如下图所示，年月日及小时与当前匹配的部分将呈现醒目的颜色。
 
 ![image-20260509112736437](readme中文.assets/image-20260509112736437.png)
 
-支持文件及文件夹的左右拖拽，也可以从本地文件夹直接拖入远程服务器。
+---
 
-## 📦 手工安装与部署 (本地加载)
+## 🛠️ 本地开发与源码安装
 
-作为一个本地开发的插件，你需要手动或通过软链接将该项目导入到 Tabby 的插件存放目录的 `node_modules` 中。
+如果你需要手动安装或进行二次开发：
 
-### 默认 Tabby 插件路径
-- **Windows**: `%APPDATA%\tabby\plugins\node_modules\` （例如：`C:\Users\你的用户名\AppData\Roaming\tabby\plugins\node_modules\`）
-- **macOS**: `~/Library/Application Support/tabby/plugins/node_modules/`
-- **Linux**: `~/.config/tabby/plugins/node_modules/`
+### 1. 插件存放路径
+*   **Windows**: `%APPDATA%\tabby\plugins\node_modules\`
+*   **macOS**: `~/Library/Application Support/tabby/plugins/node_modules/`
+*   **Linux**: `~/.config/tabby/plugins/node_modules/`
 
-### 方式一：创建符号链接（推荐）
-最便捷的方式是在 `node_modules` 目录下新建软链接，无需频繁复制构建后的文件。
+### 2. 软链接部署（推荐）
+在 `node_modules` 目录下创建指向本项目源码的软链接，无需反复拷贝。
 
-**PowerShell (Windows):**
+**PowerShell (管理员权限):**
 ```powershell
-# 注意：请将 -Target 后面的路径替换为本项目源码在你电脑上的真实绝对路径
-New-Item -ItemType SymbolicLink -Path "$env:APPDATA\tabby\plugins\node_modules\tabby-quick-scripts" -Target "D:\git\gitea\tabby--QuickScripts"
+# 请确保 -Target 后的路径为您本地源码的真实路径
+New-Item -ItemType SymbolicLink -Path "$env:APPDATA\tabby\plugins\node_modules\tabby-quick-scripts" -Target "F:\git\gitea20250909\tabby--QuickScripts"
 ```
 
-### 方式二：手动拷贝发布
-若使用软链接不便，可在项目构建完成后，必须按照项目原有目录结构将其拷贝至 Tabby 的 `node_modules` 目录。
-1. 运行构建：`npm run build`
-2. 在 Tabby 插件的 `node_modules` 目录中新建 `tabby-quick-scripts` 文件夹。
-3. 将项目中的 **`package.json`** 文件以及整个 **`dist/`** 文件夹（注意：必须是保留 `dist` 文件夹层级，不能直接将 `dist` 内的文件提取至根目录）完整拷贝至该新建文件夹中。
+### 3. 构建命令
+```bash
+# 安装依赖
+npm install
 
-> ⚠️ **提示**：无论是何种安装方式，配置完成后必须**完全退出并重新启动 Tabby** 才能成功加载。
+# 生产环境编译
+npm run build
 
----
+# 开发监听模式（实时编译）
+npm run watch
+```
 
-## 🛠️ 本地开发指南
-
-如果你需要对插件逻辑进行维护、二次开发或修复 Bug，可遵循以下规范：
-
-1. **准备环境**
-   确保你本地已安装 Node.js 环境，在项目根目录执行安装命令：
-   ```bash
-   npm install
-   ```
-
-2. **打包构建**
-   ```bash
-   # 单次构建（生产环境）
-   npm run build
-   ```
-
-3. **热更新 / 监听模式**
-   开发过程中推荐使用 watch 模式，只要修改了 `src/` 内的源码，就会触发自动增量构建：
-   ```bash
-   npm run watch
-   ```
+> [!IMPORTANT]
+> **注意**：无论是商店安装还是手动部署，配置完成后必须 **完全退出并重新启动 Tabby** 才能使插件生效。
 
 ---
 
-## ⚙️ 高级配置项
+## ⚙️ 高级配置 (config.yaml)
 
-插件默认的指令等待提示符正则为 `(\$|#|>|%)\s*$`。若你有特定的设备或定制化 Shell，可以在 Tabby 的 `config.yaml` 配置中找到 `quickScriptsPlugin` 字段调整参数：
+你可以通过修改 Tabby 的全局配置文件 `config.yaml` 来微调脚本执行逻辑：
 
 ```yaml
 quickScriptsPlugin:
@@ -127,3 +101,14 @@ quickScriptsPlugin:
   commandTimeout: 30000             # 单条命令超时等待上限 (ms)
   minDelay: 500                     # 发送命令之间的最小物理安全延迟 (ms)
 ```
+
+---
+
+## 📄 开源协议
+基于 [MIT](LICENSE) 协议开源。
+
+## 🌟 Star History
+
+
+
+[![Star History Chart](https://api.star-history.com/svg?repos=clhome/tabby--QuickScripts&type=date&legend=top-left)](https://www.star-history.com/#clhome/tabby--QuickScripts&type=date&legend=top-left)
