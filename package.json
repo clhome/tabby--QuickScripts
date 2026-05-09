@@ -1,7 +1,7 @@
 {
   "name": "tabby-quick-scripts-chenlei",
-  "version": "1.0.0",
-  "description": "在终端上方显示快捷脚本按钮，点击即可按顺序执行预设命令",
+  "version": "2.3.0",
+  "description": "Display shortcut script buttons above the terminal. Clicking a button executes the preset commands sequentially.在终端上方显示快捷脚本按钮，点击即可按顺序执行预设命令",
   "keywords": [
     "tabby-plugin"
   ],

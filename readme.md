@@ -1,7 +1,10 @@
 # 🚀 Tabby Quick Scripts Plugin
 
 [![Tabby Version](https://img.shields.io/badge/Tabby-%3E%3D1.0.0-blueviolet)](https://github.com/Eugeny/tabby)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-black?logo=github)](https://github.com/clhome/tabby--QuickScripts)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
+[中文版](readme中文.md)
 
 `tabby-quick-scripts` is an enhancement plugin tailored for the **[Tabby Terminal](https://github.com/Eugeny/tabby)**. It injects a shortcut toolbar above the terminal tabs, helping users efficiently manage and execute preset multi-line commands with a single click, while integrating powerful SFTP auxiliary features.
 

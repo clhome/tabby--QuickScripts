@@ -1,7 +1,10 @@
 # 🚀 Tabby Quick Scripts 插件
 
 [![Tabby Version](https://img.shields.io/badge/Tabby-%3E%3D1.0.0-blueviolet)](https://github.com/Eugeny/tabby)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-black?logo=github)](https://github.com/clhome/tabby--QuickScripts)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
+[English Version](readme.md)
 
 `tabby-quick-scripts` 是一款专为 **[Tabby 终端](https://github.com/Eugeny/tabby)** 量身定制的增强型插件。它通过在标签页上方注入一个快捷工具栏，帮助用户高效管理并一键执行多行预设命令，同时集成了强大的 SFTP 辅助功能。
 
