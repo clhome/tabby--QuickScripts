@@ -6,6 +6,8 @@
 
 [中文版](readme中文.md)
 
+![processed_1778306177510](readme中文.assets/processed_1778306177510.webp)
+
 `tabby-quick-scripts` is an enhancement plugin tailored for the **[Tabby Terminal](https://github.com/Eugeny/tabby)**. It injects a shortcut toolbar above the terminal tabs, helping users efficiently manage and execute preset multi-line commands with a single click, while integrating powerful SFTP auxiliary features.
 
 ---
@@ -45,6 +47,7 @@
 *   **Right Click**: Open the edit modal to modify commands or delete the script.
 
 ![image-20260509111520036](readme中文.assets/image-20260509111520036.png)
+
 ![image-20260509111751792](readme中文.assets/image-20260509111751792.png)
 
 ### 2. Enhanced SFTP Module

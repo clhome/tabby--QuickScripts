@@ -6,6 +6,8 @@
 
 [English Version](readme.md)
 
+![processed_1778306177510](readme中文.assets/processed_1778306177510.webp)
+
 `tabby-quick-scripts` 是一款专为 **[Tabby 终端](https://github.com/Eugeny/tabby)** 量身定制的增强型插件。它通过在标签页上方注入一个快捷工具栏，帮助用户高效管理并一键执行多行预设命令，同时集成了强大的 SFTP 辅助功能。
 
 ---
@@ -45,6 +47,7 @@
 *   **右键点击**：唤起编辑模态框，修改指令或删除脚本。
 
 ![image-20260509111520036](readme中文.assets/image-20260509111520036.png)
+
 ![image-20260509111751792](readme中文.assets/image-20260509111751792.png)
 
 ### 2. SFTP 增强模块
