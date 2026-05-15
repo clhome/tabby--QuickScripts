@@ -711,11 +711,11 @@ export class QuickScriptsDecorator extends TerminalDecorator {
         }
 
         const pad = (v: number) => v.toString().padStart(2, '0')
-        const cpuHtml = `<span style="color: ${this.getColorForValue(data.cpu)}">C_${pad(data.cpu)}%</span>`
-        const memHtml = `<span style="color: ${this.getColorForValue(data.mem)}">M_${pad(data.mem)}%</span>`
-        const diskHtml = `<span style="color: ${this.getColorForValue(data.disk)}">H_${pad(data.disk)}%</span>`
-        const ulHtml = `<span style="color: ${this.getColorForNet(data.ul)}">↑_${data.ul.toFixed(1)}</span>`
-        const dlHtml = `<span style="color: ${this.getColorForNet(data.dl)}">↓_${data.dl.toFixed(1)}</span>`
+        const cpuHtml = `<span style="color: ${this.getColorForValue(data.cpu)}">C:&nbsp;${pad(data.cpu)}%</span>`
+        const memHtml = `<span style="color: ${this.getColorForValue(data.mem)}">M:&nbsp;${pad(data.mem)}%</span>`
+        const diskHtml = `<span style="color: ${this.getColorForValue(data.disk)}">H:&nbsp;${pad(data.disk)}%</span>`
+        const ulHtml = `<span style="color: ${this.getColorForNet(data.ul)}">↑:&nbsp;${data.ul.toFixed(1)}</span>`
+        const dlHtml = `<span style="color: ${this.getColorForNet(data.dl)}">↓:&nbsp;${data.dl.toFixed(1)}</span>`
 
         ctx.element.innerHTML = `${cpuHtml}&nbsp;&nbsp;|&nbsp;&nbsp;${memHtml}&nbsp;&nbsp;|&nbsp;&nbsp;${diskHtml}&nbsp;&nbsp;|&nbsp;&nbsp;${ulHtml}&nbsp;&nbsp;|&nbsp;&nbsp;${dlHtml}`
         ctx.element.classList.remove('loading')
