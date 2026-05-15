@@ -34,7 +34,7 @@
 ### 方式一：官方插件市场安装（推荐）
 
 1.  打开 Tabby 的 **Settings** -> **Plugins**。
-2.  在搜索框输入 `tabby-quick-scripts-chenlei`。
+2.  找到插件： `tabby-quick-scripts-chenlei`。
 3.  点击 **Install** 按钮，安装完成后重启 Tabby 即可。
 
 ![image-20260509105621928](readme中文.assets/image-20260509105621928.png)
