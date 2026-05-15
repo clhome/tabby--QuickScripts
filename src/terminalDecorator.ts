@@ -465,7 +465,7 @@ export class QuickScriptsDecorator extends TerminalDecorator {
         const monitorEl = document.createElement('span')
         monitorEl.className = 'sys-monitor loading'
         monitorEl.textContent = t('采集中...', 'Loading...')
-        monitorEl.title = t('服务器资源监控CPU、内存、磁盘、网络Mbps（点击刷新）', 'Server resource monitor CPU, RAM, Disk, Network Mbps (click to refresh)')
+        monitorEl.title = t('CPU、内存、磁盘、网络Mbps（5秒刷新）', 'CPU, RAM, Disk, Network Mbps (5s refresh)')
 
         // 点击手动刷新
         monitorEl.addEventListener('click', () => {
@@ -717,7 +717,7 @@ export class QuickScriptsDecorator extends TerminalDecorator {
         const ulHtml = `<span style="color: ${this.getColorForNet(data.ul)}">↑_${data.ul.toFixed(1)}</span>`
         const dlHtml = `<span style="color: ${this.getColorForNet(data.dl)}">↓_${data.dl.toFixed(1)}</span>`
 
-        ctx.element.innerHTML = `${cpuHtml} | ${memHtml} | ${diskHtml} | ${ulHtml} | ${dlHtml}`
+        ctx.element.innerHTML = `${cpuHtml}&nbsp;&nbsp;|&nbsp;&nbsp;${memHtml}&nbsp;&nbsp;|&nbsp;&nbsp;${diskHtml}&nbsp;&nbsp;|&nbsp;&nbsp;${ulHtml}&nbsp;&nbsp;|&nbsp;&nbsp;${dlHtml}`
         ctx.element.classList.remove('loading')
     }
 }
