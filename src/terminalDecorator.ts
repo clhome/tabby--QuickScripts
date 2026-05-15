@@ -465,7 +465,7 @@ export class QuickScriptsDecorator extends TerminalDecorator {
         const monitorEl = document.createElement('span')
         monitorEl.className = 'sys-monitor loading'
         monitorEl.textContent = t('采集中...', 'Loading...')
-        monitorEl.title = t('远程服务器资源监控（点击刷新）', 'Remote server resource monitor (click to refresh)')
+        monitorEl.title = t('服务器资源监控CPU、内存、磁盘、网络Mbps（点击刷新）', 'Server resource monitor CPU, RAM, Disk, Network Mbps (click to refresh)')
 
         // 点击手动刷新
         monitorEl.addEventListener('click', () => {
