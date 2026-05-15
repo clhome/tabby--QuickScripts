@@ -95,8 +95,9 @@
             background: rgba(255, 255, 255, 0.08);
         }
 
-        &.loading {
-            opacity: 0.4;
+        &.loading::before {
+            content: '*\a0\a0|';
+            color: inherit;
         }
     }
 }
