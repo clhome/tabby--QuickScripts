@@ -21,6 +21,10 @@ export class QuickScriptsConfigProvider extends ConfigProvider {
             commandTimeout: 30000,
             /** 发送命令前的最小延时（毫秒） */
             minDelay: 500,
+            /** 是否启用远程系统资源监控 */
+            enableSysMonitor: true,
+            /** 系统监控刷新间隔（毫秒） */
+            sysMonitorInterval: 5000,
         },
         sftpLocalFavorites: [] as Array<{ id: string, label: string, path: string }>,
         sftpRemoteFavorites: {} as Record<string, Array<{ id: string, label: string, path: string }>>,

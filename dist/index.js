@@ -31,7 +31,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_cssWithMappingToString_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "@charset \"UTF-8\";\n/* 快捷脚本按钮栏样式 */\n.quick-scripts-bar {\n  display: flex;\n  align-items: center;\n  padding: 2px 8px;\n  background: rgba(0, 0, 0, 0.15);\n  border-bottom: 1px solid rgba(255, 255, 255, 0.06);\n  gap: 4px;\n  flex-shrink: 0;\n  overflow-x: auto;\n  min-height: 30px;\n  /* 脚本按钮通用样式 */\n}\n.quick-scripts-bar .script-btn {\n  display: inline-flex;\n  align-items: center;\n  padding: 2px 10px;\n  font-size: 12px;\n  line-height: 1.4;\n  color: #ccc;\n  background: rgba(255, 255, 255, 0.08);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  border-radius: 3px;\n  cursor: pointer;\n  white-space: nowrap;\n  user-select: none;\n  transition: all 0.15s ease;\n}\n.quick-scripts-bar .script-btn:hover {\n  color: #fff;\n  background: rgba(255, 255, 255, 0.15);\n  border-color: rgba(255, 255, 255, 0.25);\n}\n.quick-scripts-bar .script-btn:active {\n  background: rgba(255, 255, 255, 0.2);\n}\n.quick-scripts-bar .script-btn {\n  /* 正在执行中的按钮状态 */\n}\n.quick-scripts-bar .script-btn.running {\n  color: #4fc3f7;\n  border-color: #4fc3f7;\n  background: rgba(79, 195, 247, 0.12);\n  cursor: not-allowed;\n  animation: pulse 1.5s infinite;\n}\n.quick-scripts-bar {\n  /* 新建按钮 - 固定为红色 */\n}\n.quick-scripts-bar .script-btn-add {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  width: 24px;\n  height: 22px;\n  padding: 0;\n  font-size: 16px;\n  font-weight: bold;\n  color: #fff;\n  background: #e74c3c;\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  border-radius: 3px;\n  cursor: pointer;\n  transition: all 0.15s ease;\n  flex-shrink: 0;\n}\n.quick-scripts-bar .script-btn-add:hover {\n  background: #c0392b;\n  border-color: rgba(0, 0, 0, 0.2);\n}\n\n/* 执行中的脉冲动画 */\n@keyframes pulse {\n  0%, 100% {\n    opacity: 1;\n  }\n  50% {\n    opacity: 0.6;\n  }\n}", "",{"version":3,"sources":["webpack://./src/quickScriptsBar.scss"],"names":[],"mappings":"AAAA,gBAAgB;AAAhB,cAAA;AACA;EACI,aAAA;EACA,mBAAA;EACA,gBAAA;EACA,+BAAA;EACA,kDAAA;EACA,QAAA;EACA,cAAA;EACA,gBAAA;EACA,gBAAA;EAEA,aAAA;AACJ;AAAI;EACI,oBAAA;EACA,mBAAA;EACA,iBAAA;EACA,eAAA;EACA,gBAAA;EACA,WAAA;EACA,qCAAA;EACA,2CAAA;EACA,kBAAA;EACA,eAAA;EACA,mBAAA;EACA,iBAAA;EACA,0BAAA;AAER;AAAQ;EACI,WAAA;EACA,qCAAA;EACA,uCAAA;AAEZ;AACQ;EACI,oCAAA;AACZ;AAvBI;EAyBI,eAAA;AACR;AAAQ;EACI,cAAA;EACA,qBAAA;EACA,oCAAA;EACA,mBAAA;EACA,8BAAA;AAEZ;AA7CA;EA+CI,iBAAA;AACJ;AAAI;EACI,oBAAA;EACA,mBAAA;EACA,uBAAA;EACA,WAAA;EACA,YAAA;EACA,UAAA;EACA,eAAA;EACA,iBAAA;EACA,WAAA;EACA,mBAAA;EACA,oCAAA;EACA,kBAAA;EACA,eAAA;EACA,0BAAA;EACA,cAAA;AAER;AAAQ;EACI,mBAAA;EACA,gCAAA;AAEZ;;AAGA,aAAA;AACA;EACI;IAAW,UAAA;EACb;EAAE;IAAM,YAAA;EAGR;AACF","sourcesContent":["/* 快捷脚本按钮栏样式 */\r\n.quick-scripts-bar {\r\n    display: flex;\r\n    align-items: center;\r\n    padding: 2px 8px;\r\n    background: rgba(0, 0, 0, 0.15);\r\n    border-bottom: 1px solid rgba(255, 255, 255, 0.06);\r\n    gap: 4px;\r\n    flex-shrink: 0;\r\n    overflow-x: auto;\r\n    min-height: 30px;\r\n\r\n    /* 脚本按钮通用样式 */\r\n    .script-btn {\r\n        display: inline-flex;\r\n        align-items: center;\r\n        padding: 2px 10px;\r\n        font-size: 12px;\r\n        line-height: 1.4;\r\n        color: #ccc;\r\n        background: rgba(255, 255, 255, 0.08);\r\n        border: 1px solid rgba(255, 255, 255, 0.12);\r\n        border-radius: 3px;\r\n        cursor: pointer;\r\n        white-space: nowrap;\r\n        user-select: none;\r\n        transition: all 0.15s ease;\r\n\r\n        &:hover {\r\n            color: #fff;\r\n            background: rgba(255, 255, 255, 0.15);\r\n            border-color: rgba(255, 255, 255, 0.25);\r\n        }\r\n\r\n        &:active {\r\n            background: rgba(255, 255, 255, 0.2);\r\n        }\r\n\r\n        /* 正在执行中的按钮状态 */\r\n        &.running {\r\n            color: #4fc3f7;\r\n            border-color: #4fc3f7;\r\n            background: rgba(79, 195, 247, 0.12);\r\n            cursor: not-allowed;\r\n            animation: pulse 1.5s infinite;\r\n        }\r\n    }\r\n\r\n    /* 新建按钮 - 固定为红色 */\r\n    .script-btn-add {\r\n        display: inline-flex;\r\n        align-items: center;\r\n        justify-content: center;\r\n        width: 24px;\r\n        height: 22px;\r\n        padding: 0;\r\n        font-size: 16px;\r\n        font-weight: bold;\r\n        color: #fff;\r\n        background: #e74c3c;\r\n        border: 1px solid rgba(0, 0, 0, 0.1);\r\n        border-radius: 3px;\r\n        cursor: pointer;\r\n        transition: all 0.15s ease;\r\n        flex-shrink: 0;\r\n\r\n        &:hover {\r\n            background: #c0392b;\r\n            border-color: rgba(0, 0, 0, 0.2);\r\n        }\r\n    }\r\n}\r\n\r\n/* 执行中的脉冲动画 */\r\n@keyframes pulse {\r\n    0%, 100% { opacity: 1; }\r\n    50% { opacity: 0.6; }\r\n}\r\n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, "@charset \"UTF-8\";\n/* 快捷脚本按钮栏样式 */\n.quick-scripts-bar {\n  display: flex;\n  align-items: center;\n  padding: 2px 8px;\n  background: rgba(0, 0, 0, 0.15);\n  border-bottom: 1px solid rgba(255, 255, 255, 0.06);\n  gap: 4px;\n  flex-shrink: 0;\n  overflow-x: auto;\n  min-height: 30px;\n  /* 脚本按钮通用样式 */\n}\n.quick-scripts-bar .script-btn {\n  display: inline-flex;\n  align-items: center;\n  padding: 2px 10px;\n  font-size: 12px;\n  line-height: 1.4;\n  color: #ccc;\n  background: rgba(255, 255, 255, 0.08);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  border-radius: 3px;\n  cursor: pointer;\n  white-space: nowrap;\n  user-select: none;\n  transition: all 0.15s ease;\n}\n.quick-scripts-bar .script-btn:hover {\n  color: #fff;\n  background: rgba(255, 255, 255, 0.15);\n  border-color: rgba(255, 255, 255, 0.25);\n}\n.quick-scripts-bar .script-btn:active {\n  background: rgba(255, 255, 255, 0.2);\n}\n.quick-scripts-bar .script-btn {\n  /* 正在执行中的按钮状态 */\n}\n.quick-scripts-bar .script-btn.running {\n  color: #4fc3f7;\n  border-color: #4fc3f7;\n  background: rgba(79, 195, 247, 0.12);\n  cursor: not-allowed;\n  animation: pulse 1.5s infinite;\n}\n.quick-scripts-bar {\n  /* 新建按钮 - 固定为红色 */\n}\n.quick-scripts-bar .script-btn-add {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  width: 24px;\n  height: 22px;\n  padding: 0;\n  font-size: 16px;\n  font-weight: bold;\n  color: #fff;\n  background: #e74c3c;\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  border-radius: 3px;\n  cursor: pointer;\n  transition: all 0.15s ease;\n  flex-shrink: 0;\n}\n.quick-scripts-bar .script-btn-add:hover {\n  background: #c0392b;\n  border-color: rgba(0, 0, 0, 0.2);\n}\n.quick-scripts-bar {\n  /* 系统资源监控显示区域 */\n}\n.quick-scripts-bar .sys-monitor {\n  display: inline-flex;\n  align-items: center;\n  margin-left: auto;\n  margin-right: 6px;\n  padding: 2px 10px;\n  font-size: 13px;\n  font-weight: 500;\n  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;\n  color: rgba(255, 255, 255, 0.65);\n  background: rgba(255, 255, 255, 0.04);\n  border: 1px solid rgba(255, 255, 255, 0.08);\n  border-radius: 3px;\n  white-space: nowrap;\n  user-select: text;\n  letter-spacing: 0.3px;\n  flex-shrink: 0;\n  transition: opacity 0.3s ease;\n}\n.quick-scripts-bar .sys-monitor:hover {\n  color: rgba(255, 255, 255, 0.85);\n  background: rgba(255, 255, 255, 0.08);\n}\n.quick-scripts-bar .sys-monitor.loading {\n  opacity: 0.4;\n}\n\n/* 执行中的脉冲动画 */\n@keyframes pulse {\n  0%, 100% {\n    opacity: 1;\n  }\n  50% {\n    opacity: 0.6;\n  }\n}", "",{"version":3,"sources":["webpack://./src/quickScriptsBar.scss"],"names":[],"mappings":"AAAA,gBAAgB;AAAhB,cAAA;AACA;EACI,aAAA;EACA,mBAAA;EACA,gBAAA;EACA,+BAAA;EACA,kDAAA;EACA,QAAA;EACA,cAAA;EACA,gBAAA;EACA,gBAAA;EAEA,aAAA;AACJ;AAAI;EACI,oBAAA;EACA,mBAAA;EACA,iBAAA;EACA,eAAA;EACA,gBAAA;EACA,WAAA;EACA,qCAAA;EACA,2CAAA;EACA,kBAAA;EACA,eAAA;EACA,mBAAA;EACA,iBAAA;EACA,0BAAA;AAER;AAAQ;EACI,WAAA;EACA,qCAAA;EACA,uCAAA;AAEZ;AACQ;EACI,oCAAA;AACZ;AAvBI;EAyBI,eAAA;AACR;AAAQ;EACI,cAAA;EACA,qBAAA;EACA,oCAAA;EACA,mBAAA;EACA,8BAAA;AAEZ;AA7CA;EA+CI,iBAAA;AACJ;AAAI;EACI,oBAAA;EACA,mBAAA;EACA,uBAAA;EACA,WAAA;EACA,YAAA;EACA,UAAA;EACA,eAAA;EACA,iBAAA;EACA,WAAA;EACA,mBAAA;EACA,oCAAA;EACA,kBAAA;EACA,eAAA;EACA,0BAAA;EACA,cAAA;AAER;AAAQ;EACI,mBAAA;EACA,gCAAA;AAEZ;AArEA;EAuEI,eAAA;AACJ;AAAI;EACI,oBAAA;EACA,mBAAA;EACA,iBAAA;EACA,iBAAA;EACA,iBAAA;EACA,eAAA;EACA,gBAAA;EACA,+GAAA;EACA,gCAAA;EACA,qCAAA;EACA,2CAAA;EACA,kBAAA;EACA,mBAAA;EACA,iBAAA;EACA,qBAAA;EACA,cAAA;EACA,6BAAA;AAER;AAAQ;EACI,gCAAA;EACA,qCAAA;AAEZ;AACQ;EACI,YAAA;AACZ;;AAIA,aAAA;AACA;EACI;IAAW,UAAA;EAAb;EACE;IAAM,YAAA;EAER;AACF","sourcesContent":["/* 快捷脚本按钮栏样式 */\r\n.quick-scripts-bar {\r\n    display: flex;\r\n    align-items: center;\r\n    padding: 2px 8px;\r\n    background: rgba(0, 0, 0, 0.15);\r\n    border-bottom: 1px solid rgba(255, 255, 255, 0.06);\r\n    gap: 4px;\r\n    flex-shrink: 0;\r\n    overflow-x: auto;\r\n    min-height: 30px;\r\n\r\n    /* 脚本按钮通用样式 */\r\n    .script-btn {\r\n        display: inline-flex;\r\n        align-items: center;\r\n        padding: 2px 10px;\r\n        font-size: 12px;\r\n        line-height: 1.4;\r\n        color: #ccc;\r\n        background: rgba(255, 255, 255, 0.08);\r\n        border: 1px solid rgba(255, 255, 255, 0.12);\r\n        border-radius: 3px;\r\n        cursor: pointer;\r\n        white-space: nowrap;\r\n        user-select: none;\r\n        transition: all 0.15s ease;\r\n\r\n        &:hover {\r\n            color: #fff;\r\n            background: rgba(255, 255, 255, 0.15);\r\n            border-color: rgba(255, 255, 255, 0.25);\r\n        }\r\n\r\n        &:active {\r\n            background: rgba(255, 255, 255, 0.2);\r\n        }\r\n\r\n        /* 正在执行中的按钮状态 */\r\n        &.running {\r\n            color: #4fc3f7;\r\n            border-color: #4fc3f7;\r\n            background: rgba(79, 195, 247, 0.12);\r\n            cursor: not-allowed;\r\n            animation: pulse 1.5s infinite;\r\n        }\r\n    }\r\n\r\n    /* 新建按钮 - 固定为红色 */\r\n    .script-btn-add {\r\n        display: inline-flex;\r\n        align-items: center;\r\n        justify-content: center;\r\n        width: 24px;\r\n        height: 22px;\r\n        padding: 0;\r\n        font-size: 16px;\r\n        font-weight: bold;\r\n        color: #fff;\r\n        background: #e74c3c;\r\n        border: 1px solid rgba(0, 0, 0, 0.1);\r\n        border-radius: 3px;\r\n        cursor: pointer;\r\n        transition: all 0.15s ease;\r\n        flex-shrink: 0;\r\n\r\n        &:hover {\r\n            background: #c0392b;\r\n            border-color: rgba(0, 0, 0, 0.2);\r\n        }\r\n    }\r\n\r\n    /* 系统资源监控显示区域 */\r\n    .sys-monitor {\r\n        display: inline-flex;\r\n        align-items: center;\r\n        margin-left: auto;\r\n        margin-right: 6px;\r\n        padding: 2px 10px;\r\n        font-size: 13px;\r\n        font-weight: 500;\r\n        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;\r\n        color: rgba(255, 255, 255, 0.65);\r\n        background: rgba(255, 255, 255, 0.04);\r\n        border: 1px solid rgba(255, 255, 255, 0.08);\r\n        border-radius: 3px;\r\n        white-space: nowrap;\r\n        user-select: text;\r\n        letter-spacing: 0.3px;\r\n        flex-shrink: 0;\r\n        transition: opacity 0.3s ease;\r\n\r\n        &:hover {\r\n            color: rgba(255, 255, 255, 0.85);\r\n            background: rgba(255, 255, 255, 0.08);\r\n        }\r\n\r\n        &.loading {\r\n            opacity: 0.4;\r\n        }\r\n    }\r\n}\r\n\r\n/* 执行中的脉冲动画 */\r\n@keyframes pulse {\r\n    0%, 100% { opacity: 1; }\r\n    50% { opacity: 0.6; }\r\n}\r\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -494,6 +494,10 @@ class QuickScriptsConfigProvider extends tabby_core__WEBPACK_IMPORTED_MODULE_0__
                 commandTimeout: 30000,
                 /** 发送命令前的最小延时（毫秒） */
                 minDelay: 500,
+                /** 是否启用远程系统资源监控 */
+                enableSysMonitor: true,
+                /** 系统监控刷新间隔（毫秒） */
+                sysMonitorInterval: 5000,
             },
             sftpLocalFavorites: [],
             sftpRemoteFavorites: {},
@@ -4012,12 +4016,27 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
+/** 系统监控采集命令：针对服务器环境优化的版本 */
+const SYS_MONITOR_CMD = [
+    '_S1=$(awk \'NR>2 && $1!~/lo:/ {r+=$2; t+=$10} END {print r, t}\' /proc/net/dev);',
+    'sleep 1;',
+    '_S2=$(awk \'NR>2 && $1!~/lo:/ {r+=$2; t+=$10} END {print r, t}\' /proc/net/dev);',
+    '_CPU=$(top -bn1 | grep "Cpu(s)" | awk \'{print int($2+$4)}\');',
+    '_MEM=$(awk \'/MemTotal/{t=$2} /MemAvailable/{a=$2} END{if(t>0) printf "%.0f", (t-a)/t*100; else print "0"}\' /proc/meminfo);',
+    '_DISK=$(df -h / | awk \'NR==2 {print $5}\' | tr -d \'%\');',
+    '_R1=$(echo $_S1 | awk \'{print $1}\'); _T1=$(echo $_S1 | awk \'{print $2}\');',
+    '_R2=$(echo $_S2 | awk \'{print $1}\'); _T2=$(echo $_S2 | awk \'{print $2}\');',
+    '_DL=$(echo "$_R2 $_R1" | awk \'{if($1>$2) printf "%.2f", ($1-$2)*8/1000000; else print "0.00"}\');',
+    '_UL=$(echo "$_T2 $_T1" | awk \'{if($1>$2) printf "%.2f", ($1-$2)*8/1000000; else print "0.00"}\');',
+    'echo "SYSMON:${_CPU}:${_MEM}:${_DISK}:${_UL}:${_DL}"',
+].join(' ');
 let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__WEBPACK_IMPORTED_MODULE_4__.TerminalDecorator {
     constructor(config, injector, sftpUi) {
         super();
         this.config = config;
         this.injector = injector;
         this.sftpUi = sftpUi;
+        this.logger = injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_3__.LogService).create('quick-scripts');
     }
     attach(tab) {
         // 等待 tab 的 DOM 元素就绪后再注入按钮栏
@@ -4052,6 +4071,8 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
         terminalContainer.parentElement.insertBefore(bar, terminalContainer);
         // 渲染按钮
         this.renderButtons(bar, tab);
+        // 启动系统监控
+        const monitorCtx = this.startSysMonitor(bar, tab);
         // 监听配置变化，刷新按钮
         const sub = this.config.changed$.subscribe(() => {
             this.renderButtons(bar, tab);
@@ -4059,6 +4080,10 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
         // tab 销毁时清理
         tab.destroyed$.subscribe(() => {
             sub.unsubscribe();
+            if (monitorCtx) {
+                monitorCtx.destroyed = true;
+                this.stopSysMonitor(monitorCtx);
+            }
             bar.remove();
         });
     }
@@ -4094,6 +4119,11 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
      * 渲染按钮栏内容
      */
     renderButtons(bar, tab) {
+        // 保存监控元素的引用（避免被 innerHTML 清空）
+        const savedMonitor = bar.querySelector('.sys-monitor');
+        if (savedMonitor) {
+            savedMonitor.remove();
+        }
         bar.innerHTML = '';
         const scripts = this.getScriptsForProfile(tab);
         // 渲染每个脚本按钮
@@ -4132,12 +4162,15 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
             this.addScript(tab);
         });
         bar.appendChild(addBtn);
+        // 恢复被保存的系统监控元素（位于 + 按钮和 SFTP 按钮之间，靠右）
+        if (savedMonitor) {
+            bar.appendChild(savedMonitor);
+        }
         // SFTP 按钮
         const sftpBtn = document.createElement('button');
         sftpBtn.className = 'script-btn sftp-btn';
         sftpBtn.style.backgroundColor = '#f1c40f'; // 黄色背景
         sftpBtn.style.color = '#000'; // 黑色文字，保证可读性
-        sftpBtn.style.marginLeft = 'auto'; // 推到最右侧
         sftpBtn.style.display = 'inline-flex';
         sftpBtn.style.alignItems = 'center';
         sftpBtn.style.fontWeight = 'bold';
@@ -4355,6 +4388,271 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
                 // 用户取消，忽略
             }
         });
+    }
+    // ==================== 系统资源监控 ====================
+    /**
+     * 启动系统资源监控（每个 tab 独立）
+     */
+    startSysMonitor(bar, tab) {
+        var _a, _b, _c;
+        const enabled = (_b = (_a = this.config.store.quickScriptsPlugin) === null || _a === void 0 ? void 0 : _a.enableSysMonitor) !== null && _b !== void 0 ? _b : true;
+        if (!enabled) {
+            return null;
+        }
+        // 创建显示元素
+        const monitorEl = document.createElement('span');
+        monitorEl.className = 'sys-monitor loading';
+        monitorEl.textContent = (0,_i18n__WEBPACK_IMPORTED_MODULE_1__.t)('采集中...', 'Loading...');
+        monitorEl.title = (0,_i18n__WEBPACK_IMPORTED_MODULE_1__.t)('远程服务器资源监控（点击刷新）', 'Remote server resource monitor (click to refresh)');
+        // 点击手动刷新
+        monitorEl.addEventListener('click', () => {
+            if (!ctx.running) {
+                this.fetchSysInfo(tab, ctx);
+            }
+        });
+        // 插入到 bar 中（在 SFTP 按钮之前）
+        const sftpBtn = bar.querySelector('.sftp-btn');
+        if (sftpBtn) {
+            bar.insertBefore(monitorEl, sftpBtn);
+        }
+        else {
+            bar.appendChild(monitorEl);
+        }
+        const ctx = {
+            timer: null,
+            element: monitorEl,
+            running: false,
+            destroyed: false,
+        };
+        // 延迟首次采集（等 SSH 就绪）
+        setTimeout(() => {
+            if (!ctx.destroyed) {
+                this.fetchSysInfo(tab, ctx);
+            }
+        }, 2000);
+        // 定时采集
+        const interval = ((_c = this.config.store.quickScriptsPlugin) === null || _c === void 0 ? void 0 : _c.sysMonitorInterval) || 5000;
+        ctx.timer = setInterval(() => {
+            if (!ctx.destroyed && !ctx.running) {
+                this.fetchSysInfo(tab, ctx);
+            }
+        }, interval);
+        return ctx;
+    }
+    /**
+     * 停止系统监控
+     */
+    stopSysMonitor(ctx) {
+        if (ctx.timer) {
+            clearInterval(ctx.timer);
+            ctx.timer = null;
+        }
+    }
+    /**
+     * 通过 SSH exec channel 采集系统信息（方案 B）
+     * 降级：如果 exec channel 不可用，通过终端 session 采集（方案 A）
+     */
+    fetchSysInfo(tab, ctx) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            if (ctx.running || ctx.destroyed) {
+                return;
+            }
+            ctx.running = true;
+            try {
+                // 优先尝试方案 B：独立 SSH exec channel
+                const sshSession = tab.sshSession || tab.session;
+                if ((_a = sshSession === null || sshSession === void 0 ? void 0 : sshSession.ssh) === null || _a === void 0 ? void 0 : _a.openSessionChannel) {
+                    const result = yield this.fetchViaExecChannel(sshSession);
+                    if (result) {
+                        this.updateMonitorDisplay(ctx, result);
+                        return;
+                    }
+                }
+                // 只有在手动点击（非定时自动）或者用户明确允许回退的情况下才走 Plan A
+                // 为避免干扰用户，定时刷新如果 Plan B 失败则静默
+                this.logger.debug('Plan B failed, skipping Plan A fallback to avoid terminal pollution');
+                ctx.element.classList.add('loading');
+            }
+            catch (err) {
+                this.logger.warn('System monitor fetch failed', err);
+                ctx.element.textContent = (0,_i18n__WEBPACK_IMPORTED_MODULE_1__.t)('采集失败', 'N/A');
+                ctx.element.classList.add('loading');
+            }
+            finally {
+                ctx.running = false;
+            }
+        });
+    }
+    /**
+     * 方案 B：通过独立 SSH exec channel 采集
+     */
+    fetchViaExecChannel(sshSession) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const ssh = sshSession.ssh;
+                const newCh = yield ssh.openSessionChannel();
+                const channel = yield ssh.activateChannel(newCh);
+                // 尝试使用 exec 方法
+                if (typeof channel.exec === 'function') {
+                    yield channel.exec(true, SYS_MONITOR_CMD);
+                }
+                else if (typeof channel.requestExec === 'function') {
+                    yield channel.requestExec(SYS_MONITOR_CMD);
+                }
+                else {
+                    // channel 没有 exec 方法，关闭并返回 null
+                    try {
+                        channel.close();
+                    }
+                    catch ( /* ignore */_a) { /* ignore */ }
+                    return null;
+                }
+                // 收集输出
+                let output = '';
+                const dataPromise = new Promise((resolve) => {
+                    const timeout = setTimeout(() => resolve(output), 8000);
+                    if (channel.data$) {
+                        const sub = channel.data$.subscribe({
+                            next: (data) => {
+                                const text = typeof data === 'string' ? data : new TextDecoder().decode(data);
+                                output += text;
+                                if (output.includes('SYSMON:')) {
+                                    clearTimeout(timeout);
+                                    sub.unsubscribe();
+                                    resolve(output);
+                                }
+                            },
+                            error: () => {
+                                clearTimeout(timeout);
+                                resolve(output);
+                            },
+                        });
+                        // channel 关闭时也 resolve
+                        if (channel.closed$) {
+                            channel.closed$.subscribe(() => {
+                                clearTimeout(timeout);
+                                sub.unsubscribe();
+                                resolve(output);
+                            });
+                        }
+                    }
+                    else {
+                        // 没有 data$ observable，超时返回
+                        clearTimeout(timeout);
+                        resolve('');
+                    }
+                });
+                const rawOutput = yield dataPromise;
+                try {
+                    channel.close();
+                }
+                catch ( /* ignore */_b) { /* ignore */ }
+                return this.parseSysMonOutput(rawOutput);
+            }
+            catch (err) {
+                this.logger.debug('Exec channel failed, will fallback', err);
+                return null;
+            }
+        });
+    }
+    /**
+     * 方案 A（降级）：通过终端 session 发送命令采集
+     */
+    fetchViaTerminal(tab) {
+        var _a, _b, _c, _d, _e, _f, _g;
+        return __awaiter(this, void 0, void 0, function* () {
+            const session = tab.session
+                || ((_b = (_a = tab).getActiveSession) === null || _b === void 0 ? void 0 : _b.call(_a))
+                || ((_e = (_d = (_c = tab).getActivePane) === null || _d === void 0 ? void 0 : _d.call(_c)) === null || _e === void 0 ? void 0 : _e.session)
+                || ((_f = tab.activePane) === null || _f === void 0 ? void 0 : _f.session);
+            if (!session || typeof ((_g = session.output$) === null || _g === void 0 ? void 0 : _g.subscribe) !== 'function') {
+                return null;
+            }
+            let outputBuffer = '';
+            const sub = session.output$.subscribe((data) => {
+                outputBuffer += data;
+            });
+            // 发送采集命令
+            const cmd = SYS_MONITOR_CMD + '\n';
+            if (typeof tab.sendInput === 'function') {
+                tab.sendInput(cmd);
+            }
+            else {
+                session.write(cmd.replace('\n', '\r'));
+            }
+            // 等待输出（最多8秒）
+            const result = yield new Promise((resolve) => {
+                const timeout = setTimeout(() => {
+                    sub.unsubscribe();
+                    resolve(this.parseSysMonOutput(outputBuffer));
+                }, 8000);
+                const checkInterval = setInterval(() => {
+                    if (outputBuffer.includes('SYSMON:')) {
+                        clearTimeout(timeout);
+                        clearInterval(checkInterval);
+                        // 多等100ms确保完整接收
+                        setTimeout(() => {
+                            sub.unsubscribe();
+                            resolve(this.parseSysMonOutput(outputBuffer));
+                        }, 100);
+                    }
+                }, 200);
+            });
+            return result;
+        });
+    }
+    /**
+     * 解析 SYSMON 输出为数据对象
+     */
+    parseSysMonOutput(raw) {
+        // 匹配格式: SYSMON:CPU:MEM:DISK:UL:DL
+        const match = raw.match(/SYSMON:([^:]*):([^:]*):([^:]*):([^:]*):([^\s:]*)/);
+        if (!match) {
+            return null;
+        }
+        return {
+            cpu: parseInt(match[1]) || 0,
+            mem: parseInt(match[2]) || 0,
+            disk: parseInt(match[3]) || 0,
+            ul: parseFloat(match[4]) || 0,
+            dl: parseFloat(match[5]) || 0,
+        };
+    }
+    /**
+     * 根据百分比获取颜色
+     */
+    getColorForValue(val) {
+        if (val <= 50)
+            return '#2ecc71'; // 绿色
+        if (val <= 80)
+            return '#f1c40f'; // 黄色
+        return '#e74c3c'; // 红色
+    }
+    /**
+     * 根据网速获取颜色 (Mbps)
+     */
+    getColorForNet(val) {
+        if (val <= 1)
+            return '#2ecc71'; // 绿色
+        if (val <= 5)
+            return '#f1c40f'; // 黄色
+        return '#e74c3c'; // 红色
+    }
+    /**
+     * 更新监控显示元素
+     */
+    updateMonitorDisplay(ctx, data) {
+        if (ctx.destroyed || !data) {
+            return;
+        }
+        const cpuHtml = `<span style="color: ${this.getColorForValue(data.cpu)}">C_${data.cpu}%</span>`;
+        const memHtml = `<span style="color: ${this.getColorForValue(data.mem)}">M_${data.mem}%</span>`;
+        const diskHtml = `<span style="color: ${this.getColorForValue(data.disk)}">H_${data.disk}%</span>`;
+        const ulHtml = `<span style="color: ${this.getColorForNet(data.ul)}">↑_${data.ul}</span>`;
+        const dlHtml = `<span style="color: ${this.getColorForNet(data.dl)}">↓_${data.dl}</span>`;
+        ctx.element.innerHTML = `${cpuHtml} | ${memHtml} | ${diskHtml} | ${ulHtml} | ${dlHtml}`;
+        ctx.element.classList.remove('loading');
     }
 };
 QuickScriptsDecorator = __decorate([

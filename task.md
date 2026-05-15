@@ -131,6 +131,12 @@
   - [x] 将日期和时间之间的空格替换为下划线“_” <!-- id: 98 -->
   - [x] 将本地和远程列表默认排序设置为按修改时间降序 <!-- id: 99 -->
 
+- [x] 在快捷栏显示远程服务器系统资源监控 <!-- id: 100 -->
+  - [x] 在 `configProvider.ts` 添加 `enableSysMonitor` 和 `sysMonitorInterval` 配置项 <!-- id: 101 -->
+  - [x] 在 `terminalDecorator.ts` 实现系统监控采集与显示逻辑 <!-- id: 102 -->
+  - [x] 在 `quickScriptsBar.scss` 添加监控显示样式 <!-- id: 103 -->
+  - [x] 编译并验证功能 <!-- id: 104 -->
+
 
 
 

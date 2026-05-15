@@ -2,7 +2,7 @@ import { Injectable, Injector } from '@angular/core'
 import { t } from './i18n'
 import { Subscription } from 'rxjs'
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
-import { ConfigService } from 'tabby-core'
+import { ConfigService, LogService } from 'tabby-core'
 import { TerminalDecorator, BaseTerminalTabComponent } from 'tabby-terminal'
 import { QuickScript } from './configProvider'
 import { ScriptEditModalComponent } from './scriptEditModal'
@@ -10,14 +10,40 @@ import { SftpUiService } from './sftp/sftp-ui.service'
 
 import './quickScriptsBar.scss'
 
+/** 系统监控采集命令：针对服务器环境优化的版本 */
+const SYS_MONITOR_CMD = [
+    '_S1=$(awk \'NR>2 && $1!~/lo:/ {r+=$2; t+=$10} END {print r, t}\' /proc/net/dev);',
+    'sleep 1;',
+    '_S2=$(awk \'NR>2 && $1!~/lo:/ {r+=$2; t+=$10} END {print r, t}\' /proc/net/dev);',
+    '_CPU=$(top -bn1 | grep "Cpu(s)" | awk \'{print int($2+$4)}\');',
+    '_MEM=$(awk \'/MemTotal/{t=$2} /MemAvailable/{a=$2} END{if(t>0) printf "%.0f", (t-a)/t*100; else print "0"}\' /proc/meminfo);',
+    '_DISK=$(df -h / | awk \'NR==2 {print $5}\' | tr -d \'%\');',
+    '_R1=$(echo $_S1 | awk \'{print $1}\'); _T1=$(echo $_S1 | awk \'{print $2}\');',
+    '_R2=$(echo $_S2 | awk \'{print $1}\'); _T2=$(echo $_S2 | awk \'{print $2}\');',
+    '_DL=$(echo "$_R2 $_R1" | awk \'{if($1>$2) printf "%.2f", ($1-$2)*8/1000000; else print "0.00"}\');',
+    '_UL=$(echo "$_T2 $_T1" | awk \'{if($1>$2) printf "%.2f", ($1-$2)*8/1000000; else print "0.00"}\');',
+    'echo "SYSMON:${_CPU}:${_MEM}:${_DISK}:${_UL}:${_DL}"',
+].join(' ')
+
+/** 监控状态上下文（每个 tab 独立） */
+interface SysMonitorContext {
+    timer: any
+    element: HTMLElement
+    running: boolean
+    destroyed: boolean
+}
+
 @Injectable()
 export class QuickScriptsDecorator extends TerminalDecorator {
+    private logger: any
+
     constructor (
         private config: ConfigService,
         private injector: Injector,
         private sftpUi: SftpUiService,
     ) {
         super()
+        this.logger = injector.get(LogService).create('quick-scripts')
     }
 
     attach (tab: BaseTerminalTabComponent): void {
@@ -61,6 +87,9 @@ export class QuickScriptsDecorator extends TerminalDecorator {
         // 渲染按钮
         this.renderButtons(bar, tab)
 
+        // 启动系统监控
+        const monitorCtx = this.startSysMonitor(bar, tab)
+
         // 监听配置变化，刷新按钮
         const sub = this.config.changed$.subscribe(() => {
             this.renderButtons(bar, tab)
@@ -69,6 +98,10 @@ export class QuickScriptsDecorator extends TerminalDecorator {
         // tab 销毁时清理
         tab.destroyed$.subscribe(() => {
             sub.unsubscribe()
+            if (monitorCtx) {
+                monitorCtx.destroyed = true
+                this.stopSysMonitor(monitorCtx)
+            }
             bar.remove()
         })
     }
@@ -108,6 +141,11 @@ export class QuickScriptsDecorator extends TerminalDecorator {
      * 渲染按钮栏内容
      */
     private renderButtons (bar: HTMLElement, tab: BaseTerminalTabComponent): void {
+        // 保存监控元素的引用（避免被 innerHTML 清空）
+        const savedMonitor = bar.querySelector('.sys-monitor') as HTMLElement | null
+        if (savedMonitor) {
+            savedMonitor.remove()
+        }
         bar.innerHTML = ''
 
         const scripts = this.getScriptsForProfile(tab)
@@ -154,12 +192,16 @@ export class QuickScriptsDecorator extends TerminalDecorator {
         })
         bar.appendChild(addBtn)
 
+        // 恢复被保存的系统监控元素（位于 + 按钮和 SFTP 按钮之间，靠右）
+        if (savedMonitor) {
+            bar.appendChild(savedMonitor)
+        }
+
         // SFTP 按钮
         const sftpBtn = document.createElement('button')
         sftpBtn.className = 'script-btn sftp-btn'
         sftpBtn.style.backgroundColor = '#f1c40f' // 黄色背景
         sftpBtn.style.color = '#000' // 黑色文字，保证可读性
-        sftpBtn.style.marginLeft = 'auto' // 推到最右侧
         sftpBtn.style.display = 'inline-flex'
         sftpBtn.style.alignItems = 'center'
         sftpBtn.style.fontWeight = 'bold'
@@ -406,5 +448,275 @@ export class QuickScriptsDecorator extends TerminalDecorator {
         } catch {
             // 用户取消，忽略
         }
+    }
+
+    // ==================== 系统资源监控 ====================
+
+    /**
+     * 启动系统资源监控（每个 tab 独立）
+     */
+    private startSysMonitor (bar: HTMLElement, tab: BaseTerminalTabComponent): SysMonitorContext | null {
+        const enabled = this.config.store.quickScriptsPlugin?.enableSysMonitor ?? true
+        if (!enabled) {
+            return null
+        }
+
+        // 创建显示元素
+        const monitorEl = document.createElement('span')
+        monitorEl.className = 'sys-monitor loading'
+        monitorEl.textContent = t('采集中...', 'Loading...')
+        monitorEl.title = t('远程服务器资源监控（点击刷新）', 'Remote server resource monitor (click to refresh)')
+
+        // 点击手动刷新
+        monitorEl.addEventListener('click', () => {
+            if (!ctx.running) {
+                this.fetchSysInfo(tab, ctx)
+            }
+        })
+
+        // 插入到 bar 中（在 SFTP 按钮之前）
+        const sftpBtn = bar.querySelector('.sftp-btn')
+        if (sftpBtn) {
+            bar.insertBefore(monitorEl, sftpBtn)
+        } else {
+            bar.appendChild(monitorEl)
+        }
+
+        const ctx: SysMonitorContext = {
+            timer: null,
+            element: monitorEl,
+            running: false,
+            destroyed: false,
+        }
+
+        // 延迟首次采集（等 SSH 就绪）
+        setTimeout(() => {
+            if (!ctx.destroyed) {
+                this.fetchSysInfo(tab, ctx)
+            }
+        }, 2000)
+
+        // 定时采集
+        const interval = this.config.store.quickScriptsPlugin?.sysMonitorInterval || 5000
+        ctx.timer = setInterval(() => {
+            if (!ctx.destroyed && !ctx.running) {
+                this.fetchSysInfo(tab, ctx)
+            }
+        }, interval)
+
+        return ctx
+    }
+
+    /**
+     * 停止系统监控
+     */
+    private stopSysMonitor (ctx: SysMonitorContext): void {
+        if (ctx.timer) {
+            clearInterval(ctx.timer)
+            ctx.timer = null
+        }
+    }
+
+    /**
+     * 通过 SSH exec channel 采集系统信息（方案 B）
+     * 降级：如果 exec channel 不可用，通过终端 session 采集（方案 A）
+     */
+    private async fetchSysInfo (tab: BaseTerminalTabComponent, ctx: SysMonitorContext): Promise<void> {
+        if (ctx.running || ctx.destroyed) {
+            return
+        }
+        ctx.running = true
+
+        try {
+            // 优先尝试方案 B：独立 SSH exec channel
+            const sshSession = (tab as any).sshSession || (tab as any).session
+            if (sshSession?.ssh?.openSessionChannel) {
+                const result = await this.fetchViaExecChannel(sshSession)
+                if (result) {
+                    this.updateMonitorDisplay(ctx, result)
+                    return
+                }
+            }
+
+            // 只有在手动点击（非定时自动）或者用户明确允许回退的情况下才走 Plan A
+            // 为避免干扰用户，定时刷新如果 Plan B 失败则静默
+            this.logger.debug('Plan B failed, skipping Plan A fallback to avoid terminal pollution')
+            ctx.element.classList.add('loading')
+        } catch (err) {
+            this.logger.warn('System monitor fetch failed', err)
+            ctx.element.textContent = t('采集失败', 'N/A')
+            ctx.element.classList.add('loading')
+        } finally {
+            ctx.running = false
+        }
+    }
+
+    /**
+     * 方案 B：通过独立 SSH exec channel 采集
+     */
+    private async fetchViaExecChannel (sshSession: any): Promise<string | null> {
+        try {
+            const ssh = sshSession.ssh
+            const newCh = await ssh.openSessionChannel()
+            const channel = await ssh.activateChannel(newCh)
+
+            // 尝试使用 exec 方法
+            if (typeof channel.exec === 'function') {
+                await channel.exec(true, SYS_MONITOR_CMD)
+            } else if (typeof channel.requestExec === 'function') {
+                await channel.requestExec(SYS_MONITOR_CMD)
+            } else {
+                // channel 没有 exec 方法，关闭并返回 null
+                try { channel.close() } catch { /* ignore */ }
+                return null
+            }
+
+            // 收集输出
+            let output = ''
+            const dataPromise = new Promise<string>((resolve) => {
+                const timeout = setTimeout(() => resolve(output), 8000)
+                if (channel.data$) {
+                    const sub = channel.data$.subscribe({
+                        next: (data: any) => {
+                            const text = typeof data === 'string' ? data : new TextDecoder().decode(data)
+                            output += text
+                            if (output.includes('SYSMON:')) {
+                                clearTimeout(timeout)
+                                sub.unsubscribe()
+                                resolve(output)
+                            }
+                        },
+                        error: () => {
+                            clearTimeout(timeout)
+                            resolve(output)
+                        },
+                    })
+                    // channel 关闭时也 resolve
+                    if (channel.closed$) {
+                        channel.closed$.subscribe(() => {
+                            clearTimeout(timeout)
+                            sub.unsubscribe()
+                            resolve(output)
+                        })
+                    }
+                } else {
+                    // 没有 data$ observable，超时返回
+                    clearTimeout(timeout)
+                    resolve('')
+                }
+            })
+
+            const rawOutput = await dataPromise
+            try { channel.close() } catch { /* ignore */ }
+
+            return this.parseSysMonOutput(rawOutput)
+        } catch (err) {
+            this.logger.debug('Exec channel failed, will fallback', err)
+            return null
+        }
+    }
+
+    /**
+     * 方案 A（降级）：通过终端 session 发送命令采集
+     */
+    private async fetchViaTerminal (tab: BaseTerminalTabComponent): Promise<string | null> {
+        const session = tab.session
+            || (tab as any).getActiveSession?.()
+            || (tab as any).getActivePane?.()?.session
+            || (tab as any).activePane?.session
+
+        if (!session || typeof session.output$?.subscribe !== 'function') {
+            return null
+        }
+
+        let outputBuffer = ''
+        const sub = session.output$.subscribe((data: string) => {
+            outputBuffer += data
+        })
+
+        // 发送采集命令
+        const cmd = SYS_MONITOR_CMD + '\n'
+        if (typeof (tab as any).sendInput === 'function') {
+            (tab as any).sendInput(cmd)
+        } else {
+            session.write(cmd.replace('\n', '\r'))
+        }
+
+        // 等待输出（最多8秒）
+        const result = await new Promise<string | null>((resolve) => {
+            const timeout = setTimeout(() => {
+                sub.unsubscribe()
+                resolve(this.parseSysMonOutput(outputBuffer))
+            }, 8000)
+
+            const checkInterval = setInterval(() => {
+                if (outputBuffer.includes('SYSMON:')) {
+                    clearTimeout(timeout)
+                    clearInterval(checkInterval)
+                    // 多等100ms确保完整接收
+                    setTimeout(() => {
+                        sub.unsubscribe()
+                        resolve(this.parseSysMonOutput(outputBuffer))
+                    }, 100)
+                }
+            }, 200)
+        })
+
+        return result
+    }
+
+    /**
+     * 解析 SYSMON 输出为数据对象
+     */
+    private parseSysMonOutput (raw: string): any | null {
+        // 匹配格式: SYSMON:CPU:MEM:DISK:UL:DL
+        const match = raw.match(/SYSMON:([^:]*):([^:]*):([^:]*):([^:]*):([^\s:]*)/)
+        if (!match) {
+            return null
+        }
+
+        return {
+            cpu: parseInt(match[1]) || 0,
+            mem: parseInt(match[2]) || 0,
+            disk: parseInt(match[3]) || 0,
+            ul: parseFloat(match[4]) || 0,
+            dl: parseFloat(match[5]) || 0,
+        }
+    }
+
+    /**
+     * 根据百分比获取颜色
+     */
+    private getColorForValue (val: number): string {
+        if (val <= 50) return '#2ecc71' // 绿色
+        if (val <= 80) return '#f1c40f' // 黄色
+        return '#e74c3c' // 红色
+    }
+
+    /**
+     * 根据网速获取颜色 (Mbps)
+     */
+    private getColorForNet (val: number): string {
+        if (val <= 1) return '#2ecc71' // 绿色
+        if (val <= 5) return '#f1c40f' // 黄色
+        return '#e74c3c' // 红色
+    }
+
+    /**
+     * 更新监控显示元素
+     */
+    private updateMonitorDisplay (ctx: SysMonitorContext, data: any): void {
+        if (ctx.destroyed || !data) {
+            return
+        }
+
+        const cpuHtml = `<span style="color: ${this.getColorForValue(data.cpu)}">C_${data.cpu}%</span>`
+        const memHtml = `<span style="color: ${this.getColorForValue(data.mem)}">M_${data.mem}%</span>`
+        const diskHtml = `<span style="color: ${this.getColorForValue(data.disk)}">H_${data.disk}%</span>`
+        const ulHtml = `<span style="color: ${this.getColorForNet(data.ul)}">↑_${data.ul}</span>`
+        const dlHtml = `<span style="color: ${this.getColorForNet(data.dl)}">↓_${data.dl}</span>`
+
+        ctx.element.innerHTML = `${cpuHtml} | ${memHtml} | ${diskHtml} | ${ulHtml} | ${dlHtml}`
+        ctx.element.classList.remove('loading')
     }
 }
