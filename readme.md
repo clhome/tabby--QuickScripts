@@ -63,7 +63,7 @@ Click the **`SFTP`** button in the top right corner of the terminal to open the 
 
 ![image-20260509112736437](readme中文.assets/image-20260509112736437.png)
 
-### 3. Real-time Server Resource Monitor
+### 3. Real-time Server Resource Monitor (New features in version 3.0)
 
 The monitor bar displays live statistics from the remote Linux server (refreshes every 5 seconds).
 
@@ -74,6 +74,7 @@ The monitor bar displays live statistics from the remote Linux server (refreshes
 - **✨ Stable UI**: Percentages below 10% are automatically zero-padded (e.g., `05%`) to prevent layout jumping.
 - **⚡ Click to Refresh**: Click the monitor bar to trigger an immediate manual update.
 - **🛡️ Non-Intrusive**: Uses independent SSH EXEC channels for data collection, ensuring your terminal input is never interrupted or polluted.
+![image-20260515104831482](readme中文.assets/image-20260515104831482.jpg)
 
 ## 🛠️ Local Development & Manual Installation
 
