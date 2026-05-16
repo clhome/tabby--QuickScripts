@@ -157,10 +157,9 @@ type DragPayload = {
               <span class="size">{{ getLocalSizeDisplay(e) }}</span>
               <span class="date">
                 <ng-container *ngIf="getDateColorParts(e.mtimeMs) as parts">
-                  <span [style.color]="parts.dateMatch ? '#FBF732' : 'inherit'">{{ parts.date }}</span>
+                  <span [style.color]="parts.yearMatch ? '#FBF732' : 'inherit'">{{ parts.year }}</span>-<span [style.color]="parts.monthMatch ? '#FBF732' : 'inherit'">{{ parts.month }}</span>-<span [style.color]="parts.dayMatch ? '#FBF732' : 'inherit'">{{ parts.day }}</span>
                   <span>_</span>
-                  <span [style.color]="parts.hourMatch ? '#FBF732' : 'inherit'">{{ parts.hour }}</span>
-                  <span [style.color]="parts.minuteMatch ? '#FBF732' : 'inherit'">:{{ parts.minute }}</span>
+                  <span [style.color]="parts.hourMatch ? '#FBF732' : 'inherit'">{{ parts.hour }}</span>:<span [style.color]="parts.minuteMatch ? '#FBF732' : 'inherit'">{{ parts.minute }}</span>
                 </ng-container>
               </span>
             </div>
@@ -301,10 +300,9 @@ type DragPayload = {
               <span class="perms">{{ getOctalPerms(e.mode) }}</span>
               <span class="date">
                 <ng-container *ngIf="getDateColorParts(e.modified) as parts">
-                  <span [style.color]="parts.dateMatch ? '#FBF732' : 'inherit'">{{ parts.date }}</span>
+                  <span [style.color]="parts.yearMatch ? '#FBF732' : 'inherit'">{{ parts.year }}</span>-<span [style.color]="parts.monthMatch ? '#FBF732' : 'inherit'">{{ parts.month }}</span>-<span [style.color]="parts.dayMatch ? '#FBF732' : 'inherit'">{{ parts.day }}</span>
                   <span>_</span>
-                  <span [style.color]="parts.hourMatch ? '#FBF732' : 'inherit'">{{ parts.hour }}</span>
-                  <span [style.color]="parts.minuteMatch ? '#FBF732' : 'inherit'">:{{ parts.minute }}</span>
+                  <span [style.color]="parts.hourMatch ? '#FBF732' : 'inherit'">{{ parts.hour }}</span>:<span [style.color]="parts.minuteMatch ? '#FBF732' : 'inherit'">{{ parts.minute }}</span>
                 </ng-container>
               </span>
             </div>
@@ -535,22 +533,32 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     return (mode & 0o777).toString(8)
   }
 
-  getDateColorParts (timeValue: Date | number | undefined | null): { date: string, hour: string, minute: string, dateMatch: boolean, hourMatch: boolean, minuteMatch: boolean } | null {
+  getDateColorParts (timeValue: Date | number | undefined | null): { 
+    year: string, month: string, day: string, hour: string, minute: string, 
+    yearMatch: boolean, monthMatch: boolean, dayMatch: boolean, hourMatch: boolean, minuteMatch: boolean 
+  } | null {
     if (!timeValue) return null
     const d = new Date(timeValue)
     if (isNaN(d.getTime())) return null
 
     const pad = (n: number) => n.toString().padStart(2, '0')
-    const dateStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+    const yearStr = d.getFullYear().toString()
+    const monthStr = pad(d.getMonth() + 1)
+    const dayStr = pad(d.getDate())
     const hourStr = pad(d.getHours())
     const minuteStr = pad(d.getMinutes())
 
     const now = new Date()
-    const dateMatch = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate()
-    const hourMatch = dateMatch && d.getHours() === now.getHours()
+    const yearMatch = d.getFullYear() === now.getFullYear()
+    const monthMatch = yearMatch && d.getMonth() === now.getMonth()
+    const dayMatch = monthMatch && d.getDate() === now.getDate()
+    const hourMatch = dayMatch && d.getHours() === now.getHours()
     const minuteMatch = hourMatch && d.getMinutes() === now.getMinutes()
 
-    return { date: dateStr, hour: hourStr, minute: minuteStr, dateMatch, hourMatch, minuteMatch }
+    return { 
+      year: yearStr, month: monthStr, day: dayStr, hour: hourStr, minute: minuteStr, 
+      yearMatch, monthMatch, dayMatch, hourMatch, minuteMatch 
+    }
   }
 
   connecting = false
@@ -688,7 +696,9 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
 
     this.loadLocalFavorites()
 
-
+    this.localPath = this.getInitialLocalPath()
+    this.localPathInput = this.localPath
+    this.updateLocalBreadcrumbs()
 
     void this.refreshLocal()
 
@@ -3167,6 +3177,50 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
         this.scheduleSyncBackRemoteFile(localPath)
       }
     }
+  }
+
+  private getInitialLocalPath (): string {
+    if (process.platform !== 'win32') {
+      return os.homedir()
+    }
+
+    try {
+      // Attempt to find local drives (DriveType 3) using wmic
+      // We use window['require'] as nodeIntegration might be handled by a shim in Electron
+      const cp = (window as any).require?.('child_process')
+      if (cp?.execSync) {
+        const output = cp.execSync('wmic logicaldisk get name,drivetype').toString()
+        const lines = output.split('\n').map(l => l.trim()).filter(l => l)
+        const localDrives: string[] = []
+        for (const line of lines) {
+          // DriveType 3 is "Local Disk"
+          const match = line.match(/^([A-Z]:)\s+3$/i)
+          if (match) {
+            localDrives.push(match[1] + '\\')
+          }
+        }
+        if (localDrives.length > 0) {
+          // Return the last one (e.g. D:\ if C:\ and D:\ exist)
+          return localDrives[localDrives.length - 1]
+        }
+      }
+    } catch (e) {
+      console.error('[SFTP-UI] Failed to detect local drives via wmic', e)
+    }
+
+    // Fallback: search C-Z and return the last existing one
+    try {
+      for (let code = 90; code >= 67; code--) { // Z down to C
+        const root = String.fromCharCode(code) + ':\\'
+        if (fsSync.existsSync(root)) {
+          return root
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    return os.homedir()
   }
 }
 

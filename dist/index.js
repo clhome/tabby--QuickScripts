@@ -856,14 +856,21 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         if (isNaN(d.getTime()))
             return null;
         const pad = (n) => n.toString().padStart(2, '0');
-        const dateStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        const yearStr = d.getFullYear().toString();
+        const monthStr = pad(d.getMonth() + 1);
+        const dayStr = pad(d.getDate());
         const hourStr = pad(d.getHours());
         const minuteStr = pad(d.getMinutes());
         const now = new Date();
-        const dateMatch = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
-        const hourMatch = dateMatch && d.getHours() === now.getHours();
+        const yearMatch = d.getFullYear() === now.getFullYear();
+        const monthMatch = yearMatch && d.getMonth() === now.getMonth();
+        const dayMatch = monthMatch && d.getDate() === now.getDate();
+        const hourMatch = dayMatch && d.getHours() === now.getHours();
         const minuteMatch = hourMatch && d.getMinutes() === now.getMinutes();
-        return { date: dateStr, hour: hourStr, minute: minuteStr, dateMatch, hourMatch, minuteMatch };
+        return {
+            year: yearStr, month: monthStr, day: dayStr, hour: hourStr, minute: minuteStr,
+            yearMatch, monthMatch, dayMatch, hourMatch, minuteMatch
+        };
     }
     constructor(injector, sftp, profilesService, app) {
         // Tabby runtime BaseTabComponent expects Injector in constructor, but typings in this SDK may differ.
@@ -950,6 +957,9 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         this.config = injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_6__.ConfigService);
         this.notifications = injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_6__.NotificationsService);
         this.loadLocalFavorites();
+        this.localPath = this.getInitialLocalPath();
+        this.localPathInput = this.localPath;
+        this.updateLocalBreadcrumbs();
         void this.refreshLocal();
         this.transfersTimer = window.setInterval(() => {
             this.transfers = this.transfers.filter(t => !t.transfer.isComplete() && !t.transfer.isCancelled());
@@ -3366,6 +3376,49 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
             }
         });
     }
+    getInitialLocalPath() {
+        var _a, _b;
+        if (process.platform !== 'win32') {
+            return os__WEBPACK_IMPORTED_MODULE_1__.homedir();
+        }
+        try {
+            // Attempt to find local drives (DriveType 3) using wmic
+            // We use window['require'] as nodeIntegration might be handled by a shim in Electron
+            const cp = (_b = (_a = window).require) === null || _b === void 0 ? void 0 : _b.call(_a, 'child_process');
+            if (cp === null || cp === void 0 ? void 0 : cp.execSync) {
+                const output = cp.execSync('wmic logicaldisk get name,drivetype').toString();
+                const lines = output.split('\n').map(l => l.trim()).filter(l => l);
+                const localDrives = [];
+                for (const line of lines) {
+                    // DriveType 3 is "Local Disk"
+                    const match = line.match(/^([A-Z]:)\s+3$/i);
+                    if (match) {
+                        localDrives.push(match[1] + '\\');
+                    }
+                }
+                if (localDrives.length > 0) {
+                    // Return the last one (e.g. D:\ if C:\ and D:\ exist)
+                    return localDrives[localDrives.length - 1];
+                }
+            }
+        }
+        catch (e) {
+            console.error('[SFTP-UI] Failed to detect local drives via wmic', e);
+        }
+        // Fallback: search C-Z and return the last existing one
+        try {
+            for (let code = 90; code >= 67; code--) { // Z down to C
+                const root = String.fromCharCode(code) + ':\\';
+                if (fs__WEBPACK_IMPORTED_MODULE_3__.existsSync(root)) {
+                    return root;
+                }
+            }
+        }
+        catch (_c) {
+            // ignore
+        }
+        return os__WEBPACK_IMPORTED_MODULE_1__.homedir();
+    }
 };
 __decorate([
     (0,_angular_core__WEBPACK_IMPORTED_MODULE_5__.HostListener)('document:click', ['$event']),
@@ -3506,10 +3559,9 @@ SftpManagerTabComponent = __decorate([
               <span class="size">{{ getLocalSizeDisplay(e) }}</span>
               <span class="date">
                 <ng-container *ngIf="getDateColorParts(e.mtimeMs) as parts">
-                  <span [style.color]="parts.dateMatch ? '#FBF732' : 'inherit'">{{ parts.date }}</span>
+                  <span [style.color]="parts.yearMatch ? '#FBF732' : 'inherit'">{{ parts.year }}</span>-<span [style.color]="parts.monthMatch ? '#FBF732' : 'inherit'">{{ parts.month }}</span>-<span [style.color]="parts.dayMatch ? '#FBF732' : 'inherit'">{{ parts.day }}</span>
                   <span>_</span>
-                  <span [style.color]="parts.hourMatch ? '#FBF732' : 'inherit'">{{ parts.hour }}</span>
-                  <span [style.color]="parts.minuteMatch ? '#FBF732' : 'inherit'">:{{ parts.minute }}</span>
+                  <span [style.color]="parts.hourMatch ? '#FBF732' : 'inherit'">{{ parts.hour }}</span>:<span [style.color]="parts.minuteMatch ? '#FBF732' : 'inherit'">{{ parts.minute }}</span>
                 </ng-container>
               </span>
             </div>
@@ -3650,10 +3702,9 @@ SftpManagerTabComponent = __decorate([
               <span class="perms">{{ getOctalPerms(e.mode) }}</span>
               <span class="date">
                 <ng-container *ngIf="getDateColorParts(e.modified) as parts">
-                  <span [style.color]="parts.dateMatch ? '#FBF732' : 'inherit'">{{ parts.date }}</span>
+                  <span [style.color]="parts.yearMatch ? '#FBF732' : 'inherit'">{{ parts.year }}</span>-<span [style.color]="parts.monthMatch ? '#FBF732' : 'inherit'">{{ parts.month }}</span>-<span [style.color]="parts.dayMatch ? '#FBF732' : 'inherit'">{{ parts.day }}</span>
                   <span>_</span>
-                  <span [style.color]="parts.hourMatch ? '#FBF732' : 'inherit'">{{ parts.hour }}</span>
-                  <span [style.color]="parts.minuteMatch ? '#FBF732' : 'inherit'">:{{ parts.minute }}</span>
+                  <span [style.color]="parts.hourMatch ? '#FBF732' : 'inherit'">{{ parts.hour }}</span>:<span [style.color]="parts.minuteMatch ? '#FBF732' : 'inherit'">{{ parts.minute }}</span>
                 </ng-container>
               </span>
             </div>
