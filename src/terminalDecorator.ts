@@ -555,10 +555,11 @@ export class QuickScriptsDecorator extends TerminalDecorator {
      * 方案 B：通过独立 SSH exec channel 采集
      */
     private async fetchViaExecChannel (sshSession: any): Promise<string | null> {
+        let channel: any = null
         try {
             const ssh = sshSession.ssh
             const newCh = await ssh.openSessionChannel()
-            const channel = await ssh.activateChannel(newCh)
+            channel = await ssh.activateChannel(newCh)
 
             // 尝试使用 exec 方法
             if (typeof channel.exec === 'function') {
@@ -574,28 +575,40 @@ export class QuickScriptsDecorator extends TerminalDecorator {
             // 收集输出
             let output = ''
             const dataPromise = new Promise<string>((resolve) => {
-                const timeout = setTimeout(() => resolve(output), 8000)
+                let sub: Subscription | null = null
+                let closedSub: Subscription | null = null
+
+                const timeout = setTimeout(() => {
+                    if (sub) sub.unsubscribe()
+                    if (closedSub) closedSub.unsubscribe()
+                    resolve(output)
+                }, 8000)
+
                 if (channel.data$) {
-                    const sub = channel.data$.subscribe({
+                    sub = channel.data$.subscribe({
                         next: (data: any) => {
                             const text = typeof data === 'string' ? data : new TextDecoder().decode(data)
                             output += text
                             if (output.includes('SYSMON:')) {
                                 clearTimeout(timeout)
-                                sub.unsubscribe()
+                                if (sub) sub.unsubscribe()
+                                if (closedSub) closedSub.unsubscribe()
                                 resolve(output)
                             }
                         },
                         error: () => {
                             clearTimeout(timeout)
+                            if (sub) sub.unsubscribe()
+                            if (closedSub) closedSub.unsubscribe()
                             resolve(output)
                         },
                     })
                     // channel 关闭时也 resolve
                     if (channel.closed$) {
-                        channel.closed$.subscribe(() => {
+                        closedSub = channel.closed$.subscribe(() => {
                             clearTimeout(timeout)
-                            sub.unsubscribe()
+                            if (sub) sub.unsubscribe()
+                            if (closedSub) closedSub.unsubscribe()
                             resolve(output)
                         })
                     }
@@ -607,12 +620,14 @@ export class QuickScriptsDecorator extends TerminalDecorator {
             })
 
             const rawOutput = await dataPromise
-            try { channel.close() } catch { /* ignore */ }
-
             return this.parseSysMonOutput(rawOutput)
         } catch (err) {
             this.logger.debug('Exec channel failed, will fallback', err)
             return null
+        } finally {
+            if (channel) {
+                try { channel.close() } catch { /* ignore */ }
+            }
         }
     }
 
@@ -644,12 +659,15 @@ export class QuickScriptsDecorator extends TerminalDecorator {
 
         // 等待输出（最多8秒）
         const result = await new Promise<string | null>((resolve) => {
+            let checkInterval: any = null
+
             const timeout = setTimeout(() => {
                 sub.unsubscribe()
+                if (checkInterval) clearInterval(checkInterval)
                 resolve(this.parseSysMonOutput(outputBuffer))
             }, 8000)
 
-            const checkInterval = setInterval(() => {
+            checkInterval = setInterval(() => {
                 if (outputBuffer.includes('SYSMON:')) {
                     clearTimeout(timeout)
                     clearInterval(checkInterval)

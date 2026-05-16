@@ -713,6 +713,16 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     this.loadRecentProfiles()
   }
 
+  ngOnDestroy (): void {
+    if (this.transfersTimer !== null) {
+      window.clearInterval(this.transfersTimer)
+      this.transfersTimer = null
+    }
+    if (super.ngOnDestroy) {
+      super.ngOnDestroy()
+    }
+  }
+
   async connect (): Promise<void> {
     if (this.connecting || this.connected) {
       return
@@ -772,7 +782,9 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     try {
       const names = await fs.readdir(this.localPath)
       const entries: LocalEntry[] = []
-      for (const name of names) {
+      
+      // Concurrently fetch stats to prevent excessive Angular change detection cycles when reading hundreds of files
+      await Promise.all(names.map(async (name) => {
         const fullPath = path.join(this.localPath, name)
         try {
           const st = await fs.stat(fullPath)
@@ -786,7 +798,8 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
         } catch {
           // ignore entries that disappeared
         }
-      }
+      }))
+      
       this.localEntries = entries
     } catch (e) {
       console.error('[SFTP-UI] Local listing failed', e)

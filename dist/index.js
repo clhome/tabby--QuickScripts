@@ -31,7 +31,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_cssWithMappingToString_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "@charset \"UTF-8\";\n/* 快捷脚本按钮栏样式 */\n.quick-scripts-bar {\n  display: flex;\n  align-items: center;\n  padding: 2px 8px;\n  background: rgba(0, 0, 0, 0.15);\n  border-bottom: 1px solid rgba(255, 255, 255, 0.06);\n  gap: 4px;\n  flex-shrink: 0;\n  overflow-x: auto;\n  min-height: 30px;\n  /* 脚本按钮通用样式 */\n}\n.quick-scripts-bar .script-btn {\n  display: inline-flex;\n  align-items: center;\n  padding: 2px 10px;\n  font-size: 12px;\n  line-height: 1.4;\n  color: #ccc;\n  background: rgba(255, 255, 255, 0.08);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  border-radius: 3px;\n  cursor: pointer;\n  white-space: nowrap;\n  user-select: none;\n  transition: all 0.15s ease;\n}\n.quick-scripts-bar .script-btn:hover {\n  color: #fff;\n  background: rgba(255, 255, 255, 0.15);\n  border-color: rgba(255, 255, 255, 0.25);\n}\n.quick-scripts-bar .script-btn:active {\n  background: rgba(255, 255, 255, 0.2);\n}\n.quick-scripts-bar .script-btn {\n  /* 正在执行中的按钮状态 */\n}\n.quick-scripts-bar .script-btn.running {\n  color: #4fc3f7;\n  border-color: #4fc3f7;\n  background: rgba(79, 195, 247, 0.12);\n  cursor: not-allowed;\n  animation: pulse 1.5s infinite;\n}\n.quick-scripts-bar {\n  /* 新建按钮 - 固定为红色 */\n}\n.quick-scripts-bar .script-btn-add {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  width: 24px;\n  height: 22px;\n  padding: 0;\n  font-size: 16px;\n  font-weight: bold;\n  color: #fff;\n  background: #e74c3c;\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  border-radius: 3px;\n  cursor: pointer;\n  transition: all 0.15s ease;\n  flex-shrink: 0;\n}\n.quick-scripts-bar .script-btn-add:hover {\n  background: #c0392b;\n  border-color: rgba(0, 0, 0, 0.2);\n}\n.quick-scripts-bar {\n  /* 系统资源监控显示区域 */\n}\n.quick-scripts-bar .sys-monitor {\n  display: inline-flex;\n  align-items: center;\n  margin-left: auto;\n  margin-right: 6px;\n  padding: 2px 10px;\n  font-size: 13px;\n  font-weight: 500;\n  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;\n  color: rgba(255, 255, 255, 0.65);\n  background: rgba(255, 255, 255, 0.04);\n  border: 1px solid rgba(255, 255, 255, 0.08);\n  border-radius: 3px;\n  white-space: nowrap;\n  user-select: text;\n  letter-spacing: 0.3px;\n  flex-shrink: 0;\n  transition: opacity 0.3s ease;\n}\n.quick-scripts-bar .sys-monitor:hover {\n  color: rgba(255, 255, 255, 0.85);\n  background: rgba(255, 255, 255, 0.08);\n}\n.quick-scripts-bar .sys-monitor.loading::before {\n  content: \"御风科技  |  \";\n  color: inherit;\n}\n\n/* 执行中的脉冲动画 */\n@keyframes pulse {\n  0%, 100% {\n    opacity: 1;\n  }\n  50% {\n    opacity: 0.6;\n  }\n}", "",{"version":3,"sources":["webpack://./src/quickScriptsBar.scss"],"names":[],"mappings":"AAAA,gBAAgB;AAAhB,cAAA;AACA;EACI,aAAA;EACA,mBAAA;EACA,gBAAA;EACA,+BAAA;EACA,kDAAA;EACA,QAAA;EACA,cAAA;EACA,gBAAA;EACA,gBAAA;EAEA,aAAA;AACJ;AAAI;EACI,oBAAA;EACA,mBAAA;EACA,iBAAA;EACA,eAAA;EACA,gBAAA;EACA,WAAA;EACA,qCAAA;EACA,2CAAA;EACA,kBAAA;EACA,eAAA;EACA,mBAAA;EACA,iBAAA;EACA,0BAAA;AAER;AAAQ;EACI,WAAA;EACA,qCAAA;EACA,uCAAA;AAEZ;AACQ;EACI,oCAAA;AACZ;AAvBI;EAyBI,eAAA;AACR;AAAQ;EACI,cAAA;EACA,qBAAA;EACA,oCAAA;EACA,mBAAA;EACA,8BAAA;AAEZ;AA7CA;EA+CI,iBAAA;AACJ;AAAI;EACI,oBAAA;EACA,mBAAA;EACA,uBAAA;EACA,WAAA;EACA,YAAA;EACA,UAAA;EACA,eAAA;EACA,iBAAA;EACA,WAAA;EACA,mBAAA;EACA,oCAAA;EACA,kBAAA;EACA,eAAA;EACA,0BAAA;EACA,cAAA;AAER;AAAQ;EACI,mBAAA;EACA,gCAAA;AAEZ;AArEA;EAuEI,eAAA;AACJ;AAAI;EACI,oBAAA;EACA,mBAAA;EACA,iBAAA;EACA,iBAAA;EACA,iBAAA;EACA,eAAA;EACA,gBAAA;EACA,+GAAA;EACA,gCAAA;EACA,qCAAA;EACA,2CAAA;EACA,kBAAA;EACA,mBAAA;EACA,iBAAA;EACA,qBAAA;EACA,cAAA;EACA,6BAAA;AAER;AAAQ;EACI,gCAAA;EACA,qCAAA;AAEZ;AACQ;EACI,oBAAA;EACA,cAAA;AACZ;;AAIA,aAAA;AACA;EACI;IAAW,UAAA;EAAb;EACE;IAAM,YAAA;EAER;AACF","sourcesContent":["/* 快捷脚本按钮栏样式 */\r\n.quick-scripts-bar {\r\n    display: flex;\r\n    align-items: center;\r\n    padding: 2px 8px;\r\n    background: rgba(0, 0, 0, 0.15);\r\n    border-bottom: 1px solid rgba(255, 255, 255, 0.06);\r\n    gap: 4px;\r\n    flex-shrink: 0;\r\n    overflow-x: auto;\r\n    min-height: 30px;\r\n\r\n    /* 脚本按钮通用样式 */\r\n    .script-btn {\r\n        display: inline-flex;\r\n        align-items: center;\r\n        padding: 2px 10px;\r\n        font-size: 12px;\r\n        line-height: 1.4;\r\n        color: #ccc;\r\n        background: rgba(255, 255, 255, 0.08);\r\n        border: 1px solid rgba(255, 255, 255, 0.12);\r\n        border-radius: 3px;\r\n        cursor: pointer;\r\n        white-space: nowrap;\r\n        user-select: none;\r\n        transition: all 0.15s ease;\r\n\r\n        &:hover {\r\n            color: #fff;\r\n            background: rgba(255, 255, 255, 0.15);\r\n            border-color: rgba(255, 255, 255, 0.25);\r\n        }\r\n\r\n        &:active {\r\n            background: rgba(255, 255, 255, 0.2);\r\n        }\r\n\r\n        /* 正在执行中的按钮状态 */\r\n        &.running {\r\n            color: #4fc3f7;\r\n            border-color: #4fc3f7;\r\n            background: rgba(79, 195, 247, 0.12);\r\n            cursor: not-allowed;\r\n            animation: pulse 1.5s infinite;\r\n        }\r\n    }\r\n\r\n    /* 新建按钮 - 固定为红色 */\r\n    .script-btn-add {\r\n        display: inline-flex;\r\n        align-items: center;\r\n        justify-content: center;\r\n        width: 24px;\r\n        height: 22px;\r\n        padding: 0;\r\n        font-size: 16px;\r\n        font-weight: bold;\r\n        color: #fff;\r\n        background: #e74c3c;\r\n        border: 1px solid rgba(0, 0, 0, 0.1);\r\n        border-radius: 3px;\r\n        cursor: pointer;\r\n        transition: all 0.15s ease;\r\n        flex-shrink: 0;\r\n\r\n        &:hover {\r\n            background: #c0392b;\r\n            border-color: rgba(0, 0, 0, 0.2);\r\n        }\r\n    }\r\n\r\n    /* 系统资源监控显示区域 */\r\n    .sys-monitor {\r\n        display: inline-flex;\r\n        align-items: center;\r\n        margin-left: auto;\r\n        margin-right: 6px;\r\n        padding: 2px 10px;\r\n        font-size: 13px;\r\n        font-weight: 500;\r\n        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;\r\n        color: rgba(255, 255, 255, 0.65);\r\n        background: rgba(255, 255, 255, 0.04);\r\n        border: 1px solid rgba(255, 255, 255, 0.08);\r\n        border-radius: 3px;\r\n        white-space: nowrap;\r\n        user-select: text;\r\n        letter-spacing: 0.3px;\r\n        flex-shrink: 0;\r\n        transition: opacity 0.3s ease;\r\n\r\n        &:hover {\r\n            color: rgba(255, 255, 255, 0.85);\r\n            background: rgba(255, 255, 255, 0.08);\r\n        }\r\n\r\n        &.loading::before {\r\n            content: '御风科技\\a0\\a0|\\a0\\a0';\r\n            color: inherit;\r\n        }\r\n    }\r\n}\r\n\r\n/* 执行中的脉冲动画 */\r\n@keyframes pulse {\r\n    0%, 100% { opacity: 1; }\r\n    50% { opacity: 0.6; }\r\n}\r\n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, "@charset \"UTF-8\";\n/* 快捷脚本按钮栏样式 */\n.quick-scripts-bar {\n  display: flex;\n  align-items: center;\n  padding: 2px 8px;\n  background: rgba(0, 0, 0, 0.15);\n  border-bottom: 1px solid rgba(255, 255, 255, 0.06);\n  gap: 4px;\n  flex-shrink: 0;\n  overflow-x: auto;\n  min-height: 30px;\n  /* 脚本按钮通用样式 */\n}\n.quick-scripts-bar .script-btn {\n  display: inline-flex;\n  align-items: center;\n  padding: 2px 10px;\n  font-size: 12px;\n  line-height: 1.4;\n  color: #ccc;\n  background: rgba(255, 255, 255, 0.08);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  border-radius: 3px;\n  cursor: pointer;\n  white-space: nowrap;\n  user-select: none;\n  transition: all 0.15s ease;\n}\n.quick-scripts-bar .script-btn:hover {\n  color: #fff;\n  background: rgba(255, 255, 255, 0.15);\n  border-color: rgba(255, 255, 255, 0.25);\n}\n.quick-scripts-bar .script-btn:active {\n  background: rgba(255, 255, 255, 0.2);\n}\n.quick-scripts-bar .script-btn {\n  /* 正在执行中的按钮状态 */\n}\n.quick-scripts-bar .script-btn.running {\n  color: #4fc3f7;\n  border-color: #4fc3f7;\n  background: rgba(79, 195, 247, 0.12);\n  cursor: not-allowed;\n  animation: pulse 1.5s infinite;\n}\n.quick-scripts-bar {\n  /* 新建按钮 - 固定为红色 */\n}\n.quick-scripts-bar .script-btn-add {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  width: 24px;\n  height: 22px;\n  padding: 0;\n  font-size: 16px;\n  font-weight: bold;\n  color: #fff;\n  background: #e74c3c;\n  border: 1px solid rgba(0, 0, 0, 0.1);\n  border-radius: 3px;\n  cursor: pointer;\n  transition: all 0.15s ease;\n  flex-shrink: 0;\n}\n.quick-scripts-bar .script-btn-add:hover {\n  background: #c0392b;\n  border-color: rgba(0, 0, 0, 0.2);\n}\n.quick-scripts-bar {\n  /* 系统资源监控显示区域 */\n}\n.quick-scripts-bar .sys-monitor {\n  display: inline-flex;\n  align-items: center;\n  margin-left: auto;\n  margin-right: 6px;\n  padding: 2px 10px;\n  font-size: 13px;\n  font-weight: 500;\n  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;\n  color: rgba(255, 255, 255, 0.65);\n  background: rgba(255, 255, 255, 0.04);\n  border: 1px solid rgba(255, 255, 255, 0.08);\n  border-radius: 3px;\n  white-space: nowrap;\n  user-select: text;\n  letter-spacing: 0.3px;\n  flex-shrink: 0;\n  transition: opacity 0.3s ease;\n}\n.quick-scripts-bar .sys-monitor:hover {\n  color: rgba(255, 255, 255, 0.85);\n  background: rgba(255, 255, 255, 0.08);\n}\n.quick-scripts-bar .sys-monitor.loading::before {\n  content: \"御风科技  |  \";\n  color: inherit;\n}\n\n/* 执行中的脉冲动画 */\n@keyframes pulse {\n  0%, 100% {\n    opacity: 1;\n  }\n  50% {\n    opacity: 0.6;\n  }\n}", "",{"version":3,"sources":["webpack://./src/quickScriptsBar.scss"],"names":[],"mappings":"AAAA,gBAAgB;AAAhB,cAAA;AACA;EACI,aAAA;EACA,mBAAA;EACA,gBAAA;EACA,+BAAA;EACA,kDAAA;EACA,QAAA;EACA,cAAA;EACA,gBAAA;EACA,gBAAA;EAEA,aAAA;AACJ;AAAI;EACI,oBAAA;EACA,mBAAA;EACA,iBAAA;EACA,eAAA;EACA,gBAAA;EACA,WAAA;EACA,qCAAA;EACA,2CAAA;EACA,kBAAA;EACA,eAAA;EACA,mBAAA;EACA,iBAAA;EACA,0BAAA;AAER;AAAQ;EACI,WAAA;EACA,qCAAA;EACA,uCAAA;AAEZ;AACQ;EACI,oCAAA;AACZ;AAvBI;EAyBI,eAAA;AACR;AAAQ;EACI,cAAA;EACA,qBAAA;EACA,oCAAA;EACA,mBAAA;EACA,8BAAA;AAEZ;AA7CA;EA+CI,iBAAA;AACJ;AAAI;EACI,oBAAA;EACA,mBAAA;EACA,uBAAA;EACA,WAAA;EACA,YAAA;EACA,UAAA;EACA,eAAA;EACA,iBAAA;EACA,WAAA;EACA,mBAAA;EACA,oCAAA;EACA,kBAAA;EACA,eAAA;EACA,0BAAA;EACA,cAAA;AAER;AAAQ;EACI,mBAAA;EACA,gCAAA;AAEZ;AArEA;EAuEI,eAAA;AACJ;AAAI;EACI,oBAAA;EACA,mBAAA;EACA,iBAAA;EACA,iBAAA;EACA,iBAAA;EACA,eAAA;EACA,gBAAA;EACA,+GAAA;EACA,gCAAA;EACA,qCAAA;EACA,2CAAA;EACA,kBAAA;EACA,mBAAA;EACA,iBAAA;EACA,qBAAA;EACA,cAAA;EACA,6BAAA;AAER;AAAQ;EACI,gCAAA;EACA,qCAAA;AAEZ;AACQ;EACI,oBAAA;EACA,cAAA;AACZ;;AAIA,aAAA;AACA;EACI;IAAW,UAAA;EAAb;EACE;IAAM,YAAA;EAER;AACF","sourcesContent":["/* 快捷脚本按钮栏样式 */\n.quick-scripts-bar {\n    display: flex;\n    align-items: center;\n    padding: 2px 8px;\n    background: rgba(0, 0, 0, 0.15);\n    border-bottom: 1px solid rgba(255, 255, 255, 0.06);\n    gap: 4px;\n    flex-shrink: 0;\n    overflow-x: auto;\n    min-height: 30px;\n\n    /* 脚本按钮通用样式 */\n    .script-btn {\n        display: inline-flex;\n        align-items: center;\n        padding: 2px 10px;\n        font-size: 12px;\n        line-height: 1.4;\n        color: #ccc;\n        background: rgba(255, 255, 255, 0.08);\n        border: 1px solid rgba(255, 255, 255, 0.12);\n        border-radius: 3px;\n        cursor: pointer;\n        white-space: nowrap;\n        user-select: none;\n        transition: all 0.15s ease;\n\n        &:hover {\n            color: #fff;\n            background: rgba(255, 255, 255, 0.15);\n            border-color: rgba(255, 255, 255, 0.25);\n        }\n\n        &:active {\n            background: rgba(255, 255, 255, 0.2);\n        }\n\n        /* 正在执行中的按钮状态 */\n        &.running {\n            color: #4fc3f7;\n            border-color: #4fc3f7;\n            background: rgba(79, 195, 247, 0.12);\n            cursor: not-allowed;\n            animation: pulse 1.5s infinite;\n        }\n    }\n\n    /* 新建按钮 - 固定为红色 */\n    .script-btn-add {\n        display: inline-flex;\n        align-items: center;\n        justify-content: center;\n        width: 24px;\n        height: 22px;\n        padding: 0;\n        font-size: 16px;\n        font-weight: bold;\n        color: #fff;\n        background: #e74c3c;\n        border: 1px solid rgba(0, 0, 0, 0.1);\n        border-radius: 3px;\n        cursor: pointer;\n        transition: all 0.15s ease;\n        flex-shrink: 0;\n\n        &:hover {\n            background: #c0392b;\n            border-color: rgba(0, 0, 0, 0.2);\n        }\n    }\n\n    /* 系统资源监控显示区域 */\n    .sys-monitor {\n        display: inline-flex;\n        align-items: center;\n        margin-left: auto;\n        margin-right: 6px;\n        padding: 2px 10px;\n        font-size: 13px;\n        font-weight: 500;\n        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;\n        color: rgba(255, 255, 255, 0.65);\n        background: rgba(255, 255, 255, 0.04);\n        border: 1px solid rgba(255, 255, 255, 0.08);\n        border-radius: 3px;\n        white-space: nowrap;\n        user-select: text;\n        letter-spacing: 0.3px;\n        flex-shrink: 0;\n        transition: opacity 0.3s ease;\n\n        &:hover {\n            color: rgba(255, 255, 255, 0.85);\n            background: rgba(255, 255, 255, 0.08);\n        }\n\n        &.loading::before {\n            content: '御风科技\\a0\\a0|\\a0\\a0';\n            color: inherit;\n        }\n    }\n}\n\n/* 执行中的脉冲动画 */\n@keyframes pulse {\n    0%, 100% { opacity: 1; }\n    50% { opacity: 0.6; }\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -974,6 +974,15 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         }
         this.loadRecentProfiles();
     }
+    ngOnDestroy() {
+        if (this.transfersTimer !== null) {
+            window.clearInterval(this.transfersTimer);
+            this.transfersTimer = null;
+        }
+        if (super.ngOnDestroy) {
+            super.ngOnDestroy();
+        }
+    }
     connect() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.connecting || this.connected) {
@@ -1034,7 +1043,8 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
             try {
                 const names = yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.readdir(this.localPath);
                 const entries = [];
-                for (const name of names) {
+                // Concurrently fetch stats to prevent excessive Angular change detection cycles when reading hundreds of files
+                yield Promise.all(names.map((name) => __awaiter(this, void 0, void 0, function* () {
                     const fullPath = path__WEBPACK_IMPORTED_MODULE_0__.join(this.localPath, name);
                     try {
                         const st = yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(fullPath);
@@ -1049,7 +1059,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
                     catch (_a) {
                         // ignore entries that disappeared
                     }
-                }
+                })));
                 this.localEntries = entries;
             }
             catch (e) {
@@ -4489,10 +4499,11 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
      */
     fetchViaExecChannel(sshSession) {
         return __awaiter(this, void 0, void 0, function* () {
+            let channel = null;
             try {
                 const ssh = sshSession.ssh;
                 const newCh = yield ssh.openSessionChannel();
-                const channel = yield ssh.activateChannel(newCh);
+                channel = yield ssh.activateChannel(newCh);
                 // 尝试使用 exec 方法
                 if (typeof channel.exec === 'function') {
                     yield channel.exec(true, SYS_MONITOR_CMD);
@@ -4511,28 +4522,46 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
                 // 收集输出
                 let output = '';
                 const dataPromise = new Promise((resolve) => {
-                    const timeout = setTimeout(() => resolve(output), 8000);
+                    let sub = null;
+                    let closedSub = null;
+                    const timeout = setTimeout(() => {
+                        if (sub)
+                            sub.unsubscribe();
+                        if (closedSub)
+                            closedSub.unsubscribe();
+                        resolve(output);
+                    }, 8000);
                     if (channel.data$) {
-                        const sub = channel.data$.subscribe({
+                        sub = channel.data$.subscribe({
                             next: (data) => {
                                 const text = typeof data === 'string' ? data : new TextDecoder().decode(data);
                                 output += text;
                                 if (output.includes('SYSMON:')) {
                                     clearTimeout(timeout);
-                                    sub.unsubscribe();
+                                    if (sub)
+                                        sub.unsubscribe();
+                                    if (closedSub)
+                                        closedSub.unsubscribe();
                                     resolve(output);
                                 }
                             },
                             error: () => {
                                 clearTimeout(timeout);
+                                if (sub)
+                                    sub.unsubscribe();
+                                if (closedSub)
+                                    closedSub.unsubscribe();
                                 resolve(output);
                             },
                         });
                         // channel 关闭时也 resolve
                         if (channel.closed$) {
-                            channel.closed$.subscribe(() => {
+                            closedSub = channel.closed$.subscribe(() => {
                                 clearTimeout(timeout);
-                                sub.unsubscribe();
+                                if (sub)
+                                    sub.unsubscribe();
+                                if (closedSub)
+                                    closedSub.unsubscribe();
                                 resolve(output);
                             });
                         }
@@ -4544,15 +4573,19 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
                     }
                 });
                 const rawOutput = yield dataPromise;
-                try {
-                    channel.close();
-                }
-                catch ( /* ignore */_b) { /* ignore */ }
                 return this.parseSysMonOutput(rawOutput);
             }
             catch (err) {
                 this.logger.debug('Exec channel failed, will fallback', err);
                 return null;
+            }
+            finally {
+                if (channel) {
+                    try {
+                        channel.close();
+                    }
+                    catch ( /* ignore */_b) { /* ignore */ }
+                }
             }
         });
     }
@@ -4583,11 +4616,14 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
             }
             // 等待输出（最多8秒）
             const result = yield new Promise((resolve) => {
+                let checkInterval = null;
                 const timeout = setTimeout(() => {
                     sub.unsubscribe();
+                    if (checkInterval)
+                        clearInterval(checkInterval);
                     resolve(this.parseSysMonOutput(outputBuffer));
                 }, 8000);
-                const checkInterval = setInterval(() => {
+                checkInterval = setInterval(() => {
                     if (outputBuffer.includes('SYSMON:')) {
                         clearTimeout(timeout);
                         clearInterval(checkInterval);
