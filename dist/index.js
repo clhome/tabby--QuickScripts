@@ -943,6 +943,8 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         this.localMenuX = 0;
         this.localMenuY = 0;
         this.localMenuItems = [];
+        this.localBreadcrumbs = [];
+        this.remoteBreadcrumbs = [];
         this.favDropdownOpen = false;
         this.platform = injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_6__.PlatformService);
         this.config = injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_6__.ConfigService);
@@ -969,6 +971,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         this.loadRemoteFavorites();
         this.remotePathInput = this.remotePath;
         this.localPathInput = this.localPath;
+        this.updateLocalBreadcrumbs();
         if (this.sshSession) {
             void this.connect();
         }
@@ -1026,6 +1029,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         if (parent !== this.localPath) {
             this.localPath = parent;
             this.localPathInput = this.localPath;
+            this.updateLocalBreadcrumbs();
             void this.refreshLocal();
         }
     }
@@ -1036,10 +1040,13 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         const next = path__WEBPACK_IMPORTED_MODULE_0__.posix.dirname(this.remotePath);
         this.remotePath = next === '.' ? '/' : next;
         this.remotePathInput = this.remotePath;
+        this.updateRemoteBreadcrumbs();
         void this.refreshRemote();
     }
     refreshLocal() {
         return __awaiter(this, void 0, void 0, function* () {
+            this.localCache = null;
+            this.selectedLocal = [];
             try {
                 const names = yield fs_promises__WEBPACK_IMPORTED_MODULE_2__.readdir(this.localPath);
                 const entries = [];
@@ -1072,14 +1079,23 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
             if (!this.connected) {
                 return;
             }
+            this.remoteCache = null;
+            this.selectedRemote = [];
             try {
                 if (!this.sftpSession) {
-                    throw new Error('Not connected');
+                    // Try to reconnect if session is lost
+                    this.connected = false;
+                    yield this.connect();
+                    return;
                 }
                 this.remoteEntries = yield this.sftpSession.readdir(this.remotePath);
             }
             catch (e) {
                 console.error('[SFTP-UI] Remote listing failed', e);
+                // If listing failed, session might be dead, try to reconnect once
+                this.connected = false;
+                this.sftpSession = null;
+                yield this.connect();
             }
         });
     }
@@ -1089,6 +1105,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         }
         this.localPath = e.fullPath;
         this.localPathInput = this.localPath;
+        this.updateLocalBreadcrumbs();
         void this.refreshLocal();
     }
     openRemote(e) {
@@ -1098,6 +1115,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         if (e.isDirectory) {
             this.remotePath = e.fullPath;
             this.remotePathInput = this.remotePath;
+            this.updateRemoteBreadcrumbs();
             void this.refreshRemote();
         }
         else {
@@ -2030,14 +2048,23 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         }
         return crumbs;
     }
-    navigateRemoteBreadcrumb(index) {
-        const crumbs = this.getRemoteBreadcrumbs();
+    updateRemoteBreadcrumbs() {
+        this.remoteBreadcrumbs = this.getRemoteBreadcrumbs();
+    }
+    navigateRemoteBreadcrumb(index, event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        this.remoteDropdownOpen = false;
+        const crumbs = this.remoteBreadcrumbs;
         const crumb = crumbs[index];
         if (!crumb) {
             return;
         }
         this.remotePath = crumb.path;
         this.remotePathInput = this.remotePath;
+        this.updateRemoteBreadcrumbs();
         void this.refreshRemote();
     }
     goToRemotePathInput() {
@@ -2069,8 +2096,22 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         }
         return crumbs;
     }
-    navigateLocalBreadcrumb(index) {
-        const crumbs = this.getLocalBreadcrumbs();
+    updateLocalBreadcrumbs() {
+        this.localBreadcrumbs = this.getLocalBreadcrumbs();
+    }
+    navigateLocalBreadcrumb(index, event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        this.localMenuVisible = false;
+        this.favDropdownOpen = false;
+        const isWindows = process.platform === 'win32';
+        if (isWindows && index === 0 && event) {
+            this.onLocalBreadcrumbContextMenu(index, event);
+            return;
+        }
+        const crumbs = this.localBreadcrumbs;
         const crumb = crumbs[index];
         if (!crumb) {
             return;
@@ -2080,6 +2121,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
     goToLocalPath(target) {
         this.localPath = target;
         this.localPathInput = target;
+        this.updateLocalBreadcrumbs();
         void this.refreshLocal();
     }
     onLocalPresetChange(id) {
@@ -2165,7 +2207,7 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         // Root crumb on Windows: offer other drives as "siblings"
         if (isWindows && isRootCrumb) {
             const drives = [];
-            for (let code = 67; code <= 90; code++) { // C..Z
+            for (let code = 65; code <= 90; code++) { // A..Z
                 const letter = String.fromCharCode(code);
                 const rootPath = `${letter}:\\`;
                 try {
@@ -3408,10 +3450,10 @@ SftpManagerTabComponent = __decorate([
           </div>
           <div class="pane-filters">
             <div class="breadcrumbs">
-              <ng-container *ngFor="let part of getLocalBreadcrumbs(); let i = index; let last = last">
+              <ng-container *ngFor="let part of localBreadcrumbs; let i = index; let last = last">
                 <button
                   class="crumb-button"
-                  (click)="navigateLocalBreadcrumb(i)"
+                  (click)="navigateLocalBreadcrumb(i, $event)"
                   (contextmenu)="onLocalBreadcrumbContextMenu(i, $event)"
                 >
                   {{ part.label }}
@@ -3546,10 +3588,12 @@ SftpManagerTabComponent = __decorate([
           </div>
           <div class="pane-filters">
             <div class="breadcrumbs" *ngIf="connected">
-              <ng-container *ngFor="let part of getRemoteBreadcrumbs(); let i = index; let last = last">
+              <ng-container *ngFor="let part of remoteBreadcrumbs; let i = index; let last = last">
                 <button
                   class="crumb-button"
-                  (click)="navigateRemoteBreadcrumb(i)"
+                  (click)="navigateRemoteBreadcrumb(i, $event)"
+                  (contextmenu)="onRemoteBreadcrumbContextMenu(i, $event)"
+                  [disabled]="!connected"
                 >
                   {{ part.label }}
                 </button>
@@ -3747,8 +3791,10 @@ SftpManagerTabComponent = __decorate([
   `,
         styles: [`
     .sftp-root { display: flex; flex-direction: column; height: 100%; padding: 10px; gap: 10px; position: relative; }
-    button { padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: inherit; cursor: pointer; }
-    button:disabled { opacity: 0.5; cursor: default; }
+    button { padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: inherit; cursor: pointer; transition: all 0.05s ease-in-out; }
+    button:hover { background: rgba(255,255,255,0.12); }
+    button:active { transform: translateY(1.5px); background: rgba(255,255,255,0.02); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+    button:disabled { opacity: 0.5; cursor: default; transform: none !important; box-shadow: none !important; }
     .top-profiles { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px 8px; gap: 12px; font-size: 11px; opacity: 0.9; }
     .top-profiles .current .label,
     .top-profiles .recent .label { text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; margin-right: 4px; }

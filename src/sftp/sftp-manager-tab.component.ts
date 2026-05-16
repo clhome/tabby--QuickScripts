@@ -101,10 +101,10 @@ type DragPayload = {
           </div>
           <div class="pane-filters">
             <div class="breadcrumbs">
-              <ng-container *ngFor="let part of getLocalBreadcrumbs(); let i = index; let last = last">
+              <ng-container *ngFor="let part of localBreadcrumbs; let i = index; let last = last">
                 <button
                   class="crumb-button"
-                  (click)="navigateLocalBreadcrumb(i)"
+                  (click)="navigateLocalBreadcrumb(i, $event)"
                   (contextmenu)="onLocalBreadcrumbContextMenu(i, $event)"
                 >
                   {{ part.label }}
@@ -239,10 +239,12 @@ type DragPayload = {
           </div>
           <div class="pane-filters">
             <div class="breadcrumbs" *ngIf="connected">
-              <ng-container *ngFor="let part of getRemoteBreadcrumbs(); let i = index; let last = last">
+              <ng-container *ngFor="let part of remoteBreadcrumbs; let i = index; let last = last">
                 <button
                   class="crumb-button"
-                  (click)="navigateRemoteBreadcrumb(i)"
+                  (click)="navigateRemoteBreadcrumb(i, $event)"
+                  (contextmenu)="onRemoteBreadcrumbContextMenu(i, $event)"
+                  [disabled]="!connected"
                 >
                   {{ part.label }}
                 </button>
@@ -440,8 +442,10 @@ type DragPayload = {
   `,
   styles: [`
     .sftp-root { display: flex; flex-direction: column; height: 100%; padding: 10px; gap: 10px; position: relative; }
-    button { padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: inherit; cursor: pointer; }
-    button:disabled { opacity: 0.5; cursor: default; }
+    button { padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: inherit; cursor: pointer; transition: all 0.05s ease-in-out; }
+    button:hover { background: rgba(255,255,255,0.12); }
+    button:active { transform: translateY(1.5px); background: rgba(255,255,255,0.02); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+    button:disabled { opacity: 0.5; cursor: default; transform: none !important; box-shadow: none !important; }
     .top-profiles { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px 8px; gap: 12px; font-size: 11px; opacity: 0.9; }
     .top-profiles .current .label,
     .top-profiles .recent .label { text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; margin-right: 4px; }
@@ -662,6 +666,9 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
   localMenuX = 0
   localMenuY = 0
   localMenuItems: Array<{ label: string, path: string }> = []
+  
+  localBreadcrumbs: Array<{ label: string, path: string }> = []
+  remoteBreadcrumbs: Array<{ label: string, path: string }> = []
 
   private notifications!: NotificationsService
 
@@ -707,6 +714,7 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     this.remotePathInput = this.remotePath
 
     this.localPathInput = this.localPath
+    this.updateLocalBreadcrumbs()
     if (this.sshSession) {
       void this.connect()
     }
@@ -764,6 +772,7 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     if (parent !== this.localPath) {
       this.localPath = parent
       this.localPathInput = this.localPath
+      this.updateLocalBreadcrumbs()
       void this.refreshLocal()
     }
   }
@@ -775,10 +784,13 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     const next = path.posix.dirname(this.remotePath)
     this.remotePath = next === '.' ? '/' : next
     this.remotePathInput = this.remotePath
+    this.updateRemoteBreadcrumbs()
     void this.refreshRemote()
   }
 
   async refreshLocal (): Promise<void> {
+    this.localCache = null
+    this.selectedLocal = []
     try {
       const names = await fs.readdir(this.localPath)
       const entries: LocalEntry[] = []
@@ -810,13 +822,22 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     if (!this.connected) {
       return
     }
+    this.remoteCache = null
+    this.selectedRemote = []
     try {
       if (!this.sftpSession) {
-        throw new Error('Not connected')
+        // Try to reconnect if session is lost
+        this.connected = false
+        await this.connect()
+        return
       }
       this.remoteEntries = await this.sftpSession.readdir(this.remotePath)
     } catch (e) {
       console.error('[SFTP-UI] Remote listing failed', e)
+      // If listing failed, session might be dead, try to reconnect once
+      this.connected = false
+      this.sftpSession = null
+      await this.connect()
     }
   }
 
@@ -826,6 +847,7 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     }
     this.localPath = e.fullPath
     this.localPathInput = this.localPath
+    this.updateLocalBreadcrumbs()
     void this.refreshLocal()
   }
 
@@ -836,6 +858,7 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     if (e.isDirectory) {
       this.remotePath = e.fullPath
       this.remotePathInput = this.remotePath
+      this.updateRemoteBreadcrumbs()
       void this.refreshRemote()
     } else {
       void this.openRemoteFile(e)
@@ -1766,14 +1789,25 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     return crumbs
   }
 
-  navigateRemoteBreadcrumb (index: number): void {
-    const crumbs = this.getRemoteBreadcrumbs()
+  updateRemoteBreadcrumbs (): void {
+    this.remoteBreadcrumbs = this.getRemoteBreadcrumbs()
+  }
+
+  navigateRemoteBreadcrumb (index: number, event?: MouseEvent): void {
+    if (event) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
+    this.remoteDropdownOpen = false
+
+    const crumbs = this.remoteBreadcrumbs
     const crumb = crumbs[index]
     if (!crumb) {
       return
     }
     this.remotePath = crumb.path
     this.remotePathInput = this.remotePath
+    this.updateRemoteBreadcrumbs()
     void this.refreshRemote()
   }
 
@@ -1810,9 +1844,25 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     }
     return crumbs
   }
+  
+  updateLocalBreadcrumbs (): void {
+    this.localBreadcrumbs = this.getLocalBreadcrumbs()
+  }
 
-  navigateLocalBreadcrumb (index: number): void {
-    const crumbs = this.getLocalBreadcrumbs()
+  navigateLocalBreadcrumb (index: number, event?: MouseEvent): void {
+    if (event) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
+    this.localMenuVisible = false
+    this.favDropdownOpen = false
+
+    const isWindows = process.platform === 'win32'
+    if (isWindows && index === 0 && event) {
+      this.onLocalBreadcrumbContextMenu(index, event)
+      return
+    }
+    const crumbs = this.localBreadcrumbs
     const crumb = crumbs[index]
     if (!crumb) {
       return
@@ -1823,6 +1873,7 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
   private goToLocalPath (target: string): void {
     this.localPath = target
     this.localPathInput = target
+    this.updateLocalBreadcrumbs()
     void this.refreshLocal()
   }
 
@@ -1932,7 +1983,7 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     // Root crumb on Windows: offer other drives as "siblings"
     if (isWindows && isRootCrumb) {
       const drives: string[] = []
-      for (let code = 67; code <= 90; code++) { // C..Z
+      for (let code = 65; code <= 90; code++) { // A..Z
         const letter = String.fromCharCode(code)
         const rootPath = `${letter}:\\`
         try {
