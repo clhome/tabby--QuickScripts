@@ -15,7 +15,7 @@ const SYS_MONITOR_CMD = [
     '_S1=$(awk \'NR>2 && $1!~/lo:/ {r+=$2; t+=$10} END {print r, t}\' /proc/net/dev);',
     'sleep 1;',
     '_S2=$(awk \'NR>2 && $1!~/lo:/ {r+=$2; t+=$10} END {print r, t}\' /proc/net/dev);',
-    '_CPU=$(top -bn1 | grep "Cpu(s)" | awk \'{print int($2+$4)}\');',
+    '_CPU=$(top -bn2 -d 0.5 | grep "Cpu(s)" | tail -n 1 | awk \'{print int($2+$4)}\');',
     '_MEM=$(awk \'/MemTotal/{t=$2} /MemAvailable/{a=$2} END{if(t>0) printf "%.0f", (t-a)/t*100; else print "0"}\' /proc/meminfo);',
     '_DISK=$(df -h / | awk \'NR==2 {print $5}\' | tr -d \'%\');',
     '_R1=$(echo $_S1 | awk \'{print $1}\'); _T1=$(echo $_S1 | awk \'{print $2}\');',
