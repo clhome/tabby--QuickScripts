@@ -17,15 +17,19 @@
 - **⚡ Quick Script Toolbar**: Displays a persistent shortcut button bar at the top of SSH, Serial, Telnet, and other terminal panels.
 - **🤖 Intelligent Sequential Execution**: Supports sending multi-line commands in order. Built-in prompt detection (`$`, `#`, `>`, `%`) ensures the next command is sent only after the previous one has responded, avoiding command stacking.
 - **📂 Enhanced SFTP Module**:
-  - **Auto Directory Sync**: Automatically navigates the SFTP remote panel to the current terminal's working directory upon opening.
-  - **Dual-Side Favorites**: Bookmark frequently used paths for both local and remote sides for rapid navigation.
-  - **Smart Time Highlighting**: File modification times (Year-Month-Day-Hour-Minute) matching the current system time are automatically highlighted in **Green/Yellow**, allowing you to instantly locate the latest logs or files.
-  - **Native Drag-and-Drop**: Supports drag-and-drop file/folder transfers between left and right panels, or directly from system folders to the remote server.
+  - **Performance Optimized**: Uses concurrent I/O for lightning-fast loading of folders with hundreds of files, eliminating UI lag.
+  - **Windows Drive Switching**: Left-click the root drive (e.g., `C:`) in the path bar to instantly switch between all local drives.
+  - **Smart Default Path**: Automatically defaults to the root of your last local drive on Windows for quicker access.
+  - **Granular Time Highlighting**: Independently highlights matching Year, Month, Day, Hour, and Minute for intuitive file scanning.
+  - **Native Experience**: Includes path favorites, physical button click feedback, and seamless drag-and-drop transfers.
 - **🎨 Visual Management**:
   - **Create**: Add new scripts quickly by clicking the `+` icon on the right side of the toolbar.
   - **Execute**: Left-click a script button to trigger execution immediately.
   - **Manage**: Right-click a button to enter edit mode, customize colors, or reorder scripts.
-- **🖥️ Real-time Server Monitor**: Displays a high-visibility resource monitor on the right side of the toolbar, showing CPU, Memory, Disk usage, and real-time Network speed (Upload/Download) via independent SSH channels.
+- **🖥️ Real-time Server Monitor**:
+  - **High-Precision Sampling**: Uses a dual-pass algorithm to avoid `top` command glitches, providing accurate instantaneous CPU usage.
+  - **Improved Stability**: Resolved SSH channel and timer leaks to ensure smooth long-term operation.
+  - **Visual Metrics**: Real-time display of CPU, Memory, Disk usage, and Network speed (Mbps).
 
 ---
 
