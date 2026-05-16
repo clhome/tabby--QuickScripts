@@ -153,3 +153,8 @@
 
 
 
+
+- [x] 在远程服务器文件列表中增加 Owner 列 <!-- id: 105 -->
+  - [x] 修改远程文件列表的 HTML 模板，在 Size 和 Perms 之间插入 Owner 列 <!-- id: 106 -->
+  - [x] 确保获取远程文件数据时包含 owner 字段 <!-- id: 107 -->
+  - [x] 调整 CSS 布局（grid-template-columns）以适应新增加的列 <!-- id: 108 -->

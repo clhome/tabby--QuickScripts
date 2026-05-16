@@ -267,6 +267,7 @@ type DragPayload = {
               <span class="icon"></span>
               <span class="name sortable" (click)="setRemoteSort('name')">{{ t('名称', 'Name') }}</span>
               <span class="size sortable" (click)="setRemoteSort('size')">{{ t('大小', 'Size') }}</span>
+              <span class="owner">{{ t('所有者', 'Owner') }}</span>
               <span class="perms">{{ t('权限', 'Perms') }}</span>
               <span class="date sortable" (click)="setRemoteSort('modified')">{{ t('修改时间', 'Modified') }}</span>
             </div>
@@ -278,6 +279,8 @@ type DragPayload = {
               <span class="icon">⬆</span>
               <span class="name">{{ t('返回上级', 'Go up') }}</span>
               <span class="size"></span>
+              <span class="owner"></span>
+              <span class="perms"></span>
               <span class="date"></span>
             </div>
             <div
@@ -297,6 +300,7 @@ type DragPayload = {
               <span class="icon">{{ e.isDirectory ? '📁' : '📄' }}</span>
               <span class="name">{{ e.name }}</span>
               <span class="size">{{ getRemoteSizeDisplay(e) }}</span>
+              <span class="owner">{{ getOwnerDisplay(e) }}</span>
               <span class="perms">{{ getOctalPerms(e.mode) }}</span>
               <span class="date">
                 <ng-container *ngIf="getDateColorParts(e.modified) as parts">
@@ -513,8 +517,8 @@ type DragPayload = {
     .local-menu { position: absolute; min-width: 180px; max-width: 260px; max-height: 260px; overflow-y: auto; padding: 4px 0; border-radius: 10px; background: rgba(18,18,22,0.98); border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 18px 45px rgba(0,0,0,0.8); z-index: 30; backdrop-filter: blur(12px); }
     .local-menu-item { padding: 6px 12px; font-size: 12px; cursor: pointer; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
     .local-menu-item:hover { background: linear-gradient(90deg, rgba(120,200,255,0.24), rgba(120,255,206,0.15)); }
-    .remote-pane .entry { grid-template-columns: 24px minmax(0, 1.5fr) 80px 60px 140px; }
-    .remote-pane .perms { font-size: 11px; opacity: 0.75; text-align: right; white-space: nowrap; }
+    .remote-pane .entry { grid-template-columns: 24px minmax(0, 1.5fr) 80px 80px 60px 140px; }
+    .remote-pane .owner, .remote-pane .perms { font-size: 11px; opacity: 0.75; text-align: right; white-space: nowrap; }
   `],
 })
 export class SftpManagerTabComponent extends BaseTabComponent implements OnInit {
@@ -531,6 +535,10 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
       return ''
     }
     return (mode & 0o777).toString(8)
+  }
+
+  getOwnerDisplay (e: SFTPFile): string {
+    return e.owner || e.uid?.toString() || ''
   }
 
   getDateColorParts (timeValue: Date | number | undefined | null): { 
@@ -828,6 +836,45 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     }
   }
 
+  private uidToNameMap: Record<string, string> | null = null;
+
+  private async getUidToNameMap(): Promise<Record<string, string>> {
+    if (this.uidToNameMap) {
+      return this.uidToNameMap;
+    }
+    this.uidToNameMap = {};
+    if (!this.sftpSession) return this.uidToNameMap;
+
+    try {
+      const sftpAny = this.sftpSession as any;
+      if (typeof sftpAny.open === 'function') {
+        const handle = await sftpAny.open('/etc/passwd', 1); // 1 = OPEN_READ
+        let content = '';
+        const decoder = new TextDecoder();
+        while (true) {
+          const chunk = await handle.read();
+          if (!chunk || chunk.length === 0) break;
+          content += decoder.decode(chunk);
+        }
+        await handle.close();
+
+        const lines = content.split('\n');
+        for (const line of lines) {
+          const parts = line.split(':');
+          if (parts.length >= 3) {
+            const username = parts[0];
+            const uid = parts[2];
+            this.uidToNameMap[uid] = username;
+          }
+        }
+      }
+    } catch (e) {
+      // 静默失败，部分系统可能没有 /etc/passwd 或无权限
+      console.warn('[SFTP-UI] Failed to read /etc/passwd for UID mapping', e);
+    }
+    return this.uidToNameMap;
+  }
+
   async refreshRemote (): Promise<void> {
     if (!this.connected) {
       return
@@ -841,7 +888,38 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
         await this.connect()
         return
       }
-      this.remoteEntries = await this.sftpSession.readdir(this.remotePath)
+      const rawSftp = (this.sftpSession as any).sftp
+      if (rawSftp && typeof rawSftp.readDirectory === 'function') {
+        const rawEntries = await rawSftp.readDirectory(this.remotePath)
+        const uidMap = await this.getUidToNameMap()
+        
+        this.remoteEntries = rawEntries.map((raw: any) => {
+          const file = (this.sftpSession as any)._makeFile(path.posix.join(this.remotePath, raw.name || raw.filename), raw)
+          
+          let ownerStr = ''
+          if (typeof raw.longname === 'string') {
+             const parts = raw.longname.trim().split(/\s+/)
+             if (parts.length >= 4) {
+               ownerStr = parts[2]
+             }
+          } 
+          
+          if (!ownerStr && raw.metadata && raw.metadata.uid !== undefined) {
+             ownerStr = raw.metadata.uid.toString()
+          }
+
+          // 如果获取到的是纯数字（UID），尝试去映射表里转换成用户名
+          if (ownerStr && /^\d+$/.test(ownerStr)) {
+            file.owner = uidMap[ownerStr] || ownerStr
+          } else {
+            file.owner = ownerStr
+          }
+          
+          return file
+        })
+      } else {
+        this.remoteEntries = await this.sftpSession.readdir(this.remotePath)
+      }
     } catch (e) {
       console.error('[SFTP-UI] Remote listing failed', e)
       // If listing failed, session might be dead, try to reconnect once
