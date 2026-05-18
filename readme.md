@@ -10,6 +10,18 @@
 
 `tabby-quick-scripts` is an enhancement plugin tailored for the **[Tabby Terminal](https://github.com/Eugeny/tabby)**. It injects a shortcut toolbar above the terminal tabs, helping users efficiently manage and execute preset multi-line commands with a single click, while integrating powerful SFTP auxiliary features.
 
+> [!WARNING]
+> ### ⚠️ Strongly Recommended to Upgrade to Version 3.4 or Later!
+> Earlier versions may have **memory leak risks**, which under special circumstances or long-running connections could cause the Tabby interface to lag or slow down.
+> Subsequent versions underwent **comprehensive underlying refactoring & deep optimization** of the plugin communication, timer mechanisms, and page lifecycle to completely resolve this issue. All users are strongly advised to upgrade as soon as possible.
+>
+> **📢 Key Refactoring & Optimizations in 3.4+:**
+> 1. **🔧 Underlying Refactoring & Leak Fixes**: Redesigned SSH connection channels and timer lifecycles, fully resolving SSH data queueing and timer accumulation in long sessions to guarantee butter-smooth operation.
+> 2. **📂 Upgraded SFTP Experience**: Introduced remote file octal permissions (`Perms`) and owner (`Owner`) column rendering, with support for modifying file permissions via an interactive confirmation modal.
+> 3. **🗺️ Stable Breadcrumbs & Navigation**: Refactored remote path navigation (`goToRemotePath`), ensuring breadcrumbs automatically and reliably update upon first connection or selecting favorite folders.
+> 4. **🔎 Smart Sorting & Time Highlighting**: Local and remote files sorted by modification time (descending) by default, with precision highlighting for Year, Month, Day, Hour, and Minute matching current times.
+> 5. **🌐 Full Dual-Language Adaptations**: Full adaptation and seamless display support for both English and Chinese across all UI components.
+
 ---
 
 ## ✨ Core Features
