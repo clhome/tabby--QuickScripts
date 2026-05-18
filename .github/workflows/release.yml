@@ -21,6 +21,11 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Show Node and NPM version
+        run: |
+          node -v
+          npm -v
+
       - name: Install dependencies
         run: npm ci
 
@@ -45,14 +50,32 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # 创建 npm 认证文件
       - name: Configure NPM Auth
         run: |
-          echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
 
+      # 调试信息（不会泄露 token）
+      - name: Debug NPM Config
+        run: |
+          echo "===== ~/.npmrc ====="
+          cat ~/.npmrc | sed 's/_authToken=.*/_authToken=***HIDDEN***/'
+          echo ""
+          echo "===== npm config ====="
+          npm config list
+          echo ""
+          echo "===== HOME ====="
+          echo $HOME
+          echo ""
+          echo "===== npm registry ====="
+          npm config get registry
+
+      # 检查登录状态
       - name: Check NPM Auth
         run: npm whoami
 
+      # 发布 npm
       - name: Publish to NPM
         run: npm publish --access public
