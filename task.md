@@ -158,3 +158,9 @@
   - [x] 修改远程文件列表的 HTML 模板，在 Size 和 Perms 之间插入 Owner 列 <!-- id: 106 -->
   - [x] 确保获取远程文件数据时包含 owner 字段 <!-- id: 107 -->
   - [x] 调整 CSS 布局（grid-template-columns）以适应新增加的列 <!-- id: 108 -->
+
+- [x] 修复首次进入 SFTP 及点击收藏夹时服务器端可点击路径消失或未更新的问题 <!-- id: 109 -->
+  - [x] 新建 `goToRemotePath` 统一处理远程路径切换并更新面包屑 <!-- id: 110 -->
+  - [x] 重构 `connect()` 方法以在首次连接成功后更新远程面包屑 <!-- id: 111 -->
+  - [x] 重构 `onRemoteFavoriteSelect()`、`goToRemotePathInput()`、`remoteUp()`、`openRemote()` 以及 `navigateRemoteBreadcrumb()` 方法使用统一的 `goToRemotePath` <!-- id: 112 -->
+  - [x] 运行构建命令验证代码正确性并交付 <!-- id: 113 -->

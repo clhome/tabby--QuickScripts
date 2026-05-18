@@ -766,6 +766,7 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
       }
 
       this.remotePathInput = this.remotePath
+      this.updateRemoteBreadcrumbs()
       await this.refreshRemote()
     } catch (e) {
       console.error('[SFTP-UI] SFTP connection failed', e)
@@ -800,10 +801,8 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
       return
     }
     const next = path.posix.dirname(this.remotePath)
-    this.remotePath = next === '.' ? '/' : next
-    this.remotePathInput = this.remotePath
-    this.updateRemoteBreadcrumbs()
-    void this.refreshRemote()
+    const target = next === '.' ? '/' : next
+    this.goToRemotePath(target)
   }
 
   async refreshLocal (): Promise<void> {
@@ -944,10 +943,7 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
       return
     }
     if (e.isDirectory) {
-      this.remotePath = e.fullPath
-      this.remotePathInput = this.remotePath
-      this.updateRemoteBreadcrumbs()
-      void this.refreshRemote()
+      this.goToRemotePath(e.fullPath)
     } else {
       void this.openRemoteFile(e)
     }
@@ -1893,10 +1889,7 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     if (!crumb) {
       return
     }
-    this.remotePath = crumb.path
-    this.remotePathInput = this.remotePath
-    this.updateRemoteBreadcrumbs()
-    void this.refreshRemote()
+    this.goToRemotePath(crumb.path)
   }
 
   goToRemotePathInput (): void {
@@ -1904,9 +1897,7 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
       return
     }
     const target = this.normalizeRemotePath(this.remotePathInput || '/')
-    this.remotePath = target
-    this.remotePathInput = target
-    void this.refreshRemote()
+    this.goToRemotePath(target)
   }
 
   goToLocalPathInput (): void {
@@ -1963,6 +1954,13 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
     this.localPathInput = target
     this.updateLocalBreadcrumbs()
     void this.refreshLocal()
+  }
+
+  private goToRemotePath (target: string): void {
+    this.remotePath = target
+    this.remotePathInput = target
+    this.updateRemoteBreadcrumbs()
+    void this.refreshRemote()
   }
 
   onLocalPresetChange (id: string): void {
@@ -2128,9 +2126,7 @@ export class SftpManagerTabComponent extends BaseTabComponent implements OnInit 
   onRemoteFavoriteSelect (favId: string): void {
     const fav = this.remoteFavorites.find(f => f.id === favId)
     if (fav && fav.path) {
-      this.remotePath = fav.path
-      this.remotePathInput = fav.path
-      void this.refreshRemote()
+      this.goToRemotePath(fav.path)
     }
   }
 
