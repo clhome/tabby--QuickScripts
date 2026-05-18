@@ -164,3 +164,15 @@
   - [x] 重构 `connect()` 方法以在首次连接成功后更新远程面包屑 <!-- id: 111 -->
   - [x] 重构 `onRemoteFavoriteSelect()`、`goToRemotePathInput()`、`remoteUp()`、`openRemote()` 以及 `navigateRemoteBreadcrumb()` 方法使用统一的 `goToRemotePath` <!-- id: 112 -->
   - [x] 运行构建命令验证代码正确性并交付 <!-- id: 113 -->
+
+- [x] 实现打了 tag 标签后自动发布 npm 包至 npmjs.org <!-- id: 114 -->
+  - [x] 修改 `.github/workflows/release.yml` 引入官方 npm 镜像源配置并挂载 NPM_TOKEN <!-- id: 115 -->
+  - [x] 增加 `npm publish` 步骤以驱动包发布 <!-- id: 116 -->
+
+- [x] 支持将中文 readme 及 assets 一并打包发布至 npm 和 zip 插件包中 <!-- id: 117 -->
+  - [x] 修改 package.json 引入 readme中文.md 及 readme中文.assets 至 files 数组 <!-- id: 118 -->
+  - [x] 修改 .github/workflows/release.yml 以支持在 zip 包中包含中文 readme 及 assets <!-- id: 119 -->
+
+
+
+

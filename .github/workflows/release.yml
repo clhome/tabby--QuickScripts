@@ -18,6 +18,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '16'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: npm install
@@ -30,6 +31,8 @@ jobs:
           mkdir tabby-quick-scripts
           cp -r dist tabby-quick-scripts/
           cp package.json tabby-quick-scripts/
+          cp readme中文.md tabby-quick-scripts/ || true
+          cp -r readme中文.assets tabby-quick-scripts/ || true
 
       - name: Zip plugin directory
         run: zip -r tabby-quick-scripts.zip tabby-quick-scripts
@@ -40,3 +43,8 @@ jobs:
           files: tabby-quick-scripts.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to NPM
+        run: npm publish --registry=https://registry.npmjs.org/
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

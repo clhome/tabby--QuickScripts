@@ -16,7 +16,9 @@
     "prepublishOnly": "npm run build"
   },
   "files": [
-    "dist"
+    "dist",
+    "readme中文.md",
+    "readme中文.assets"
   ],
   "author": "chenlei",
   "license": "MIT",
