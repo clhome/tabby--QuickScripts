@@ -173,6 +173,11 @@
   - [x] 修改 package.json 引入 readme中文.md 及 readme中文.assets 至 files 数组 <!-- id: 118 -->
   - [x] 修改 .github/workflows/release.yml 以支持在 zip 包中包含中文 readme 及 assets <!-- id: 119 -->
 
+- [x] 修复自动发布 npm 包时的 ENEEDAUTH 鉴权报错 <!-- id: 120 -->
+  - [x] 修改 .github/workflows/release.yml 在发布前清除本地 .npmrc 干扰配置 <!-- id: 121 -->
+
+
+
 
 
 
