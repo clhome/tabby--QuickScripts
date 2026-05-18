@@ -21,10 +21,6 @@ import { SftpUiService } from './sftp/sftp-ui.service'
         { provide: TerminalDecorator, useClass: QuickScriptsDecorator, multi: true },
         SftpUiService,
     ],
-    entryComponents: [
-        ScriptEditModalComponent,
-        SftpManagerTabComponent,
-    ],
     declarations: [
         ScriptEditModalComponent,
         SftpManagerTabComponent,

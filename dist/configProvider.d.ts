@@ -24,15 +24,15 @@ export declare class QuickScriptsConfigProvider extends ConfigProvider {
             /** 系统监控刷新间隔（毫秒） */
             sysMonitorInterval: number;
         };
-        sftpLocalFavorites: {
+        sftpLocalFavorites: Array<{
             id: string;
             label: string;
             path: string;
-        }[];
-        sftpRemoteFavorites: Record<string, {
+        }>;
+        sftpRemoteFavorites: Record<string, Array<{
             id: string;
             label: string;
             path: string;
-        }[]>;
+        }>>;
     };
 }

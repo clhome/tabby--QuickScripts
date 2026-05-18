@@ -1351,8 +1351,8 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         (_e = (_d = ev.dataTransfer) === null || _d === void 0 ? void 0 : _d.setDragImage) === null || _e === void 0 ? void 0 : _e.call(_d, (_f = ev.target) !== null && _f !== void 0 ? _f : document.body, 0, 0);
     }
     onDropOnRemote(ev) {
-        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c;
             ev.preventDefault();
             this.remoteDropActive = false;
             if (!this.connected) {
@@ -1448,8 +1448,8 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         });
     }
     onDropOnLocal(ev) {
-        var _a, _b, _c, _d, _e, _f;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c, _d, _e, _f;
             ev.preventDefault();
             this.localDropActive = false;
             // 1) Tabby's internal drag (remote -> local download)
@@ -1673,8 +1673,8 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         });
     }
     uploadDirectoryUploadToRemote(remoteDir, dirUpload) {
-        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c;
             if (!this.sftpSession) {
                 return;
             }
@@ -1705,8 +1705,8 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         });
     }
     writeDirectoryUploadToLocal(localDir, dirUpload) {
-        var _a, _b, _c, _d;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c, _d;
             const childrens = (_b = (_a = dirUpload === null || dirUpload === void 0 ? void 0 : dirUpload.getChildrens) === null || _a === void 0 ? void 0 : _a.call(dirUpload)) !== null && _b !== void 0 ? _b : [];
             for (const item of childrens) {
                 if (typeof (item === null || item === void 0 ? void 0 : item.getChildrens) === 'function') {
@@ -2672,8 +2672,8 @@ let SftpManagerTabComponent = class SftpManagerTabComponent extends tabby_core__
         this.inputDialogRemotePath = null;
     }
     confirmInputDialog() {
-        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c;
             if (!this.inputDialogVisible || !this.inputDialogMode) {
                 return;
             }
@@ -4406,8 +4406,8 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
      * 策略：发送命令后监听 output$，检测到提示符再发下一条，超时兜底
      */
     executeScript(tab, script, btn) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j;
             if (btn.classList.contains('running')) {
                 return; // 防止重复点击
             }
@@ -4491,8 +4491,8 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
      * 新建脚本
      */
     addScript(tab) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const ngbModal = this.injector.get(_ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_2__.NgbModal);
             const modal = ngbModal.open(_scriptEditModal__WEBPACK_IMPORTED_MODULE_5__.ScriptEditModalComponent);
             modal.componentInstance.isNew = true;
@@ -4525,8 +4525,8 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
      * 编辑已有脚本
      */
     editScript(tab, script) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const ngbModal = this.injector.get(_ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_2__.NgbModal);
             const modal = ngbModal.open(_scriptEditModal__WEBPACK_IMPORTED_MODULE_5__.ScriptEditModalComponent);
             modal.componentInstance.isNew = false;
@@ -4631,8 +4631,8 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
      * 降级：如果 exec channel 不可用，通过终端 session 采集（方案 A）
      */
     fetchSysInfo(tab, ctx) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             if (ctx.running || ctx.destroyed) {
                 return;
             }
@@ -4761,8 +4761,8 @@ let QuickScriptsDecorator = class QuickScriptsDecorator extends tabby_terminal__
      * 方案 A（降级）：通过终端 session 发送命令采集
      */
     fetchViaTerminal(tab) {
-        var _a, _b, _c, _d, _e, _f, _g;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c, _d, _e, _f, _g;
             const session = tab.session
                 || ((_b = (_a = tab).getActiveSession) === null || _b === void 0 ? void 0 : _b.call(_a))
                 || ((_e = (_d = (_c = tab).getActivePane) === null || _d === void 0 ? void 0 : _d.call(_c)) === null || _e === void 0 ? void 0 : _e.session)
@@ -5114,10 +5114,6 @@ QuickScriptsModule = __decorate([
             { provide: tabby_core__WEBPACK_IMPORTED_MODULE_3__.ConfigProvider, useClass: _configProvider__WEBPACK_IMPORTED_MODULE_5__.QuickScriptsConfigProvider, multi: true },
             { provide: tabby_terminal__WEBPACK_IMPORTED_MODULE_4__.TerminalDecorator, useClass: _terminalDecorator__WEBPACK_IMPORTED_MODULE_6__.QuickScriptsDecorator, multi: true },
             _sftp_sftp_ui_service__WEBPACK_IMPORTED_MODULE_9__.SftpUiService,
-        ],
-        entryComponents: [
-            _scriptEditModal__WEBPACK_IMPORTED_MODULE_7__.ScriptEditModalComponent,
-            _sftp_sftp_manager_tab_component__WEBPACK_IMPORTED_MODULE_8__.SftpManagerTabComponent,
         ],
         declarations: [
             _scriptEditModal__WEBPACK_IMPORTED_MODULE_7__.ScriptEditModalComponent,
