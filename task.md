@@ -184,3 +184,8 @@
 - [x] 升级开发依赖的 Angular 12 至 Angular 16，并保持现有功能和构建稳定 <!-- id: 126 -->
   - [x] 修改 package.json，提升 Angular、TypeScript、RxJS 和 ng-bootstrap 的依赖版本 <!-- id: 127 -->
   - [x] 在本地运行依赖安装与生产环境打包构建，确保 100% 编译通过 <!-- id: 128 -->
+
+- [x] 解决 GitHub Actions 在安装依赖时的 ERESOLVE 同侪依赖冲突 <!-- id: 129 -->
+  - [x] 修改 .github/workflows/release.yml 中的 npm ci 为 npm ci --legacy-peer-deps <!-- id: 130 -->
+
+
