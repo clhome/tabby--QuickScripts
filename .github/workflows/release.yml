@@ -13,25 +13,35 @@ jobs:
       contents: write
 
     steps:
+      # 拉取代码
       - name: Checkout source code
         uses: actions/checkout@v4
 
+      # 安装 Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
+      # 输出版本信息
       - name: Show Node and NPM version
         run: |
           node -v
           npm -v
 
+      # 删除项目里的 .npmrc（避免 npmmirror 污染）
+      - name: Remove Project NPMRC
+        run: rm -f .npmrc
+
+      # 安装依赖
       - name: Install dependencies
         run: npm ci
 
+      # 构建项目
       - name: Build project
         run: npm run build
 
+      # 创建轻量插件目录
       - name: Create lightweight plugin directory
         run: |
           mkdir tabby-quick-scripts
@@ -40,9 +50,11 @@ jobs:
           cp readme中文.md tabby-quick-scripts/ || true
           cp -r readme中文.assets tabby-quick-scripts/ || true
 
+      # 打包 zip
       - name: Zip plugin directory
         run: zip -r tabby-quick-scripts.zip tabby-quick-scripts
 
+      # 创建 GitHub Release
       - name: Create GitHub Release and Upload Asset
         uses: softprops/action-gh-release@v2
         with:
@@ -50,32 +62,30 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 创建 npm 认证文件
+      # 配置 npm 登录
       - name: Configure NPM Auth
         run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
           echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
 
-      # 调试信息（不会泄露 token）
+      # 调试 npm 配置
       - name: Debug NPM Config
         run: |
           echo "===== ~/.npmrc ====="
           cat ~/.npmrc | sed 's/_authToken=.*/_authToken=***HIDDEN***/'
-          echo ""
-          echo "===== npm config ====="
-          npm config list
-          echo ""
-          echo "===== HOME ====="
-          echo $HOME
+
           echo ""
           echo "===== npm registry ====="
           npm config get registry
 
-      # 检查登录状态
+          echo ""
+          echo "===== npm whoami ====="
+
+      # 检查 npm 登录状态
       - name: Check NPM Auth
         run: npm whoami
 
-      # 发布 npm
+      # 发布到 npm
       - name: Publish to NPM
         run: npm publish --access public
